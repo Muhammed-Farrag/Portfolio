@@ -1,0 +1,497 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================================
+   CYBERPUNK / NEO-TERMINAL DESIGN SYSTEM
+   ============================================================================ */
+
+:root {
+  /* Core Colors */
+  --void-black: #050505;
+  --void-dark: #0a0a0a;
+  --void-medium: #0f0f0f;
+  --void-light: #1a1a1a;
+  
+  /* Neon Accents */
+  --neon-green: #00ff41;
+  --neon-green-dark: #00cc33;
+  --neon-green-glow: rgba(0, 255, 65, 0.4);
+  
+  --electric-purple: #bf00ff;
+  --electric-purple-dark: #9900cc;
+  --electric-purple-glow: rgba(191, 0, 255, 0.4);
+  
+  --cyber-blue: #00d4ff;
+  --cyber-pink: #ff0080;
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #606060;
+  
+  /* Gradients */
+  --gradient-cyber: linear-gradient(135deg, var(--neon-green) 0%, var(--electric-purple) 100%);
+  --gradient-glow: linear-gradient(180deg, transparent 0%, var(--neon-green-glow) 50%, transparent 100%);
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neon-green) var(--void-dark);
+}
+
+body {
+  background: var(--void-black);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--void-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--neon-green);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green-dark);
+}
+
+/* ============================================================================
+   TERMINAL STYLES
+   ============================================================================ */
+
+.terminal-text {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--neon-green);
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+  background-color: var(--neon-green);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Terminal Line Animation */
+.terminal-line {
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: terminalFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes terminalFadeIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================================
+   GLOW EFFECTS
+   ============================================================================ */
+
+.glow-green {
+  text-shadow: 
+    0 0 5px var(--neon-green),
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green),
+    0 0 40px var(--neon-green);
+}
+
+.glow-purple {
+  text-shadow: 
+    0 0 5px var(--electric-purple),
+    0 0 10px var(--electric-purple),
+    0 0 20px var(--electric-purple),
+    0 0 40px var(--electric-purple);
+}
+
+.glow-box-green {
+  box-shadow: 
+    0 0 5px var(--neon-green),
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green-glow);
+}
+
+.glow-box-purple {
+  box-shadow: 
+    0 0 5px var(--electric-purple),
+    0 0 10px var(--electric-purple),
+    0 0 20px var(--electric-purple-glow);
+}
+
+/* ============================================================================
+   GRID BACKGROUND
+   ============================================================================ */
+
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scan Line Effect */
+.scan-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neon-green-glow) 50%,
+    transparent 100%
+  );
+  animation: scanLine 8s linear infinite;
+  pointer-events: none;
+  z-index: 100;
+}
+
+@keyframes scanLine {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* ============================================================================
+   GRADIENT TEXT
+   ============================================================================ */
+
+.gradient-text {
+  background: var(--gradient-cyber);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================================
+   GLASSMORPHISM
+   ============================================================================ */
+
+.glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 65, 0.1);
+}
+
+.glass-purple {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(191, 0, 255, 0.1);
+}
+
+/* ============================================================================
+   SKILL CHIP COMPONENT
+   ============================================================================ */
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(0, 255, 65, 0.05);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--neon-green);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.skill-chip:hover {
+  background: rgba(0, 255, 65, 0.15);
+  border-color: var(--neon-green);
+  box-shadow: 
+    0 0 10px var(--neon-green-glow),
+    0 0 20px var(--neon-green-glow),
+    inset 0 0 10px var(--neon-green-glow);
+  transform: translateY(-2px);
+}
+
+.skill-chip.ai {
+  background: rgba(191, 0, 255, 0.05);
+  border-color: rgba(191, 0, 255, 0.2);
+  color: var(--electric-purple);
+}
+
+.skill-chip.ai:hover {
+  background: rgba(191, 0, 255, 0.15);
+  border-color: var(--electric-purple);
+  box-shadow: 
+    0 0 10px var(--electric-purple-glow),
+    0 0 20px var(--electric-purple-glow),
+    inset 0 0 10px var(--electric-purple-glow);
+}
+
+/* ============================================================================
+   TIMELINE COMPONENT
+   ============================================================================ */
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--neon-green) 0%,
+    var(--electric-purple) 50%,
+    var(--cyber-blue) 100%
+  );
+  box-shadow: 0 0 10px var(--neon-green-glow);
+}
+
+.timeline-node {
+  position: absolute;
+  left: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--void-black);
+  border: 2px solid var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green-glow);
+  transition: all 0.3s ease;
+}
+
+.timeline-node:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 20px var(--neon-green);
+}
+
+.timeline-node.active {
+  background: var(--neon-green);
+}
+
+/* ============================================================================
+   BUTTON STYLES
+   ============================================================================ */
+
+.btn-cyber {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid var(--neon-green);
+  color: var(--neon-green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-cyber::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-green-glow),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-cyber:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: 
+    0 0 10px var(--neon-green-glow),
+    0 0 20px var(--neon-green-glow);
+}
+
+.btn-cyber:hover::before {
+  left: 100%;
+}
+
+.btn-cyber-filled {
+  background: var(--neon-green);
+  color: var(--void-black);
+}
+
+.btn-cyber-filled:hover {
+  background: var(--neon-green-dark);
+}
+
+/* ============================================================================
+   SECTION STYLES
+   ============================================================================ */
+
+.section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::before {
+  content: '// ';
+  color: var(--text-tertiary);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-cyber);
+}
+
+/* ============================================================================
+   CARD STYLES
+   ============================================================================ */
+
+.cyber-card {
+  position: relative;
+  background: var(--void-dark);
+  border: 1px solid rgba(0, 255, 65, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.cyber-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gradient-cyber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.cyber-card:hover {
+  border-color: rgba(0, 255, 65, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    0 0 20px var(--neon-green-glow);
+}
+
+.cyber-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.text-neon-green {
+  color: var(--neon-green);
+}
+
+.text-electric-purple {
+  color: var(--electric-purple);
+}
+
+.text-cyber-blue {
+  color: var(--cyber-blue);
+}
+
+.bg-void {
+  background-color: var(--void-black);
+}
+
+.border-neon {
+  border-color: var(--neon-green);
+}
+
+.border-purple {
+  border-color: var(--electric-purple);
+}
+
+/* ============================================================================
+   RESPONSIVE UTILITIES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .timeline {
+    padding-left: 1.5rem;
+  }
+}
+
+/* ============================================================================
+   NOISE OVERLAY
+   ============================================================================ */
+
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1000;
+}
