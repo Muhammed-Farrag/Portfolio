@@ -98,13 +98,14 @@ export default function AboutSection() {
                             {PROFILE.currentFocus.map((focus, index) => (
                                 <motion.div
                                     key={index}
-                                    className="flex items-start gap-2 text-gray-300"
+                                    className="flex items-center gap-3"
+                                    style={{ display: 'flex', alignItems: 'center' }}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={isInView ? { opacity: 1, x: 0 } : {}}
                                     transition={{ delay: 0.5 + index * 0.1 }}
                                 >
-                                    <span className="text-neon-green mt-1">▹</span>
-                                    <span className="text-sm">{focus}</span>
+                                    <span className="text-neon-green flex-shrink-0">▹</span>
+                                    <span className="text-sm text-gray-300">{focus}</span>
                                 </motion.div>
                             ))}
                         </div>

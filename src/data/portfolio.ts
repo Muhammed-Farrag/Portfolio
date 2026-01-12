@@ -67,15 +67,21 @@ export const PROFILE = {
     name: 'Muhammed Farrag',
     role: 'Applied AI Engineer',
     specializations: ['NLP & Generative AI', 'Advanced Python Developer', 'Quantum ML Track'],
-    valueProposition: 'Building intelligent systems that bridge cutting-edge AI research with production-grade deployment.',
-    about: `Applied AI Engineer specializing in NLP, Generative AI, and intelligent systems. Advanced Python developer with experience writing production-grade systems, including a real-world pharmacy management system. Strong foundation in software engineering principles with Java and Python. Currently entering Quantum Computing, aiming for Quantum ML & Quantum Neural Networks (QNNs).`,
+    valueProposition: 'I build AI systems that actually ship. From research to production.',
+    about: `I'm an Applied AI Engineer who bridges the gap between research and production.
+
+• Production: Python & Java systems running in real-world environments
+• Research: NLP, Generative AI, and Quantum ML exploration
+• Track Record: Built systems with 99.8% uptime and 94.2% detection accuracy
+
+Currently diving deep into Quantum Neural Networks. Always shipping.`,
     email: 'mohamed.frage19@gmail.com',
     location: 'Egypt',
     currentFocus: [
-        'Advanced NLP & Generative AI systems',
-        'Emotion-aware conversational AI',
-        'Research-grade AI architectures',
-        'Quantum Computing → Quantum ML → QNNs',
+        'NLP & Generative AI',
+        'Emotion-aware chatbots',
+        'Production-grade architectures',
+        'Quantum ML & QNNs',
     ],
     avatar: '/avatar.png',
     resume: '/resume.pdf',
