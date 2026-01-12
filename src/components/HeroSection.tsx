@@ -169,7 +169,7 @@ export default function HeroSection() {
                 {/* CTA Buttons */}
                 <motion.div
                     variants={itemVariants}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                    className="flex flex-col sm:flex-row items-center justify-center gap-8"
                 >
                     <motion.a
                         href="#projects"
@@ -219,6 +219,7 @@ export default function HeroSection() {
                 {/* Scroll Indicator */}
                 <motion.div
                     className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+                    style={{ marginLeft: '9px' }}
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 2, duration: 0.8 }}
