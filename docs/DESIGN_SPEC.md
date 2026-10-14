@@ -1,6 +1,6 @@
 # Design Specification
 
-**Revision 2 (14 Oct 2026), awaiting approval.** It replaces the Obsidian & Amber palette with the owner's botanical palette, adds a React Bits component plan, and adds the recognition asset and placeholder system. The architecture, scene structure, factual-content safeguards and the Particle Portrait engine are unchanged from the approved revision.
+**Revision 2 (14 Oct 2026), approved 14 Oct 2026.** It replaces the Obsidian & Amber palette with the owner's botanical palette, adds a React Bits component plan, and adds the recognition asset and placeholder system. The architecture, scene structure, factual-content safeguards and the Particle Portrait engine are unchanged from the approved revision.
 
 **Internal codename:** THE ARCHITECT. The codename never appears in public copy, metadata, URLs or alt text. The public title is **Applied AI Engineer** unless the owner verifies a different one.
 
@@ -71,7 +71,7 @@ The engine, sampling, physics, pointer interaction, scatter/reform and controls 
 2. **One new tone branch in the vertex shader's existing color block.** It adds three color uniforms; the position and physics code is untouched. The point's luminance (already computed as `lum`) maps along a ramp from Soft Fern (shadows) to Linen (highlights). Source pixels with a strongly red hue, the tie in the portrait, map to a Crimson Leaf → Rose Mist ramp as the one focal accent. The red-hue test runs on the existing `aColor` attribute.
 3. The original tones (amber from the image, warm ivory, terminal green) remain in the shader for parity testing, but the public site never offers them. The site's controls drawer offers Botanical and Linen (monochrome) tones only.
 4. The **static fallback image** and the **Source** view must not show the amber PNG. A paused frame from the engine itself is captured at build time as a botanical WebP fallback.
-5. **`/lab` decision (owner):** the original Portrait Lab is the parity harness. Recommendation: keep its original amber look, set it to noindex, and don't link it publicly. The alternative is to retheme it to the botanical tones.
+5. **Portrait Lab (decided):** the original amber prototype is kept for regression testing only. `legacy/particle-portrait/` is the untouched reference, and `dev/lab/` is its interface running on the maintained engine. Both are development and test pages. They are never production routes, are noindex, and are not linked from the site. The production build (Phase 2) must not include anything under `dev/` or `legacy/`.
 
 Phase 3 A/B tests the ramp endpoints and the tie accent against the real portrait. The owner approves the result.
 
@@ -99,7 +99,7 @@ Controls for **Point to aim**, **Pinch to fire** and **Fist to reload** (buttons
 
 ### 6.2 Self-Healing: inject a failure
 
-The visitor picks one of the five real failure classes, and an episode moves through the nine pipeline steps. A confidence control shows the auto-patch versus human-review branch. **The threshold values are blocked on owner confirmation** because the repository has three different values (see `SOURCE_AUDIT.md`). Label: "Simulation in your browser. No backend and no model calls."
+The visitor picks one of the five real failure classes, and an episode moves through the nine pipeline steps. A confidence control shows the governed branch, auto-patch or human review queue, as an **illustrative workflow with no numeric threshold presented as fact**. Code tracing (see `SOURCE_AUDIT.md`) shows that the enforced rule is "the model flags plans for review, and anything below 0.5 is always flagged". The dashboard's settings values are not used by the pipeline. Numbers appear only after Muhammed confirms them. Label: "Simulation in your browser. No backend and no model calls."
 
 ## 7. Beyond the Code
 
@@ -109,7 +109,7 @@ Three connected stories with factual chronology from the CV: **competitor (Aug 2
 - **Mobile:** stacked vertically, with the thread running down the left edge and nothing pinned.
 - **Photographs:** an editorial crop at a fixed aspect ratio. At rest they show a duotone grade of Ivy shadows and Linen highlights. When a chapter becomes active, a halftone-dot reveal (a visual echo of the particle portrait) lifts it to full color. There is no Ken Burns pan.
 - **Asset system:** `content-source/recognition/<nn-story>/originals/` plus `manifest.json`, which records the claim, status, sources, slots, alt text, credit, consent and focal point. The build generates AVIF/WebP at 480, 960 and 1440 px and strips all metadata, including GPS.
-- **Placeholders:** a slot whose file is null renders a Plum frame at the slot's final aspect ratio (so nothing shifts when the photo arrives), with a dashed Fern Edge border and a mono label stating exactly what is missing. Placeholders appear in development and preview builds only, and the release check fails if any required slot is empty.
+- **Placeholders:** a slot whose file is null renders a Plum frame at the slot's final aspect ratio (so nothing shifts when the photo arrives), with a dashed Fern Edge border and a mono label stating exactly what is missing. Placeholders appear in development and preview builds only. **Production never shows a placeholder:** a story whose required image is missing is shown in its text-only layout when its claim is approved, an optional slot without a file is omitted, and a story whose claim is unverified is not rendered. A missing optional asset never blocks deployment. The release check fails only if a placeholder or an unapproved claim or image would actually render.
 - **No fabricated images:** no generated, composited or stock images, and no claims taken from photographs or certificates unless they are approved in the register.
 
 ## 8. React Bits
@@ -132,8 +132,8 @@ Initial JS ≤ 120 KB gzip before GSAP and React Bits. LCP ≤ 2.5 s (mobile sim
 
 ## 10. Open decisions
 
-1. Approve revision 2: the palette roles, derived tones, portrait tone mapping and React Bits selection.
-2. `/lab`: keep the original amber look as an unlinked parity harness (recommended), or retheme it.
-3. Self-Healing threshold values to show.
+1. ~~Approve revision 2~~ approved 14 Oct 2026.
+2. ~~`/lab`~~ decided: development and test only (§3.5).
+3. Self-Healing threshold values: the simulation is illustrative until confirmed (§6.2).
 4. Fourth featured case (recommendation: Advanced LangChain as a course lab).
 5. Higher-resolution originals of the two supplied photos, plus the judge photos and the Al-Ahram material.

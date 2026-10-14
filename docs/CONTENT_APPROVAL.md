@@ -42,7 +42,7 @@ Status values: `verified` (a second source or the code supports it), `cv-reporte
 | Claim | Status | Source | Notes |
 |---|---|---|---|
 | Self-Healing architecture (9 steps) | verified | repository code | |
-| Self-Healing governance thresholds shown in the simulation | pending | README / planner / settings.json conflict | Choose which values are current |
+| Self-Healing governance thresholds shown in the simulation | pending | Traced in code (see SOURCE_AUDIT): only the 0.5 floor is enforced; the settings values are not used by the pipeline | The simulation is illustrative and shows no numeric threshold until confirmed |
 | Self-Healing 100% accuracy | excluded | metrics.json (12 samples) | |
 | HELIOS live demo `helios-rouge.vercel.app` | verified | HTTP 200, title match | Never link `helios.vercel.app` |
 | HELIOS gesture rules (10 rounds, about 1 s fist reload, 1 s combo window) | verified | HELIOS README | Used by the gesture console simulation |
