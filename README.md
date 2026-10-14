@@ -35,9 +35,9 @@ src/app/                       App composition
 src/components/                Layout (header, section frame, footer) and <Pending>
 src/sections/                  Hero and Contact; the other scenes use the shared Section frame for now
 src/content/site.ts            Shell copy and section structure (approved claims only)
-src/styles/                    tokens.css (Dark Botanical tokens) and global.css
+src/styles/                    tokens.css (Moonlight & Oxford tokens) and global.css
 src/features/particle-portrait/
-  shaders.ts                   Legacy GLSL verbatim, plus a colour-only botanical tone branch
+  shaders.ts                   Legacy GLSL verbatim, plus a colour-only palette tone branch
   sampling.ts                  Point sampling, byte-identical to the legacy loop
   ParticleRenderer.ts          The engine: legacy draw/tick/scatter, plus lifecycle (dispose, observers, context restore)
 dev/                           Development and test pages only. Never production routes; noindex.
@@ -52,13 +52,13 @@ docs/                          Design specification, source audit, content appro
 ## Particle Portrait engine
 
 ```ts
-import { createParticleRenderer, BOTANICAL_BACKGROUND } from './src/features/particle-portrait';
+import { createParticleRenderer, PORTFOLIO_BACKGROUND } from './src/features/particle-portrait';
 
 const result = createParticleRenderer(canvas, image, {
   pointerTarget: stage,        // element whose pointer movement displaces particles
   sizeTarget: stage,           // element whose box sizes the canvas (ResizeObserver)
   paused: matchMedia('(prefers-reduced-motion: reduce)').matches,
-  settings: { tone: 'botanical', background: BOTANICAL_BACKGROUND },
+  settings: { tone: 'moonlight', background: PORTFOLIO_BACKGROUND },
 });
 if ('fallback' in result) showStaticImage(result.fallback); // 'no-webgl' | 'shader-error' | 'tainted-image'
 else {

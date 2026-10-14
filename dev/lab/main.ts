@@ -28,7 +28,7 @@ const stateEl = $('state');
 const label = document.querySelector<HTMLElement>('.stage-label')!;
 const source = document.querySelector<HTMLImageElement>('.source')!;
 const PARTICLE_CONTROLS = ['particles', 'density', 'force', 'tone', 'scatter', 'pause', 'reset'];
-const TONES: Tone[] = ['amber', 'ivory', 'green', 'botanical'];
+const TONES: Tone[] = ['amber', 'ivory', 'green', 'moonlight'];
 const STATE_TEXT: Record<PortraitState, string> = {
   responding: 'RESPONDING',
   scattering: 'SCATTERING',

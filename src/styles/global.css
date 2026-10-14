@@ -85,4 +85,4 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .button:hover { background: var(--color-interactive-fill); border-color: var(--color-interactive-fill); }
 .button--primary { background: var(--color-focal); border-color: var(--color-focal); color: var(--color-on-focal); }
-.button--primary:hover { background: var(--color-interactive-fill); border-color: var(--color-interactive-fill); }
+.button--primary:hover { background: var(--color-focal-hover); border-color: var(--color-focal-hover); }

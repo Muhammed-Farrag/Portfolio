@@ -1,13 +1,13 @@
 export {
-  BOTANICAL_BACKGROUND,
-  BOTANICAL_PALETTE,
+  PORTFOLIO_BACKGROUND,
+  PORTFOLIO_PALETTE,
   DEFAULT_SETTINGS,
   LEGACY_BACKGROUND,
   ParticleRenderer,
   createParticleRenderer,
 } from './ParticleRenderer';
 export type {
-  BotanicalPalette,
+  TonePalette,
   FallbackReason,
   PortraitSettings,
   PortraitState,

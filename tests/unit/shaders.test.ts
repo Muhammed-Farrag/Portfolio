@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
-  BOTANICAL_BRANCH,
-  BOTANICAL_UNIFORMS,
+  PALETTE_BRANCH,
+  PALETTE_UNIFORMS,
   FRAGMENT,
   LEGACY_FRAGMENT,
   LEGACY_VERTEX,
@@ -23,7 +23,7 @@ describe('shaders', () => {
   });
 
   it('changes nothing but the two colour insertions', () => {
-    expect(VERTEX.replace(BOTANICAL_UNIFORMS, '').replace(BOTANICAL_BRANCH, '')).toBe(LEGACY_VERTEX);
+    expect(VERTEX.replace(PALETTE_UNIFORMS, '').replace(PALETTE_BRANCH, '')).toBe(LEGACY_VERTEX);
     expect(FRAGMENT).toBe(LEGACY_FRAGMENT);
   });
 
@@ -33,7 +33,7 @@ describe('shaders', () => {
   });
 
   it('avoids smoothstep with reversed edges (undefined in GLSL ES)', () => {
-    for (const [, a, b] of BOTANICAL_BRANCH.matchAll(/smoothstep\(([\d.]+),([\d.]+),/g)) {
+    for (const [, a, b] of PALETTE_BRANCH.matchAll(/smoothstep\(([\d.]+),([\d.]+),/g)) {
       expect(Number(a)).toBeLessThan(Number(b));
     }
   });

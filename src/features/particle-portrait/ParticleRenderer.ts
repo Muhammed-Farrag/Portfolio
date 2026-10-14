@@ -10,9 +10,9 @@ import { FRAGMENT, VERTEX } from './shaders';
 import { DEFAULT_THRESHOLD, POINT_STRIDE, SAMPLE_SIZE, rasterise, samplePortrait, type SampleStep } from './sampling';
 
 export type Rgb = readonly [number, number, number];
-export type Tone = 'amber' | 'ivory' | 'green' | 'botanical';
+export type Tone = 'amber' | 'ivory' | 'green' | 'moonlight';
 
-export interface BotanicalPalette {
+export interface TonePalette {
   low: Rgb;
   high: Rgb;
   accentLow: Rgb;
@@ -28,7 +28,7 @@ export interface PortraitSettings {
   threshold: number;
   /** Canvas clear colour, 0..255 per channel. */
   background: Rgb;
-  palette: BotanicalPalette;
+  palette: TonePalette;
 }
 
 export type PortraitState =
@@ -53,14 +53,14 @@ export interface RendererOptions {
 
 /** The prototype's warm-black stage colour (#110E0A). */
 export const LEGACY_BACKGROUND: Rgb = [17, 14, 10];
-/** Deep Ivy, the portfolio background. */
-export const BOTANICAL_BACKGROUND: Rgb = [0x1d, 0x2b, 0x1e];
-/** Soft Fern → Linen, with Crimson Leaf → Rose Mist as the focal accent. */
-export const BOTANICAL_PALETTE: BotanicalPalette = {
-  low: [0x6a, 0x7f, 0x61],
-  high: [0xf1, 0xee, 0xe6],
-  accentLow: [0x7a, 0x0f, 0x1f],
-  accentHigh: [0xe3, 0xb9, 0xc8],
+/** Oxford Blue, the portfolio background. */
+export const PORTFOLIO_BACKGROUND: Rgb = [0x02, 0x12, 0x2f];
+/** Steel → Moonlight, with Steel → Frost Blue as the cool highlight on the tie. */
+export const PORTFOLIO_PALETTE: TonePalette = {
+  low: [0x49, 0x5b, 0x7d],
+  high: [0xf0, 0xec, 0xdd],
+  accentLow: [0x49, 0x5b, 0x7d],
+  accentHigh: [0x8b, 0xa3, 0xc5],
 };
 
 export const DEFAULT_SETTINGS: PortraitSettings = {
@@ -69,10 +69,10 @@ export const DEFAULT_SETTINGS: PortraitSettings = {
   tone: 'amber',
   threshold: DEFAULT_THRESHOLD,
   background: LEGACY_BACKGROUND,
-  palette: BOTANICAL_PALETTE,
+  palette: PORTFOLIO_PALETTE,
 };
 
-const TONE_INDEX: Record<Tone, number> = { amber: 0, ivory: 1, green: 2, botanical: 3 };
+const TONE_INDEX: Record<Tone, number> = { amber: 0, ivory: 1, green: 2, moonlight: 3 };
 const UNIFORMS = ['uResolution', 'uScale', 'uPoint', 'uTime', 'uBurst', 'uForce', 'uTone', 'uMouse', 'uLow', 'uHigh', 'uAccLow', 'uAccHigh'] as const;
 type UniformName = (typeof UNIFORMS)[number];
 const OFF: [number, number] = [-9, -9];

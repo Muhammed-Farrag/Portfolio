@@ -54,18 +54,22 @@ test('paused frames and point counts match the original prototype for every tone
   await lab.context().close();
 });
 
-test('the botanical tone renders the same points on Deep Ivy', async ({ page }) => {
+test('the Moonlight tone renders the same points in the Revision 3 palette', async ({ page }) => {
   await page.goto(LAB_URL);
   await waitForParticles(page);
   await page.selectOption('#tone', '3');
-  await expect(page.locator('.stage-label')).toHaveText('FIG. 001 / BOTANICAL (REVISION 2)');
+  await expect(page.locator('.stage-label')).toHaveText('FIG. 001 / MOONLIGHT (REVISION 3)');
   await expect(page.locator('#count')).toHaveText('10,203');
-  // The palette must have reached the GPU: no amber pixels may remain in the frame.
+  // The palette must have reached the GPU: no amber pixels, and no red ones (the tie is now
+  // a cool Frost Blue highlight), may remain in the frame.
   const png = PNG.sync.read(await page.locator('#canvas').screenshot());
   let amber = 0;
+  let red = 0;
   for (let i = 0; i < png.data.length; i += 4) {
     const [r, g, b] = [png.data[i]!, png.data[i + 1]!, png.data[i + 2]!];
     if (r > 150 && g > 80 && g < r * 0.75 && b < g * 0.6) amber++;
+    if (r > 90 && r > g + 50 && r > b + 50) red++;
   }
   expect(amber).toBe(0);
+  expect(red).toBe(0);
 });

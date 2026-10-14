@@ -1,37 +1,34 @@
-/* Dark Botanical design tokens, Revision 2 (docs/DESIGN_SPEC.md §2-4).
+/* Moonlight & Oxford design tokens, Revision 3 (docs/DESIGN_SPEC.md §2-4).
    tests/unit/tokens.test.ts checks every allowed text/background pair against WCAG. */
 :root {
   /* Brand palette (owner-specified) */
-  --ivy: #1d2b1e;
-  --moss: #2f4a2e;
-  --fern: #6a7f61;
-  --plum: #3a2a35;
-  --rose: #5b3a4a;
-  --crimson: #7a0f1f;
+  --moonlight: #f0ecdd;
+  --frost-blue: #8ba3c5;
+  --steel: #495b7d;
+  --storm: #23354d;
+  --oxford-blue: #02122f;
 
-  /* Derived supporting tones (tints of brand hues; no new hues) */
-  --linen: #f1eee6;
-  --lichen: #c9d3c1;
-  --sage: #aebba5;
-  --rose-mist: #e3b9c8;
-  --rule: #4a5e48;
-  --fern-edge: #93a589;
+  /* Derived supporting tones (blends of brand colours; no new hues) */
+  --mist: #c9d3e2; /* Frost Blue toward Moonlight */
+  --frost-light: #b3c4dc; /* Frost Blue, lightened */
+  --midnight: #11223d; /* between Oxford Blue and Storm */
 
   /* Semantic roles */
-  --color-bg: var(--ivy);
-  --color-surface: var(--moss);
-  --color-surface-alt: var(--plum);
-  --color-text: var(--linen);
-  --color-text-secondary: var(--lichen);
-  --color-text-tertiary: var(--sage);
-  --color-link: var(--rose-mist);
-  --color-focus: var(--rose-mist);
-  --color-rule: var(--rule);
-  --color-control-edge: var(--fern-edge);
-  --color-accent-support: var(--fern);
-  --color-interactive-fill: var(--rose);
-  --color-focal: var(--crimson);
-  --color-on-focal: var(--linen);
+  --color-bg: var(--oxford-blue);
+  --color-surface: var(--storm);
+  --color-surface-alt: var(--midnight);
+  --color-text: var(--moonlight);
+  --color-text-secondary: var(--mist);
+  --color-text-tertiary: var(--frost-blue);
+  --color-link: var(--frost-light);
+  --color-focus: var(--frost-light);
+  --color-rule: var(--steel);
+  --color-control-edge: var(--frost-blue);
+  --color-accent-support: var(--frost-blue);
+  --color-interactive-fill: var(--steel);
+  --color-focal: var(--moonlight);
+  --color-focal-hover: var(--frost-blue);
+  --color-on-focal: var(--oxford-blue);
 
   /* Typography */
   --font-display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;

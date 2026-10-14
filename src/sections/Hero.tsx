@@ -32,7 +32,7 @@ export function Hero() {
         </div>
         {/* Reserved square for the Particle Portrait (next milestone), so the layout does not shift. */}
         <div className="hero__portrait" aria-hidden="true">
-          <Pending block>Particle Portrait: integrated in the Hero milestone (botanical tone on Deep Ivy).</Pending>
+          <Pending block>Particle Portrait: integrated in the Hero milestone (Moonlight particles on Oxford Blue).</Pending>
         </div>
       </div>
     </section>
