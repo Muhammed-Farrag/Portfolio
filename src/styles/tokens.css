@@ -1,0 +1,79 @@
+/* Dark Botanical design tokens, Revision 2 (docs/DESIGN_SPEC.md §2-4).
+   tests/unit/tokens.test.ts checks every allowed text/background pair against WCAG. */
+:root {
+  /* Brand palette (owner-specified) */
+  --ivy: #1d2b1e;
+  --moss: #2f4a2e;
+  --fern: #6a7f61;
+  --plum: #3a2a35;
+  --rose: #5b3a4a;
+  --crimson: #7a0f1f;
+
+  /* Derived supporting tones (tints of brand hues; no new hues) */
+  --linen: #f1eee6;
+  --lichen: #c9d3c1;
+  --sage: #aebba5;
+  --rose-mist: #e3b9c8;
+  --rule: #4a5e48;
+  --fern-edge: #93a589;
+
+  /* Semantic roles */
+  --color-bg: var(--ivy);
+  --color-surface: var(--moss);
+  --color-surface-alt: var(--plum);
+  --color-text: var(--linen);
+  --color-text-secondary: var(--lichen);
+  --color-text-tertiary: var(--sage);
+  --color-link: var(--rose-mist);
+  --color-focus: var(--rose-mist);
+  --color-rule: var(--rule);
+  --color-control-edge: var(--fern-edge);
+  --color-accent-support: var(--fern);
+  --color-interactive-fill: var(--rose);
+  --color-focal: var(--crimson);
+  --color-on-focal: var(--linen);
+
+  /* Typography */
+  --font-display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --display-stretch: 125%;
+
+  --text-xs: 0.75rem; /* 12px: mono labels */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1.0625rem; /* 17px: body */
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  --text-2xl: clamp(1.75rem, 1.2rem + 2.2vw, 3rem); /* section titles */
+  --text-display: clamp(2.75rem, 1.4rem + 6.4vw, 7rem); /* the name */
+  --leading-tight: 0.92;
+  --leading-snug: 1.2;
+  --leading-body: 1.65;
+  --tracking-label: 0.12em;
+
+  /* Space and layout */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-section: clamp(72px, 9vw, 144px);
+  --gutter: clamp(16px, 4vw, 48px);
+  --content-max: 1320px;
+  --measure: 65ch;
+  --header-h: 64px;
+  --radius: 2px;
+  --grid-columns: 4;
+}
+
+@media (min-width: 768px) {
+  :root { --grid-columns: 8; --header-h: 72px; }
+}
+
+@media (min-width: 1280px) {
+  :root { --grid-columns: 12; }
+}

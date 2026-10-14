@@ -1,0 +1,92 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.site-header__bar {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.site-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text);
+  text-decoration: none;
+  min-height: 44px;
+}
+.site-header__mark {
+  font: 800 var(--text-sm) / 1 var(--font-display);
+  font-stretch: var(--display-stretch);
+  letter-spacing: 0.02em;
+  padding: 7px 7px 6px;
+  border: 1px solid var(--color-control-edge);
+}
+.site-header__name {
+  font: 600 var(--text-sm) / 1 var(--font-body);
+  letter-spacing: 0.01em;
+}
+
+.site-header__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-1);
+}
+.site-header__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font: 500 var(--text-xs) / 1 var(--font-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+.site-header__nav a:hover { color: var(--color-text); text-decoration: underline; }
+
+.site-header__toggle {
+  display: none;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-control-edge);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--color-text);
+  font: 500 var(--text-xs) / 1 var(--font-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Below 900px the navigation becomes a disclosure panel under the bar. */
+@media (max-width: 899.98px) {
+  .site-header__toggle { display: inline-flex; align-items: center; }
+  .site-header__nav {
+    display: none;
+    position: absolute;
+    inset: var(--header-h) 0 auto 0;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-rule);
+    padding: var(--space-3) var(--gutter) var(--space-5);
+  }
+  .site-header[data-open] .site-header__nav { display: block; }
+  .site-header__nav ul { flex-direction: column; gap: 0; }
+  .site-header__nav a {
+    width: 100%;
+    min-height: 52px;
+    padding: 0;
+    font-size: var(--text-sm);
+    border-bottom: 1px solid var(--color-rule);
+  }
+}

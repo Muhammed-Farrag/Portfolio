@@ -1,0 +1,14 @@
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 20;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-focal);
+  color: var(--color-on-focal);
+  font: 500 var(--text-sm) / 1 var(--font-body);
+  text-decoration: none;
+}
+.skip-link:focus { top: var(--space-2); }
+
+main:focus { outline: none; }

@@ -1,0 +1,35 @@
+.contact {
+  padding-block: var(--space-section);
+  border-top: 1px solid var(--color-rule);
+}
+
+.contact__photo {
+  grid-column: 1 / -1;
+  aspect-ratio: 3 / 4;
+  max-width: 360px;
+  width: 100%;
+}
+
+.contact__body {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-5);
+  align-content: end;
+}
+
+.contact__title {
+  font-size: clamp(2.25rem, 1.2rem + 4.6vw, 5rem);
+  max-width: 14ch;
+}
+.contact__title em { font-style: normal; color: var(--color-link); }
+
+.contact__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+@media (min-width: 768px) {
+  .contact__photo { grid-column: 1 / span 3; }
+  .contact__body { grid-column: 4 / -1; }
+}
+@media (min-width: 1280px) {
+  .contact__photo { grid-column: 1 / span 4; max-width: none; }
+  .contact__body { grid-column: 6 / -1; }
+}

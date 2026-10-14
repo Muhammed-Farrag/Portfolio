@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { LAB_URL, LEGACY_URL } from './tests/e2e/urls';
+import { LAB_URL, LEGACY_URL, SITE_URL } from './tests/e2e/urls';
 
 // WebGL runs on SwiftShader so the suite is deterministic on machines and CI runners without a GPU.
 const gpuArgs = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
@@ -33,9 +33,13 @@ export default defineConfig({
     // The maintained engine in the development Portrait Lab: must pass everything.
     { name: 'lab-desktop', testMatch: /(portrait-behaviour|lab-lifecycle|parity|preview)\.spec\.ts/, use: { ...desktop, baseURL: LAB_URL } },
     { name: 'lab-mobile', testMatch: /(portrait-behaviour|parity)\.spec\.ts/, use: { ...mobile, baseURL: LAB_URL } },
+    // The public site (Phase 2+). The production-build check runs against `vite preview` of dist/.
+    { name: 'site-desktop', testMatch: 'site-shell.spec.ts', use: { ...desktop, baseURL: SITE_URL } },
+    { name: 'site-mobile', testMatch: 'site-shell.spec.ts', use: { ...mobile, baseURL: SITE_URL } },
   ],
   webServer: [
     { command: 'node scripts/serve-static.mjs 4310', url: LEGACY_URL, reuseExistingServer: !process.env.CI },
     { command: 'npx vite', url: LAB_URL, reuseExistingServer: !process.env.CI },
+    { command: 'npx vite preview', url: 'http://127.0.0.1:4312/', reuseExistingServer: !process.env.CI },
   ],
 });
