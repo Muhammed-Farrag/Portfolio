@@ -83,3 +83,42 @@ export async function expectNoHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 }
+
+/**
+ * Records every distinct value the #state readout takes, inside the page. Transient states
+ * (SCATTERING lasts about 1.3 s) can be over before a slow click() call even returns, so tests
+ * assert on the recorded sequence instead of polling for a state that may already have passed.
+ */
+export async function recordStates(page: Page) {
+  await page.addInitScript(() => {
+    const states: string[] = [];
+    Object.assign(window, { __states: states });
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('state');
+      if (!el) return;
+      const push = () => {
+        const text = el.textContent ?? '';
+        if (states[states.length - 1] !== text) states.push(text);
+      };
+      push();
+      new MutationObserver(push).observe(el, { childList: true, characterData: true, subtree: true });
+    });
+  });
+}
+
+export const stateMark = (page: Page) => page.evaluate(() => (window as unknown as { __states: string[] }).__states.length);
+
+/** Waits until the states recorded since `mark` contain `sequence` in order. */
+export async function expectStateSequence(page: Page, mark: number, sequence: string[], timeout = 10_000) {
+  await expect
+    .poll(
+      async () => {
+        const seen = await page.evaluate((m) => (window as unknown as { __states: string[] }).__states.slice(m), mark);
+        let i = 0;
+        for (const s of seen) if (s === sequence[i]) i++;
+        return i === sequence.length ? 'complete' : seen.join(' > ');
+      },
+      { timeout },
+    )
+    .toBe('complete');
+}

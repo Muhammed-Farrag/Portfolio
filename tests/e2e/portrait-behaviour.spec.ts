@@ -2,7 +2,17 @@
 // Tests that document a legacy defect are marked `test.fail` for the legacy projects only, so the
 // suite stays green while proving the defect exists in the original and is fixed in the Lab.
 import { expect, test } from '@playwright/test';
-import { BASELINE_COUNTS, disableWebGL, expectNoHorizontalOverflow, isLegacy, waitForParticles, watch } from './helpers';
+import {
+  BASELINE_COUNTS,
+  disableWebGL,
+  expectNoHorizontalOverflow,
+  expectStateSequence,
+  isLegacy,
+  recordStates,
+  stateMark,
+  waitForParticles,
+  watch,
+} from './helpers';
 
 test.describe('initial render', () => {
   test('renders WebGL particles with the baseline count, without errors or broken requests', async ({ page }) => {
@@ -30,20 +40,23 @@ test.describe('initial render', () => {
 
 test.describe('controls', () => {
   test.beforeEach(async ({ page }) => {
+    await recordStates(page);
     await page.goto('./');
     await waitForParticles(page);
   });
 
   test('Scatter runs the full scatter → reform → respond cycle', async ({ page }) => {
+    await expect(page.locator('#state')).toHaveText('RESPONDING');
+    const mark = await stateMark(page);
     await page.click('#scatter');
-    await expect(page.locator('#state')).toHaveText('SCATTERING');
-    await expect(page.locator('#state')).toHaveText('REFORMING', { timeout: 5_000 });
-    await expect(page.locator('#state')).toHaveText('RESPONDING', { timeout: 5_000 });
+    await expectStateSequence(page, mark, ['SCATTERING', 'REFORMING', 'RESPONDING']);
   });
 
   test('clicking the portrait scatters it', async ({ page }) => {
+    await expect(page.locator('#state')).toHaveText('RESPONDING');
+    const mark = await stateMark(page);
     await page.click('#stage');
-    await expect(page.locator('#state')).toHaveText('SCATTERING');
+    await expectStateSequence(page, mark, ['SCATTERING', 'REFORMING']);
   });
 
   test('Pause freezes motion and blocks scatter until resumed', async ({ page }) => {
