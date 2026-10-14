@@ -80,8 +80,8 @@ export const sections: SectionDef[] = [
     id: 'journey',
     eyebrow: 'Experience',
     title: 'Experience and evolution',
-    summary: 'From internships at ITI and STC in 2024 to AI operations work in 2026, alongside a B.Sc. in Artificial Intelligence Science.',
-    pending: 'Scene 06: true-scale timeline of concurrent roles; Cluster, TJM and STC wording and the current role pending.',
+    summary: 'From an internship at ITI in 2024 to judging at RoboRAVE Egypt in 2026, alongside a B.Sc. in Artificial Intelligence Science. Select any point for its story.',
+    pending: 'Scene 06: STC, TJM Labs and Cluster wording, the current role, and the judging photograph are pending.',
     theme: 'light',
   },
 ];

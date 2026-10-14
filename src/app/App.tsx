@@ -10,12 +10,13 @@ import { HeroApproachStory } from '../sections/HeroApproachStory';
 import { Work } from '../sections/work/Work';
 import { UnderTheHood } from '../sections/UnderTheHood';
 import { Recognition } from '../sections/recognition/Recognition';
+import { Journey } from '../sections/journey/Journey';
 import { useSiteMotion } from '../features/motion/reveal';
 import './App.css';
 
 const byId = (id: string) => sections.find((s) => s.id === id)!;
 const [approach] = sections as [SectionDef, ...SectionDef[]];
-const rest = sections.filter((s) => !['approach', 'work', 'under-the-hood', 'recognition'].includes(s.id));
+const rest = sections.filter((s) => !['approach', 'work', 'under-the-hood', 'recognition', 'journey'].includes(s.id));
 
 function renderSection(s: SectionDef) {
   return (
@@ -52,6 +53,7 @@ export function App() {
         <Work s={byId('work')} />
         <UnderTheHood s={byId('under-the-hood')} />
         <Recognition s={byId('recognition')} />
+        <Journey s={byId('journey')} />
         {rest.map(renderSection)}
         <Contact />
       </main>
