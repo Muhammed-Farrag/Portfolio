@@ -173,10 +173,58 @@ test.describe('hero portrait', () => {
     await expect(img).toBeVisible();
     await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth)).toBe(1000);
     await expect(page.locator('.hero__canvas')).toBeHidden();
+    await expect(page.locator('.hero__motion'), 'nothing to pause on a still frame').toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Explore the work' })).toBeVisible();
     expect(requested.filter((u) => u.includes('source-600')), 'the particle source is not downloaded').toEqual([]);
     expect(w.errors).toEqual([]);
     expect(w.failedRequests).toEqual([]);
+  });
+});
+
+test.describe('pause motion control (WCAG 2.2.2)', () => {
+  test('pauses and restarts the portrait, and stops the animation loop', async ({ page }) => {
+    await trackAnimationFrames(page);
+    await page.goto('/');
+    await waitForPortrait(page);
+    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
+    await page.getByRole('button', { name: 'Pause motion' }).click();
+    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
+    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(0);
+    await page.getByRole('button', { name: 'Play motion' }).click();
+    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
+    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(1);
+  });
+
+  test('works from the keyboard and is remembered after a reload', async ({ page }) => {
+    await page.goto('/');
+    await waitForPortrait(page);
+    const pause = page.getByRole('button', { name: 'Pause motion' });
+    await pause.focus();
+    await expect(pause).toBeFocused();
+    expect(await pause.evaluate((e) => getComputedStyle(e).outlineStyle)).toBe('solid');
+    await page.keyboard.press('Space');
+    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
+    const play = page.getByRole('button', { name: 'Play motion' });
+    await expect(play).toBeFocused();
+    await page.reload();
+    await waitForPortrait(page);
+    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
+    await expect(play).toBeVisible();
+    // Paused means no entrance and no scroll effect either.
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await page.waitForTimeout(300);
+    expect(await stage(page).evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+  });
+
+  test('starts paused under reduced motion, and the visitor can still choose to play', async ({ browser }, info) => {
+    const context = await browser.newContext({ ...info.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(info.project.use.baseURL!);
+    await waitForPortrait(page);
+    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
+    await page.getByRole('button', { name: 'Play motion' }).click();
+    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
+    await context.close();
   });
 });
 

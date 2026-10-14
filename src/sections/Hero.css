@@ -71,7 +71,41 @@
 /* Portrait */
 .hero__portrait {
   order: -1;
+  position: relative;
   margin-inline: calc(-1 * var(--gutter));
+}
+
+/* Pause control (WCAG 2.2.2): top right of the portrait on small screens, bottom right on desktop. */
+.hero__motion {
+  position: absolute;
+  z-index: 2;
+  top: var(--space-2);
+  right: var(--gutter);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-control-edge);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  color: var(--color-text-secondary);
+  font: 500 var(--text-xs) / 1 var(--font-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.hero__motion:hover { color: var(--color-text); border-color: var(--color-text); }
+
+/* Small screens: an icon-only 44px square in the empty corner beside the head. The label stays
+   in the accessibility tree. */
+@media (max-width: 767.98px) {
+  .hero__motion { width: 44px; padding: 0; justify-content: center; }
+  .hero__motion-label {
+    position: absolute;
+    width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
 }
 
 /* The canvas edges are softened on every side, so particles that scatter past them (entrance,
@@ -143,6 +177,8 @@
     container-type: inline-size;
     margin-inline: 0 calc(-1 * var(--gutter));
   }
+
+  .hero__motion { top: auto; bottom: var(--space-6); }
 
   .hero__stage {
     --fade-bottom: linear-gradient(to bottom, transparent, #000 5%, #000 64%, transparent 98%);

@@ -81,6 +81,7 @@ Sampling, physics, pointer mapping and scatter/reform are unchanged from the pro
 - **Density.** Ultra (10,203 points) on capable desktops; Fine (4,525) below 768 px or on devices with 4 or fewer cores or 4 GB or less memory; Soft (2,549) with Save-Data.
 - **Motion.** An entrance that reforms along the legacy scatter curve at 45% strength, and a scroll-away transition that adds up to 0.22 to `uBurst` while the stage fades. Rendering stops off-screen.
 - **Reduced motion.** A still, paused frame. No entrance, no scroll effect and no animation loop.
+- **Pause motion** (WCAG 2.2.2). A button on the portrait pauses and resumes it. `src/features/motion/motion.ts` holds the site-wide preference: it follows `prefers-reduced-motion` until the visitor chooses, and the choice is remembered in the browser. Later particle scenes read the same preference.
 - **No WebGL.** The page probes for WebGL before downloading the source, and shows `fallback.webp`, a paused engine frame.
 
 The stage exposes `data-state` and `data-points` for the tests.

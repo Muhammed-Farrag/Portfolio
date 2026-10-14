@@ -8,6 +8,7 @@ import {
   type ParticleRenderer,
   type SampleStep,
 } from '../features/particle-portrait';
+import { isMotionPaused, onMotionChange, setMotionPaused, useMotionPaused } from '../features/motion/motion';
 
 type Mode = 'loading' | 'live' | 'static';
 
@@ -29,12 +30,12 @@ export function HeroPortrait() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<Mode>('loading');
+  const paused = useMotionPaused();
 
   useEffect(() => {
     const stage = stageRef.current!;
     const canvas = canvasRef.current!;
     const hero = stage.closest('section') ?? stage;
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const controller = new AbortController();
     const { signal } = controller;
     let renderer: ParticleRenderer | null = null;
@@ -51,7 +52,7 @@ export function HeroPortrait() {
     const updateExit = () => {
       frame = 0;
       const r = hero.getBoundingClientRect();
-      const progress = reduced.matches ? 0 : Math.min(1, Math.max(0, -r.top / (r.height * 0.75)));
+      const progress = isMotionPaused() ? 0 : Math.min(1, Math.max(0, -r.top / (r.height * 0.75)));
       stage.style.setProperty('--exit', progress.toFixed(3));
       renderer?.setExit(progress * EXIT_BURST);
     };
@@ -73,7 +74,7 @@ export function HeroPortrait() {
       const result = createParticleRenderer(canvas, image, {
         pointerTarget: stage,
         sizeTarget: stage,
-        paused: reduced.matches,
+        paused: isMotionPaused(),
         settings: { tone: 'moonlight', background: PORTFOLIO_BACKGROUND, step: pickStep() },
       });
       if ('fallback' in result) return fail();
@@ -84,26 +85,23 @@ export function HeroPortrait() {
         stage.dataset.state = state;
         if (state === 'failed') fail();
       });
-      if (!reduced.matches) result.assemble(ASSEMBLE_STRENGTH);
+      if (!isMotionPaused()) result.assemble(ASSEMBLE_STRENGTH);
       setMode('live');
       updateExit();
     };
     image.src = sourceUrl;
 
     window.addEventListener('scroll', onScroll, { passive: true, signal });
-    reduced.addEventListener(
-      'change',
-      () => {
-        if (!renderer) return;
-        if (reduced.matches) renderer.pause();
-        else renderer.resume();
-        updateExit();
-      },
-      { signal },
-    );
+    const stopListening = onMotionChange(() => {
+      if (!renderer) return;
+      if (isMotionPaused()) renderer.pause();
+      else renderer.resume();
+      updateExit();
+    });
 
     return () => {
       controller.abort();
+      stopListening();
       if (frame) cancelAnimationFrame(frame);
       renderer?.dispose();
       renderer = null;
@@ -116,6 +114,14 @@ export function HeroPortrait() {
         <canvas ref={canvasRef} className="hero__canvas" aria-hidden="true" />
         {mode === 'static' && <img className="hero__fallback" src={fallbackUrl} alt="" width={1000} height={1000} decoding="async" />}
       </div>
+      {mode === 'live' && (
+        <button type="button" className="hero__motion" onClick={() => setMotionPaused(!paused)}>
+          <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
+            {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
+          </svg>
+          <span className="hero__motion-label">{paused ? 'Play motion' : 'Pause motion'}</span>
+        </button>
+      )}
     </div>
   );
 }

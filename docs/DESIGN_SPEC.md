@@ -87,6 +87,10 @@ On light sections Frost Blue is decorative only (2.18:1), and hover fills are Mi
 
 Particles only ever appear on dark themes; light sections are for reading.
 
+### 2.6 Pause motion
+
+The Hero's ambient particle motion runs indefinitely, so WCAG 2.2.2 requires a way to stop it. A "Pause motion" button on the portrait (bottom right on desktop; a 44 px icon button top right on small screens) toggles a site-wide preference. It starts from `prefers-reduced-motion`, is remembered once chosen, and every particle scene obeys it: paused means a still frame, no entrance and no scroll-driven effect.
+
 ## 3. Particle Portrait color adaptation
 
 The engine, sampling, physics, pointer interaction, scatter/reform and controls are unchanged. The only changes are:
