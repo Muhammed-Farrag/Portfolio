@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import fallbackUrl from '../assets/portrait/fallback.webp';
+import photoUrl from '../assets/portrait/photo.webp';
 import sourceUrl from '../assets/portrait/source-600.webp';
 import { isMotionPaused, onMotionChange, setMotionPaused, useMotionPaused } from '../features/motion/motion';
 import {
@@ -19,6 +20,15 @@ type Mode = 'loading' | 'live' | 'static';
 const TRANSITION_BURST = 0.42;
 /** The entrance starts at this fraction of a full legacy scatter. */
 const ASSEMBLE_STRENGTH = 0.45;
+/** Extra uBurst while the photograph is shown: the particles part around it. */
+const PHOTO_BURST = 0.3;
+/** A mouse must rest on the portrait this long before the photograph develops. */
+const HOVER_DELAY = 120;
+/** On touch, the photograph returns to particles on its own after this long. */
+const TOUCH_HOLD = 6000;
+/** Seconds for the photograph to develop, and to dissolve again. */
+const DEVELOP_S = 1.1;
+const DISSOLVE_S = 0.6;
 
 /** Ultra density where the device can afford it; Fine on small or modest devices; Soft on Save-Data. */
 function pickStep(): SampleStep {
@@ -52,7 +62,20 @@ export function HeroPortrait() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useStoryCanvas();
   const [mode, setMode] = useState<Mode>('loading');
+  const [photo, setPhoto] = useState(false);
   const paused = useMotionPaused();
+  /** Drives the photograph reveal inside the main effect; replaced once that effect runs. */
+  const revealRef = useRef<(on: boolean) => void>(() => {});
+  const timers = useRef({ hover: 0, touch: 0 });
+
+  useEffect(() => revealRef.current(photo), [photo]);
+  useEffect(() => {
+    const t = timers.current;
+    return () => {
+      clearTimeout(t.hover);
+      clearTimeout(t.touch);
+    };
+  }, []);
 
   useEffect(() => {
     const stage = stageRef.current!;
@@ -63,6 +86,12 @@ export function HeroPortrait() {
     const { signal } = controller;
     let renderer: ParticleRenderer | null = null;
     let frame = 0;
+    // Photograph reveal: 0 shows the particles, 1 the photograph. It animates with its own
+    // short-lived loop, which stops as soon as the reveal settles.
+    let reveal = 0;
+    let revealTarget = 0;
+    let revealFrame = 0;
+    let revealLast = 0;
 
     const setStoryMode = (next: Mode) => {
       story.dataset.mode = next;
@@ -91,11 +120,19 @@ export function HeroPortrait() {
         ? { left: lerp(a.left, b.left, travel), top: lerp(a.top, b.top, travel), width: lerp(a.width, b.width, travel), height: lerp(a.height, b.height, travel) }
         : a;
 
+      // Scrolling away returns the photograph to particles before the transition starts.
+      if (revealTarget && window.scrollY > a.height * 0.25) setPhoto(false);
       stage.style.setProperty('--free', smooth(0, 0.12, t).toFixed(3));
+      // The photograph develops through a soft circle that widens from the pointer, while the
+      // particles part around it (uBurst) and fade.
+      const fade = smooth(0.3, 0.9, reveal);
+      stage.style.setProperty('--photo-r', `${(smooth(0.15, 1, reveal) * 150).toFixed(2)}%`);
+      stage.style.setProperty('--photo-o', smooth(0.1, 0.55, reveal).toFixed(3));
+      stage.style.setProperty('--photo-fade', fade.toFixed(3));
       // The cloud dims while dispersed, so any text it passes behind stays easy to read. On narrow
       // screens it has to cross the Hero's text and buttons, so it dims further.
       const depth = matchMedia('(max-width: 1023.98px)').matches ? 0.6 : 0.45;
-      layer.style.setProperty('--dim', (1 - depth * Math.sin(Math.PI * smooth(0.1, 0.9, t))).toFixed(3));
+      layer.style.setProperty('--dim', ((1 - depth * Math.sin(Math.PI * smooth(0.1, 0.9, t))) * (1 - fade)).toFixed(3));
       stage.dataset.progress = t.toFixed(3);
       if (figure) {
         figure.dataset.live = String(!still);
@@ -105,17 +142,48 @@ export function HeroPortrait() {
       if (!renderer) return;
       renderer.setFrame({ x: box.left - layerBox.left, y: box.top - layerBox.top, width: box.width, height: box.height });
       // Eased at both ends: the portrait holds its shape briefly before it dissolves.
-      renderer.setExit(Math.sin(Math.PI * smooth(0, 1, t)) * TRANSITION_BURST);
+      renderer.setExit(Math.sin(Math.PI * smooth(0, 1, t)) * TRANSITION_BURST + smooth(0, 0.7, reveal) * PHOTO_BURST);
       renderer.setMorph(smooth(0.3, 0.8, t));
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
 
+    const stepReveal = (now: number) => {
+      const dt = revealLast ? Math.min(0.05, (now - revealLast) / 1000) : 1 / 60;
+      revealLast = now;
+      reveal = revealTarget ? Math.min(1, reveal + dt / DEVELOP_S) : Math.max(0, reveal - dt / DISSOLVE_S);
+      update();
+      if (reveal !== revealTarget) revealFrame = requestAnimationFrame(stepReveal);
+      else revealFrame = revealLast = 0;
+    };
+    revealRef.current = (on) => {
+      revealTarget = on ? 1 : 0;
+      stage.dataset.photo = on ? 'on' : 'off';
+      if (isMotionPaused()) {
+        // Paused motion: the photograph simply appears and disappears.
+        if (revealFrame) cancelAnimationFrame(revealFrame);
+        revealFrame = revealLast = 0;
+        reveal = revealTarget;
+        update();
+      } else if (!revealFrame && reveal !== revealTarget) {
+        revealFrame = requestAnimationFrame(stepReveal);
+      }
+    };
+    stage.dataset.photo = 'off';
+
+    const stopReveal = () => {
+      revealRef.current = () => {};
+      if (revealFrame) cancelAnimationFrame(revealFrame);
+    };
+
     // Without WebGL, show the still frame straight away instead of downloading the source first.
     if (!canvas.getContext('webgl', TRANSPARENT_CONTEXT_ATTRIBUTES)) {
       fail();
-      return () => controller.abort();
+      return () => {
+        controller.abort();
+        stopReveal();
+      };
     }
 
     const image = new Image();
@@ -160,24 +228,71 @@ export function HeroPortrait() {
     return () => {
       controller.abort();
       stopListening();
+      stopReveal();
       if (frame) cancelAnimationFrame(frame);
       renderer?.dispose();
       renderer = null;
     };
   }, [canvasRef]);
 
+  // Mouse: the photograph develops after a short rest on the portrait and dissolves when the
+  // pointer leaves. Touch and pen: a tap toggles it, and it returns to particles on its own.
+  const aim = (e: PointerEvent<HTMLDivElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty('--px', `${(((e.clientX - box.left) / box.width) * 100).toFixed(1)}%`);
+    e.currentTarget.style.setProperty('--py', `${(((e.clientY - box.top) / box.height) * 100).toFixed(1)}%`);
+  };
+  const onEnter = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return;
+    aim(e);
+    clearTimeout(timers.current.hover);
+    timers.current.hover = window.setTimeout(() => setPhoto(true), HOVER_DELAY);
+  };
+  const onLeave = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(timers.current.hover);
+    setPhoto(false);
+  };
+  const onTap = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'mouse') return;
+    aim(e);
+    clearTimeout(timers.current.touch);
+    if (!photo) timers.current.touch = window.setTimeout(() => setPhoto(false), TOUCH_HOLD);
+    setPhoto(!photo);
+  };
+
   return (
     <div className="hero__portrait" data-mode={mode}>
-      <div ref={stageRef} className="hero__stage" role="img" aria-label="Portrait of Muhammed Farrag, drawn in particles">
+      <div
+        ref={stageRef}
+        className="hero__stage"
+        role="img"
+        aria-label={photo ? 'Photograph of Muhammed Farrag' : 'Portrait of Muhammed Farrag, drawn in particles'}
+        onPointerEnter={onEnter}
+        onPointerLeave={onLeave}
+        onPointerUp={onTap}
+      >
         {mode === 'static' && <img className="hero__fallback" src={fallbackUrl} alt="" width={1000} height={1000} decoding="async" />}
+        {mode !== 'loading' && <img className="hero__photo" src={photoUrl} alt="" width={738} height={738} decoding="async" />}
       </div>
-      {mode === 'live' && (
-        <button type="button" className="hero__motion" onClick={() => setMotionPaused(!paused)}>
-          <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
-            {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
-          </svg>
-          <span className="hero__motion-label">{paused ? 'Play motion' : 'Pause motion'}</span>
-        </button>
+      {mode !== 'loading' && (
+        <div className="hero__controls">
+          <button type="button" className="hero__control hero__reveal" aria-pressed={photo} onClick={() => setPhoto(!photo)}>
+            <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
+              <circle cx="5" cy="3.3" r="2.1" fill="currentColor" />
+              <path d="M.8 9.6C1.2 7 2.9 5.8 5 5.8s3.8 1.2 4.2 3.8z" fill="currentColor" />
+            </svg>
+            <span className="hero__control-label">Show photograph</span>
+          </button>
+          {mode === 'live' && (
+            <button type="button" className="hero__control hero__motion" onClick={() => setMotionPaused(!paused)}>
+              <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
+                {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
+              </svg>
+              <span className="hero__control-label">{paused ? 'Play motion' : 'Pause motion'}</span>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

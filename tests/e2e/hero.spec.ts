@@ -117,8 +117,14 @@ test.describe('hero portrait', () => {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
     const [nearBefore, farBefore] = [await page.screenshot({ clip: near }), await page.screenshot({ clip: far })];
-    await page.mouse.move(face.x, face.y, { steps: 4 });
+    // A hovering pen: a resting mouse would develop the photograph instead (tested below).
+    await stage(page).evaluate((e, p) => {
+      for (let k = 1; k <= 4; k++) {
+        e.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerType: 'pen', clientX: p.x - 40 + k * 10, clientY: p.y }));
+      }
+    }, face);
     await page.waitForTimeout(600);
+    await expect(stage(page)).toHaveAttribute('data-photo', 'off');
     const [nearAfter, farAfter] = [await page.screenshot({ clip: near }), await page.screenshot({ clip: far })];
     const local = changed(nearBefore, nearAfter);
     const elsewhere = changed(farBefore, farAfter);
@@ -163,6 +169,69 @@ test.describe('hero portrait', () => {
     expect(requested.filter((u) => u.includes('source-600')), 'the particle source is not downloaded').toEqual([]);
     expect(w.errors).toEqual([]);
     expect(w.failedRequests).toEqual([]);
+  });
+});
+
+test.describe('photograph reveal', () => {
+  const photo = (page: Page) => page.locator('.hero__photo');
+  const photoOpacity = (page: Page) => photo(page).evaluate((e) => Number(getComputedStyle(e).opacity));
+
+  test('a resting mouse develops the photograph, and leaving restores the particles', async ({ page }, info) => {
+    test.skip(isMobile(info.project.name), 'mouse hover');
+    const w = watch(page);
+    await page.goto('/');
+    await waitForPortrait(page);
+    expect(await photoOpacity(page)).toBe(0);
+    const box = (await stage(page).boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height * 0.3, { steps: 3 });
+    await expect(stage(page)).toHaveAttribute('data-photo', 'on');
+    await expect(stage(page)).toHaveAttribute('aria-label', 'Photograph of Muhammed Farrag');
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
+    // The particles fade while the photograph is shown.
+    await expect.poll(() => page.locator('.story__layer').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(0);
+    await page.mouse.move(2, box.y + box.height / 2);
+    await expect(stage(page)).toHaveAttribute('data-photo', 'off');
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(0);
+    await expect.poll(() => page.locator('.story__layer').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(1);
+    expect(w.errors).toEqual([]);
+  });
+
+  test('a keyboard toggle shows and hides it, and it is the same photograph on every surface', async ({ page }) => {
+    await page.goto('/');
+    await waitForPortrait(page);
+    const toggle = page.getByRole('button', { name: 'Show photograph' });
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await toggle.focus();
+    await page.keyboard.press('Enter');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
+    await page.keyboard.press('Space');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(0);
+    // The photograph is a prepared, background-free cut-out, not a crop of the page.
+    const natural = await photo(page).evaluate((e: HTMLImageElement) => [e.naturalWidth, e.naturalHeight]);
+    expect(natural).toEqual([738, 738]);
+  });
+
+  test('a tap toggles it on touch screens', async ({ page }, info) => {
+    test.skip(!isMobile(info.project.name), 'touch');
+    await page.goto('/');
+    await waitForPortrait(page);
+    const box = (await stage(page).boundingBox())!;
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height * 0.3);
+    await expect(stage(page)).toHaveAttribute('data-photo', 'on');
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height * 0.3);
+    await expect(stage(page)).toHaveAttribute('data-photo', 'off');
+  });
+
+  test('works on the still frame without WebGL', async ({ page }) => {
+    await disableWebGL(page);
+    await page.goto('/');
+    await expect(page.locator('.hero__portrait')).toHaveAttribute('data-mode', 'static', { timeout: 15_000 });
+    await page.getByRole('button', { name: 'Show photograph' }).click();
+    await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
+    await expect.poll(() => page.locator('.hero__fallback').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(0);
   });
 });
 
