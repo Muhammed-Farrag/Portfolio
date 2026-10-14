@@ -15,17 +15,6 @@ import { useSiteMotion } from '../features/motion/reveal';
 import './App.css';
 
 const byId = (id: string) => sections.find((s) => s.id === id)!;
-const [approach] = sections as [SectionDef, ...SectionDef[]];
-const rest = sections.filter((s) => !['approach', 'work', 'under-the-hood', 'recognition', 'journey'].includes(s.id));
-
-function renderSection(s: SectionDef) {
-  return (
-    <Section key={s.id} id={s.id} eyebrow={s.eyebrow} title={s.title} theme={s.theme} blendFrom={s.blendFrom}>
-      <p>{s.summary}</p>
-      <Pending>{s.pending}</Pending>
-    </Section>
-  );
-}
 
 /** The summary sits under the title so the particles travel down an empty column to the figure. */
 function ApproachSection({ s }: { s: SectionDef }) {
@@ -48,13 +37,12 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <HeroApproachStory>
           <Hero />
-          <ApproachSection s={approach} />
+          <ApproachSection s={byId('approach')} />
         </HeroApproachStory>
         <Work s={byId('work')} />
         <UnderTheHood s={byId('under-the-hood')} />
         <Recognition s={byId('recognition')} />
         <Journey s={byId('journey')} />
-        {rest.map(renderSection)}
         <Contact />
       </main>
       <SiteFooter />
