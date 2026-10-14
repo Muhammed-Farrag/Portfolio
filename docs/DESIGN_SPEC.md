@@ -61,6 +61,32 @@ Light fills: Oxford Blue text on Moonlight is 15.70:1 and on Frost Blue is 7.21:
 
 A unit test parses `tokens.css` and fails if any text/background pair in the allowed list drops below its WCAG threshold, if a brand value changes, or if the portrait's colours drift from the tokens.
 
+### 2.5 Section themes (approved 14 Oct 2026)
+
+Four classes in `tokens.css` redefine every semantic role, so components never pick colours themselves. The header and footer are always Deep.
+
+| Theme | Ground | Panels | Text / secondary / labels | Links and focus | Outlines | Primary button |
+|---|---|---|---|---|---|---|
+| `.theme-deep` | Oxford Blue | Storm, Midnight | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
+| `.theme-mid` | Midnight | Storm, Oxford Blue | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
+| `.theme-elevated` | Storm | Oxford Blue, Midnight | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
+| `.theme-light` | Moonlight | Dawn `#E2E2DA` (Moonlight + 14% Frost Blue) | Oxford Blue (15.70) / Storm (10.51) / Steel (5.77; 5.24 on Dawn) | Storm | Steel | Oxford Blue, Moonlight text; Storm on hover |
+
+On light sections Frost Blue is decorative only (2.18:1), and hover fills are Mist with Oxford Blue text (12.30:1).
+
+| Section | Theme | Edge with the section above |
+|---|---|---|
+| 01 Hero | Deep | — |
+| 02 Approach | Mid | Gradient from Oxford Blue |
+| 03 Work | Light | Clean edge |
+| 04 Under the hood | Elevated | Clean edge |
+| 05 Recognition | Deep | Gradient from Storm |
+| 06 Journey | Light | Clean edge |
+| 07 Contact | Elevated | Clean edge |
+| Footer | Deep | Steel hairline |
+
+Particles only ever appear on dark themes; light sections are for reading.
+
 ## 3. Particle Portrait color adaptation
 
 The engine, sampling, physics, pointer interaction, scatter/reform and controls are unchanged. The only changes are:

@@ -17,7 +17,7 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <Hero />
         {sections.map((s) => (
-          <Section key={s.id} id={s.id} eyebrow={s.eyebrow} title={s.title} tone={s.tone}>
+          <Section key={s.id} id={s.id} eyebrow={s.eyebrow} title={s.title} theme={s.theme} blendFrom={s.blendFrom}>
             <p>{s.summary}</p>
             <Pending>{s.pending}</Pending>
           </Section>

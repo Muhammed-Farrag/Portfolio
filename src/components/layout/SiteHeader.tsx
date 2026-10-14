@@ -29,7 +29,7 @@ export function SiteHeader() {
   }, [open, close]);
 
   return (
-    <header className="site-header" data-open={open || undefined}>
+    <header className="site-header theme-deep" data-open={open || undefined}>
       <div className="container site-header__bar">
         <a className="site-header__brand" href="#top" onClick={() => close(false)}>
           <span className="site-header__mark" aria-hidden="true">MF</span>

@@ -12,8 +12,9 @@
   --mist: #c9d3e2; /* Frost Blue toward Moonlight */
   --frost-light: #b3c4dc; /* Frost Blue, lightened */
   --midnight: #11223d; /* between Oxford Blue and Storm */
+  --dawn: #e2e2da; /* Moonlight with 14% Frost Blue: panels on light sections */
 
-  /* Semantic roles */
+  /* Semantic roles. These are the Deep theme; .theme-* below redefine them per section. */
   --color-bg: var(--oxford-blue);
   --color-surface: var(--storm);
   --color-surface-alt: var(--midnight);
@@ -66,6 +67,89 @@
   --radius: 2px;
   --grid-columns: 4;
 }
+
+/* Section themes (docs/DESIGN_SPEC.md §2.5). Each redefines every semantic role, so anything
+   inside a themed section stays readable. Every pair is checked in tests/unit/tokens.test.ts. */
+.theme-deep {
+  --color-bg: var(--oxford-blue);
+  --color-surface: var(--storm);
+  --color-surface-alt: var(--midnight);
+  --color-text: var(--moonlight);
+  --color-text-secondary: var(--mist);
+  --color-text-tertiary: var(--frost-blue);
+  --color-link: var(--frost-light);
+  --color-focus: var(--frost-light);
+  --color-rule: var(--steel);
+  --color-control-edge: var(--frost-blue);
+  --color-accent-support: var(--frost-blue);
+  --color-interactive-fill: var(--steel);
+  --color-focal: var(--moonlight);
+  --color-focal-hover: var(--frost-blue);
+  --color-on-focal: var(--oxford-blue);
+}
+
+.theme-mid {
+  --color-bg: var(--midnight);
+  --color-surface: var(--storm);
+  --color-surface-alt: var(--oxford-blue);
+  --color-text: var(--moonlight);
+  --color-text-secondary: var(--mist);
+  --color-text-tertiary: var(--frost-blue);
+  --color-link: var(--frost-light);
+  --color-focus: var(--frost-light);
+  --color-rule: var(--steel);
+  --color-control-edge: var(--frost-blue);
+  --color-accent-support: var(--frost-blue);
+  --color-interactive-fill: var(--steel);
+  --color-focal: var(--moonlight);
+  --color-focal-hover: var(--frost-blue);
+  --color-on-focal: var(--oxford-blue);
+}
+
+.theme-elevated {
+  --color-bg: var(--storm);
+  --color-surface: var(--oxford-blue);
+  --color-surface-alt: var(--midnight);
+  --color-text: var(--moonlight);
+  --color-text-secondary: var(--mist);
+  --color-text-tertiary: var(--frost-blue);
+  --color-link: var(--frost-light);
+  --color-focus: var(--frost-light);
+  --color-rule: var(--steel);
+  --color-control-edge: var(--frost-blue);
+  --color-accent-support: var(--frost-blue);
+  --color-interactive-fill: var(--steel);
+  --color-focal: var(--moonlight);
+  --color-focal-hover: var(--frost-blue);
+  --color-on-focal: var(--oxford-blue);
+}
+
+.theme-light {
+  --color-bg: var(--moonlight);
+  --color-surface: var(--dawn);
+  --color-surface-alt: var(--dawn);
+  --color-text: var(--oxford-blue);
+  --color-text-secondary: var(--storm);
+  --color-text-tertiary: var(--steel);
+  --color-link: var(--storm);
+  --color-focus: var(--storm);
+  --color-rule: var(--mist);
+  --color-control-edge: var(--steel);
+  --color-accent-support: var(--steel);
+  --color-interactive-fill: var(--mist);
+  --color-focal: var(--oxford-blue);
+  --color-focal-hover: var(--storm);
+  --color-on-focal: var(--moonlight);
+}
+
+.theme-deep,
+.theme-mid,
+.theme-elevated,
+.theme-light {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+.theme-light { color-scheme: light; }
 
 @media (min-width: 768px) {
   :root { --grid-columns: 8; --header-h: 72px; }

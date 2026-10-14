@@ -37,7 +37,7 @@ src/sections/                  Hero (HeroPortrait mounts the engine) and Contact
 src/assets/portrait/            The engine's 600×600 source (lossless WebP) and the no-WebGL still frame
 scripts/portrait-assets.mjs    Regenerates both from the legacy PNG; fails unless the sampled points are identical
 src/content/site.ts            Shell copy and section structure (approved claims only)
-src/styles/                    tokens.css (Moonlight & Oxford tokens) and global.css
+src/styles/                    tokens.css (Moonlight & Oxford tokens and the four section themes) and global.css
 src/features/particle-portrait/
   shaders.ts                   Legacy GLSL verbatim, plus a colour-only palette tone branch
   sampling.ts                  Point sampling, byte-identical to the legacy loop

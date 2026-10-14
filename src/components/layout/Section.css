@@ -1,9 +1,13 @@
-.section {
-  padding-block: var(--space-section);
-  border-top: 1px solid var(--color-rule);
+.section { padding-block: var(--space-section); }
+
+/* Two dark sections in a row blend: the upper section's ground fades into this one's. A dark
+   section meeting a light one keeps a clean edge, which is the contrast between them. */
+.section[data-blend] {
+  background-image: linear-gradient(to bottom, var(--blend-from), var(--color-bg) clamp(120px, 14vw, 220px));
 }
-.section--surface { background: var(--color-surface); }
-.section--alt { background: var(--color-surface-alt); border-top-color: transparent; }
+.section[data-blend='deep'] { --blend-from: var(--oxford-blue); }
+.section[data-blend='mid'] { --blend-from: var(--midnight); }
+.section[data-blend='elevated'] { --blend-from: var(--storm); }
 
 .section__header {
   grid-column: 1 / -1;

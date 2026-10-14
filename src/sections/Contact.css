@@ -1,7 +1,4 @@
-.contact {
-  padding-block: var(--space-section);
-  border-top: 1px solid var(--color-rule);
-}
+.contact { padding-block: var(--space-section); }
 
 .contact__photo {
   grid-column: 1 / -1;
@@ -27,9 +24,9 @@
 
 @media (min-width: 768px) {
   .contact__photo { grid-column: 1 / span 3; }
-  .contact__body { grid-column: 4 / -1; }
+  .contact__photo + .contact__body { grid-column: 4 / -1; }
 }
 @media (min-width: 1280px) {
   .contact__photo { grid-column: 1 / span 4; max-width: none; }
-  .contact__body { grid-column: 6 / -1; }
+  .contact__photo + .contact__body { grid-column: 6 / -1; }
 }

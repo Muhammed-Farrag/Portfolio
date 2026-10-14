@@ -6,9 +6,18 @@ import { PORTFOLIO_BACKGROUND, PORTFOLIO_PALETTE, type Rgb } from '../../src/fea
 // text/background pair the design allows against WCAG 2.2 (docs/DESIGN_SPEC.md §2.3).
 const css = readFileSync(new URL('../../src/styles/tokens.css', import.meta.url), 'utf8');
 const root = css.slice(css.indexOf(':root {'), css.indexOf('}', css.indexOf(':root {')));
-const raw = new Map([...root.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1]!, m[2]!.trim()]));
-const resolve = (name: string): string => {
-  const value = raw.get(name);
+const declarations = (block: string) => new Map([...block.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1]!, m[2]!.trim()]));
+const raw = declarations(root);
+const THEMES = ['deep', 'mid', 'elevated', 'light'] as const;
+type Theme = (typeof THEMES)[number];
+const themeBlock = (theme: Theme) => {
+  const start = css.indexOf(`.theme-${theme} {`);
+  if (start < 0) throw new Error(`.theme-${theme} missing`);
+  return declarations(css.slice(start, css.indexOf('}', start)));
+};
+/** Resolves a token as seen inside a section with `theme` (or at the root). */
+const resolve = (name: string, theme?: Theme): string => {
+  const value = (theme && themeBlock(theme).get(name)) ?? raw.get(name);
   if (!value) throw new Error(`token --${name} missing`);
   const ref = value.match(/^var\(--([\w-]+)\)$/);
   return ref ? resolve(ref[1]!) : value;
@@ -37,34 +46,54 @@ describe('design tokens', () => {
     expect([resolve('color-bg'), resolve('color-surface'), resolve('color-text')]).toEqual(['#02122f', '#23354d', '#f0ecdd']);
   });
 
+  it('the root roles are the Deep theme', () => {
+    for (const name of themeBlock('deep').keys()) expect(resolve(name), name).toBe(resolve(name, 'deep'));
+  });
+
+  it('every theme defines the same roles', () => {
+    const roles = [...themeBlock('deep').keys()].sort();
+    for (const theme of THEMES) expect([...themeBlock(theme).keys()].sort(), theme).toEqual(roles);
+  });
+
+  it('the light theme is genuinely light: Moonlight ground and Oxford Blue text', () => {
+    expect([resolve('color-bg', 'light'), resolve('color-text', 'light')]).toEqual(['#f0ecdd', '#02122f']);
+    expect([resolve('color-surface', 'light'), resolve('color-surface-alt', 'light')]).toEqual(['#e2e2da', '#e2e2da']);
+  });
+
   const surfaces = ['color-bg', 'color-surface', 'color-surface-alt'];
-  for (const text of ['color-text', 'color-text-secondary', 'color-text-tertiary', 'color-link']) {
-    for (const surface of surfaces) {
-      it(`--${text} on --${surface} meets 4.5:1`, () => {
-        expect(contrast(resolve(text), resolve(surface))).toBeGreaterThanOrEqual(4.5);
+  for (const theme of THEMES) {
+    describe(`.theme-${theme}`, () => {
+      for (const text of ['color-text', 'color-text-secondary', 'color-text-tertiary', 'color-link']) {
+        for (const surface of surfaces) {
+          it(`--${text} on --${surface} meets 4.5:1`, () => {
+            expect(contrast(resolve(text, theme), resolve(surface, theme))).toBeGreaterThanOrEqual(4.5);
+          });
+        }
+      }
+
+      it('--color-text on --color-interactive-fill (hovered buttons) meets 4.5:1', () => {
+        expect(contrast(resolve('color-text', theme), resolve('color-interactive-fill', theme))).toBeGreaterThanOrEqual(4.5);
       });
-    }
-  }
 
-  it('--color-text on --color-interactive-fill (hovered buttons) meets 4.5:1', () => {
-    expect(contrast(resolve('color-text'), resolve('color-interactive-fill'))).toBeGreaterThanOrEqual(4.5);
-  });
+      it('--color-on-focal on the primary button, at rest and hovered, meets 4.5:1', () => {
+        expect(contrast(resolve('color-on-focal', theme), resolve('color-focal', theme))).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(resolve('color-on-focal', theme), resolve('color-focal-hover', theme))).toBeGreaterThanOrEqual(4.5);
+      });
 
-  it('--color-on-focal on the primary button, at rest and hovered, meets 4.5:1', () => {
-    expect(contrast(resolve('color-on-focal'), resolve('color-focal'))).toBeGreaterThanOrEqual(4.5);
-    expect(contrast(resolve('color-on-focal'), resolve('color-focal-hover'))).toBeGreaterThanOrEqual(4.5);
-  });
+      it('control outlines and the focus ring meet 3:1 on every surface and on hover fills', () => {
+        for (const surface of [...surfaces, 'color-interactive-fill']) {
+          if (surface !== 'color-interactive-fill') {
+            expect(contrast(resolve('color-control-edge', theme), resolve(surface, theme)), surface).toBeGreaterThanOrEqual(3);
+          }
+          expect(contrast(resolve('color-focus', theme), resolve(surface, theme)), surface).toBeGreaterThanOrEqual(3);
+        }
+      });
 
-  for (const surface of surfaces) {
-    it(`control outlines and the focus ring on --${surface} meet 3:1`, () => {
-      expect(contrast(resolve('color-control-edge'), resolve(surface))).toBeGreaterThanOrEqual(3);
-      expect(contrast(resolve('color-focus'), resolve(surface))).toBeGreaterThanOrEqual(3);
+      it('the primary button stands out from the section ground (3:1)', () => {
+        expect(contrast(resolve('color-focal', theme), resolve('color-bg', theme))).toBeGreaterThanOrEqual(3);
+      });
     });
   }
-
-  it('the focus ring on --color-interactive-fill meets 3:1', () => {
-    expect(contrast(resolve('color-focus'), resolve('color-interactive-fill'))).toBeGreaterThanOrEqual(3);
-  });
 
   it('contains only near-neutral or cool blue colours (no botanical, gold, amber, crimson or cyan)', () => {
     for (const value of css.match(/#[0-9a-f]{6}\b/gi) ?? []) {

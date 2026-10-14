@@ -4,7 +4,7 @@ import { HeroPortrait } from './HeroPortrait';
 
 export function Hero() {
   return (
-    <section id="top" className="hero" aria-labelledby="hero-name">
+    <section id="top" className="hero theme-deep" aria-labelledby="hero-name">
       <div className="container hero__layout">
         <div className="hero__text">
           <p className="eyebrow">{profile.title}</p>

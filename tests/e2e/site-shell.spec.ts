@@ -127,6 +127,89 @@ test.describe('navigation', () => {
   });
 });
 
+const THEME_GROUNDS: [string, string][] = [
+  ['top', 'rgb(2, 18, 47)'], // Deep: Oxford Blue
+  ['approach', 'rgb(17, 34, 61)'], // Mid: Midnight
+  ['work', 'rgb(240, 236, 221)'], // Light: Moonlight
+  ['under-the-hood', 'rgb(35, 53, 77)'], // Elevated: Storm
+  ['recognition', 'rgb(2, 18, 47)'], // Deep
+  ['journey', 'rgb(240, 236, 221)'], // Light
+  ['contact', 'rgb(35, 53, 77)'], // Elevated
+];
+
+test.describe('section themes', () => {
+  test('each section uses its approved theme ground', async ({ page }) => {
+    await page.goto('/');
+    for (const [id, ground] of THEME_GROUNDS) {
+      expect(await page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundColor), id).toBe(ground);
+    }
+    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(2, 18, 47)');
+  });
+
+  test('dark sections that meet blend with a gradient; light sections keep a clean edge', async ({ page }) => {
+    await page.goto('/');
+    const image = (id: string) => page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundImage);
+    expect(await image('approach')).toContain('rgb(2, 18, 47)'); // from the Deep hero
+    expect(await image('recognition')).toContain('rgb(35, 53, 77)'); // from the Elevated section above
+    for (const id of ['work', 'under-the-hood', 'journey', 'contact']) expect(await image(id), id).toBe('none');
+  });
+
+  test('headings, body text and labels meet WCAG AA against their own section', async ({ page }) => {
+    await page.goto('/');
+    const failures = await page.evaluate(() => {
+      const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const lum = (c: string) => {
+        const [r, g, b] = rgb(c).map((v) => v / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)) as [number, number, number];
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const ratio = (a: string, b: string) => {
+        const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p) as [number, number];
+        return (x + 0.05) / (y + 0.05);
+      };
+      const out: string[] = [];
+      for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
+        const ground = getComputedStyle(section).backgroundColor;
+        for (const el of section.querySelectorAll<HTMLElement>('h1, h2, p, li, a')) {
+          if (el.closest('[data-pending], .hero__portrait, .button--primary')) continue;
+          const r = ratio(getComputedStyle(el).color, ground);
+          if (r < 4.5) out.push(`#${section.id} ${el.tagName} ${r.toFixed(2)}`);
+        }
+      }
+      return out;
+    });
+    expect(failures).toEqual([]);
+  });
+
+  test('the header stays Oxford Blue and readable over light sections', async ({ page }, info) => {
+    await page.goto('/');
+    await page.locator('#work').scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 200));
+    const header = page.getByRole('banner');
+    // Chrome reports color-mix() as color(srgb r g b / a) with 0-1 channels.
+    const ground = await header.evaluate((e) => getComputedStyle(e).backgroundColor);
+    const [r, g, bl, alpha] = (ground.match(/[\d.]+/g) ?? []).map(Number).map((v, i, all) => (all.length === 4 && i < 3 && ground.startsWith('color(') ? Math.round(v * 255) : v));
+    expect([r, g, bl, alpha]).toEqual([2, 18, 47, 0.92]);
+    if (!info.project.name.includes('mobile')) {
+      const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work', exact: true });
+      expect(await link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(201, 211, 226)'); // Mist
+    } else {
+      await page.getByRole('button', { name: 'Menu' }).click();
+      const nav = page.getByRole('navigation', { name: 'Primary' });
+      expect(await nav.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(2, 18, 47)');
+    }
+  });
+
+  test('controls inside light sections use the light focus ring and outlines', async ({ page }) => {
+    await page.goto('/');
+    const vars = await page.locator('#work').evaluate((e) => {
+      const cs = getComputedStyle(e);
+      return ['--color-focus', '--color-control-edge', '--color-focal', '--color-on-focal'].map((v) => cs.getPropertyValue(v).trim());
+    });
+    // Storm focus ring, Steel outlines, Oxford Blue primary fill with Moonlight text.
+    expect(vars).toEqual(['#23354d', '#495b7d', '#02122f', '#f0ecdd']);
+  });
+});
+
 test.describe('production build', () => {
   test('contains only the public site and never renders placeholders', async ({ browser }) => {
     expect(existsSync('dist/index.html'), 'run `npm run build` first').toBe(true);
@@ -138,6 +221,7 @@ test.describe('production build', () => {
     await page.goto('http://127.0.0.1:4312/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('[data-pending]')).toHaveCount(0);
+    await expect(page.locator('.contact__photo'), 'no empty photo slot').toHaveCount(0);
     await expect(page.getByText('In progress')).toHaveCount(0);
     expect(w.errors).toEqual([]);
     await context.close();
