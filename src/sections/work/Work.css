@@ -161,8 +161,8 @@
   animation-delay: calc(var(--line) * 160ms + 120ms);
 }
 @keyframes line-in {
-  from { opacity: 0; clip-path: inset(0 100% 0 0); }
-  to { opacity: 1; clip-path: inset(0 0 0 0); }
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
 /* HELIOS: gesture console */
@@ -367,11 +367,17 @@
   font: 600 var(--text-sm) / 1.1 var(--font-body);
   white-space: nowrap;
   cursor: pointer;
-  transition: opacity 0.3s, transform 0.3s;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
 }
 .nova__module[data-mine] { background: var(--oxford-blue); border-color: var(--oxford-blue); color: var(--moonlight); }
 .nova__module[aria-pressed='true'] { transform: scale(1.06); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-text-secondary); }
-.nova[data-mine-only] .nova__module:not([data-mine]):not([aria-pressed='true']) { opacity: 0.55; }
+/* The team's modules step back with colour, not opacity, so their labels keep AA contrast. */
+.nova[data-mine-only] .nova__module:not([data-mine]):not([aria-pressed='true']) {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
+}
 
 .nova__footer { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .nova__detail { flex: 1 1 260px; color: var(--color-text-secondary); min-height: 3.2em; }

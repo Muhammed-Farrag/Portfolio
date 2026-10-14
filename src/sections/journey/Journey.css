@@ -129,7 +129,7 @@
 .journey__photo--pending { aspect-ratio: 4 / 3; }
 
 :root[data-motion='playing'] .journey__detail { animation: detail-in 0.45s ease-out both; }
-@keyframes detail-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes detail-in { from { clip-path: inset(0 0 100% 0); transform: translateY(10px); } to { clip-path: inset(0 0 0 0); } }
 
 @media (min-width: 900px) {
   .journey__detail { grid-template-columns: minmax(0, 1fr) minmax(0, 360px); column-gap: var(--space-8); }
