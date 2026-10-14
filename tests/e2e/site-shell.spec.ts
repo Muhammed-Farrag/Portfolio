@@ -169,9 +169,12 @@ test.describe('section themes', () => {
       const out: string[] = [];
       for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
         const ground = getComputedStyle(section).backgroundColor;
-        for (const el of section.querySelectorAll<HTMLElement>('h1, h2, p, li, a')) {
+        for (const el of section.querySelectorAll<HTMLElement>('h1, h2, h3, p, li, a')) {
           if (el.closest('[data-pending], .hero__portrait, .button--primary')) continue;
-          const r = ratio(getComputedStyle(el).color, ground);
+          // Dark instruments inside a light section carry their own theme and ground.
+          const panel = el.closest<HTMLElement>('[class*="theme-"]');
+          const own = panel && panel !== section ? getComputedStyle(panel).backgroundColor : ground;
+          const r = ratio(getComputedStyle(el).color, own);
           if (r < 4.5) out.push(`#${section.id} ${el.tagName} ${r.toFixed(2)}`);
         }
       }

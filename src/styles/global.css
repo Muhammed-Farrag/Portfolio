@@ -86,3 +86,21 @@ a:hover { text-decoration-thickness: 2px; }
 .button:hover { background: var(--color-interactive-fill); border-color: var(--color-interactive-fill); }
 .button--primary { background: var(--color-focal); border-color: var(--color-focal); color: var(--color-on-focal); }
 .button--primary:hover { background: var(--color-focal-hover); border-color: var(--color-focal-hover); }
+
+/* Scroll reveals (src/features/motion/reveal.ts): a short rise and fade, once. Only while motion
+   is playing, so content is visible without JavaScript, under reduced motion and when paused. */
+:root[data-motion='playing'] [data-reveal] {
+  transition: opacity 0.7s ease-out, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--reveal-order, 0) * 90ms);
+}
+:root[data-motion='playing'] [data-reveal]:not([data-inview]) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* Mono label, used across the scenes for stamps, indices and readouts. */
+.mono {
+  font: 500 var(--text-xs) / 1.5 var(--font-mono);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}

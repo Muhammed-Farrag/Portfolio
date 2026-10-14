@@ -55,8 +55,8 @@ export const sections: SectionDef[] = [
     id: 'work',
     eyebrow: 'Selected work',
     title: 'Projects, with the engineering shown',
-    summary: 'Self-Healing Automation Workflow, NovaCare and HELIOS, each with the challenge, my contribution, the approach and the outcome.',
-    pending: 'Scene 03: four case studies (fourth case pending owner decision), HELIOS gesture console.',
+    summary: 'Three projects from my repositories and CV, each with the engineering shown and something to try.',
+    pending: 'Scene 03: fourth case study pending the owner’s choice.',
     theme: 'light',
   },
   {
