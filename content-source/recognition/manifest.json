@@ -1,0 +1,89 @@
+{
+  "$comment": "Source of truth for the Beyond the Code scene. A slot with file=null renders a marked placeholder in development and preview builds. The release check fails if a required slot is null or a rendered story is not approved. Claims must match docs/CONTENT_APPROVAL.md.",
+  "stories": [
+    {
+      "id": "montura-roborave-beijing-2025",
+      "order": 1,
+      "role": "Competitor",
+      "title": "Montura at RoboRAVE International",
+      "claim": "Best Creativity Trophy, RoboRAVE International Entrepreneurial Challenge",
+      "date": "2025-08",
+      "place": "Beijing, China",
+      "claimStatus": "verified",
+      "sources": ["CV", "GitHub profile README"],
+      "renderInRelease": true,
+      "slots": [
+        {
+          "slot": "hero",
+          "required": true,
+          "aspect": "3:4",
+          "file": "01-montura-roborave-beijing-2025/originals/roborave-beijing-2025-trophy.png",
+          "pixels": [582, 805],
+          "alt": "Muhammed Farrag on the RoboRAVE 2025 arena floor, wearing the Egyptian flag and holding a trophy.",
+          "credit": "Supplied by Muhammed Farrag",
+          "consent": "owner-supplied",
+          "focal": [0.5, 0.42],
+          "note": "Usable at up to about 290 CSS px wide at 2x. Ask for the original-resolution file."
+        },
+        { "slot": "detail", "required": false, "aspect": "4:3", "file": null, "placeholder": "Montura project or team photo, optional" }
+      ]
+    },
+    {
+      "id": "depi-top-digital-pioneer-2026",
+      "order": 2,
+      "role": "Honoree",
+      "title": "Digital Egypt Pioneers Initiative (MCIT)",
+      "claim": "Top Digital Pioneer Honoree",
+      "date": "2026-04",
+      "place": "Egypt",
+      "claimStatus": "verified",
+      "sources": ["CV", "GitHub profile README"],
+      "renderInRelease": true,
+      "slots": [
+        {
+          "slot": "hero",
+          "required": true,
+          "aspect": "1:1",
+          "file": "02-depi-top-digital-pioneer-2026/originals/depi-top-digital-pioneer-ceremony.png",
+          "pixels": [722, 732],
+          "alt": "Muhammed Farrag at a Digital Egypt Pioneers ceremony, wearing a recognition sash and holding a certificate.",
+          "credit": "Supplied by Muhammed Farrag",
+          "consent": "owner-supplied",
+          "focal": [0.5, 0.45],
+          "note": "Sponsor logos in the backdrop are incidental. Crop toward the subject. Ask for the original-resolution file."
+        },
+        { "slot": "document", "required": false, "aspect": "4:3", "file": null, "placeholder": "Certificate scan, only if legible and approved" }
+      ]
+    },
+    {
+      "id": "roborave-egypt-judge-2026",
+      "order": 3,
+      "role": "Judge",
+      "title": "RoboRAVE Egypt",
+      "claim": "Official Judge, Software, AI and Robotics",
+      "date": "2026-07",
+      "place": "Alexandria, Egypt",
+      "claimStatus": "cv-reported",
+      "sources": ["CV"],
+      "renderInRelease": true,
+      "slots": [
+        { "slot": "hero", "required": true, "aspect": "4:3", "file": null, "placeholder": "PHOTO PENDING · RoboRAVE Egypt judging, Jul 2026" }
+      ]
+    },
+    {
+      "id": "al-ahram-press",
+      "order": 4,
+      "role": "Press",
+      "title": "Al-Ahram coverage",
+      "claim": null,
+      "date": null,
+      "place": null,
+      "claimStatus": "pending",
+      "sources": [],
+      "renderInRelease": false,
+      "slots": [
+        { "slot": "clipping", "required": true, "aspect": "4:5", "file": null, "placeholder": "PRESS PENDING VERIFICATION · Al-Ahram article (link or scan, date, page)" }
+      ]
+    }
+  ]
+}

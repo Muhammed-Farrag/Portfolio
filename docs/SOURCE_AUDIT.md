@@ -5,7 +5,7 @@ Snapshot taken 14 Oct 2026. Sources: the CV (`Muhammed-CV (1).pdf`, hyperlinks e
 ## Particle Portrait reference
 
 - Reference implementation: `D:\particle-portrait`. It is kept unchanged.
-- `legacy/particle-portrait/` in this repo started as a byte-identical copy (MD5: `index.html` 035c2fb3…, `portrait.js` dcf816b3…, `portrait.png` e1c9d63a…). The patches applied afterwards are listed in `legacy/particle-portrait/PATCHES.md`.
+- `legacy/particle-portrait/` in this repo is a byte-identical copy (MD5: `index.html` 035c2fb3…, `portrait.js` dcf816b3…, `portrait.png` e1c9d63a…, `README.md` 638c8004…). It is never edited, and a unit test enforces the hashes. Defects are fixed in the maintained engine and the development Portrait Lab, not in the reference copy.
 - `particle-portrait-preview.html` (5.18 MB) is not copied. It is now generated from source by `npm run build:preview`.
 - Measured in Chromium with SwiftShader: 10,203 / 4,525 / 2,549 points at Ultra / Fine / Soft. The README records 10,207; the difference is image-decode color management.
 
@@ -24,7 +24,7 @@ Snapshot taken 14 Oct 2026. Sources: the CV (`Muhammed-CV (1).pdf`, hyperlinks e
 
 | File | Shows | Supports |
 |---|---|---|
-| `content-source/recognition/roborave-beijing-2025-trophy.png` (582×805) | Muhammed on the RoboRAVE 2025 arena floor, wearing the Egyptian flag and holding a trophy | Presence at RoboRAVE 2025 with a trophy. The trophy's name is not legible, so the award name rests on the CV. |
-| `content-source/recognition/depi-top-digital-pioneer-ceremony.png` (722×732) | Muhammed at a Digital Egypt Pioneers (أجيال مصر الرقمية) ceremony with a "رواد مصر الرقمية" sash and a certificate | Recognition at a DEPI ceremony. The certificate text is not legible, so the honoree title rests on the CV. |
+| `content-source/recognition/01-montura-roborave-beijing-2025/originals/roborave-beijing-2025-trophy.png` (582×805) | Muhammed on the RoboRAVE 2025 arena floor, wearing the Egyptian flag and holding a trophy | Presence at RoboRAVE 2025 with a trophy. The trophy's name is not legible, so the award name rests on the CV. |
+| `content-source/recognition/02-depi-top-digital-pioneer-2026/originals/depi-top-digital-pioneer-ceremony.png` (722×732) | Muhammed at a Digital Egypt Pioneers (أجيال مصر الرقمية) ceremony with a "رواد مصر الرقمية" sash and a certificate | Recognition at a DEPI ceremony. The certificate text is not legible, so the honoree title rests on the CV. |
 
 The sponsor logos visible behind these photos are incidental and must not be used as endorsements.
