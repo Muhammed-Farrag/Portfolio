@@ -64,7 +64,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Under the hood',
     title: 'One real system, step by step',
     summary: 'How the Self-Healing workflow turns an injected pipeline failure into a governed, auditable repair plan.',
-    pending: 'Scene 04: nine-step pipeline diagram and the illustrative inject-a-failure simulation.',
+    pending: 'Scene 04: threshold values pending confirmation (SOURCE_AUDIT.md).',
     theme: 'elevated',
   },
   {

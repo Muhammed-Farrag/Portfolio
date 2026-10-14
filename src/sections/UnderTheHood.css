@@ -1,0 +1,132 @@
+/* Scene 04, Under the hood (Elevated). The pipeline is an ordered list that reads on its own;
+   the simulation lights its steps, routes a held plan into the review queue and writes a log. */
+.hood__header { display: grid; gap: var(--space-3); margin-bottom: var(--space-7); max-width: 60ch; }
+
+.hood__console {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(16px, 3vw, 40px);
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: 0 40px 80px -40px rgb(2 18 47 / 0.8);
+}
+
+.hood__controls { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: end; }
+.hood__field { border: 0; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.hood__field legend { color: var(--color-text-tertiary); padding: 0; margin-bottom: var(--space-2); }
+.hood__options { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.hood__option {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: 500 var(--text-xs) / 1 var(--font-mono);
+  cursor: pointer;
+}
+.hood__option:hover { border-color: var(--color-control-edge); color: var(--color-text); }
+.hood__option[aria-pressed='true'] { background: var(--color-focal); border-color: var(--color-focal); color: var(--color-on-focal); }
+.hood__inject { margin-left: auto; }
+
+/* Pipeline */
+.hood__pipeline {
+  --cols: 1;
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.hood__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr);
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: 8px;
+  background: var(--midnight);
+  transition: background 0.35s, border-color 0.35s, opacity 0.35s;
+}
+.hood__num { grid-row: span 3; color: var(--color-text-tertiary); padding-top: 2px; }
+.hood__name { font: 700 var(--text-base) / 1.2 var(--font-display); font-stretch: var(--display-stretch); text-transform: uppercase; }
+.hood__module { color: var(--color-text-tertiary); text-transform: none; letter-spacing: 0.02em; }
+.hood__does { color: var(--color-text-secondary); font-size: var(--text-sm); line-height: 1.45; }
+
+.hood__step[data-state='done'] { border-color: var(--frost-light); }
+.hood__step[data-state='done'] .hood__num { color: var(--frost-light); }
+.hood__step[data-state='active'] { background: var(--moonlight); border-color: var(--moonlight); }
+.hood__step[data-state='active'] :is(.hood__name, .hood__num, .hood__module, .hood__does) { color: var(--oxford-blue); }
+.hood__step[data-state='skipped'] { opacity: 0.45; border-style: dashed; }
+
+.hood__review {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-control-edge);
+  border-radius: 8px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  transition: background 0.35s, color 0.35s;
+}
+.hood__review .mono { color: var(--color-text-tertiary); }
+.hood__review[data-active] { background: var(--moonlight); border-style: solid; border-color: var(--moonlight); color: var(--oxford-blue); }
+.hood__review[data-active] .mono { color: var(--storm); }
+
+.hood__log {
+  padding: var(--space-4);
+  border-radius: 8px;
+  background: var(--oxford-blue);
+  min-height: 160px;
+}
+.hood__log-title { color: var(--color-text-tertiary); margin-bottom: var(--space-3); }
+.hood__log ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 400 0.8125rem / 1.5 var(--font-mono); color: var(--color-text-secondary); }
+.hood__log li .mono { display: inline-block; min-width: 9ch; color: var(--frost-light); letter-spacing: 0.04em; }
+.hood__log-empty { color: var(--color-text-tertiary); }
+.hood__note { color: var(--color-text-tertiary); }
+
+/* Desktop: the nine steps run left to right on one rail, with a travelling token; the review
+   queue hangs below Govern, Patch and Validate. */
+@media (min-width: 1100px) {
+  .hood__pipeline {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    padding-top: 22px;
+  }
+  .hood__pipeline::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: calc(100% / 18);
+    right: calc(100% / 18);
+    height: 1px;
+    background: var(--steel);
+  }
+  .hood__pipeline[data-run]::after {
+    /* The episode token */
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: calc(100% / 18 + (100% / 9) * var(--at));
+    width: 11px;
+    height: 11px;
+    margin-left: -5.5px;
+    border-radius: 50%;
+    background: var(--moonlight);
+    box-shadow: 0 0 0 5px rgb(240 236 221 / 0.18);
+  }
+  :root[data-motion='playing'] .hood__pipeline[data-run]::after { transition: left 0.6s cubic-bezier(0.5, 0, 0.2, 1); }
+  .hood__step { grid-template-columns: minmax(0, 1fr); align-content: start; padding: var(--space-3); min-height: 196px; }
+  .hood__num { grid-row: auto; }
+  .hood__review { margin-left: calc((100% + var(--space-2)) / 9 * 5); width: calc((100% + var(--space-2)) / 9 * 3 - var(--space-2)); margin-top: calc(-1 * var(--space-3)); position: relative; }
+  .hood__review::before {
+    content: '';
+    position: absolute;
+    left: calc(100% / 6);
+    top: calc(-1 * var(--space-3) - 1px);
+    height: var(--space-3);
+    border-left: 1px dashed var(--color-control-edge);
+  }
+}
