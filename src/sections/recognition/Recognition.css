@@ -1,0 +1,193 @@
+/* Scene 05, Recognition: the Moment of Victory (Deep). A tall track scrolls past a sticky stage;
+   the scene is a pure function of the scroll position (--p, --photo and data-stage, set by
+   Recognition.tsx). Paused or reduced motion: no track, just the photograph and the award. */
+.recog { padding-block: 0; }
+
+.recog__track {
+  --cx: 0.5;
+  --ground: 0.8;
+  position: relative;
+  height: 460svh;
+}
+.recog__sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+.recog__head {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: var(--space-3);
+  padding-top: calc(var(--header-h) + var(--space-6));
+  justify-items: start;
+}
+.recog__skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font: 500 var(--text-sm) / 1 var(--font-body);
+  opacity: calc(1 - var(--photo));
+}
+
+.recog__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.recog__symbolic {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--cx) * 100%);
+  top: calc(var(--ground) * 100% + var(--space-3));
+  translate: -50% 0;
+  padding: 4px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  opacity: calc(1 - var(--photo) * 2);
+}
+
+/* The real photograph appears where the figure stood, lifting from monochrome to full colour. */
+.recog__photo {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--cx) * 100%);
+  bottom: calc(100% - var(--ground) * 100%);
+  height: min(50svh, 560px);
+  aspect-ratio: 582 / 805;
+  margin: 0;
+  translate: -50% 0;
+  opacity: var(--photo);
+}
+.recog__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  filter: grayscale(calc(1 - var(--photo))) contrast(1.02);
+  -webkit-mask-image: radial-gradient(circle at 50% 100%, #000 calc(var(--photo) * 120%), transparent calc(var(--photo) * 150%));
+  mask-image: radial-gradient(circle at 50% 100%, #000 calc(var(--photo) * 120%), transparent calc(var(--photo) * 150%));
+  box-shadow: 0 30px 80px -30px #000;
+}
+.recog__photo figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + var(--space-3));
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.recog__award {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: var(--space-3);
+  opacity: clamp(0, calc(var(--photo) * 1.6 - 0.6), 1);
+  transform: translateY(calc((1 - var(--photo)) * 24px));
+}
+.recog__team { color: var(--color-text-tertiary); }
+.recog__title { font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem); max-width: 11ch; }
+.recog__event { color: var(--color-text-secondary); max-width: 34ch; }
+.recog__evidence { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.recog__evidence li {
+  font: 500 var(--text-xs) / 1 var(--font-mono);
+  padding: 7px 10px;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  color: var(--color-text-secondary);
+}
+.recog__note { color: var(--color-text-tertiary); font-size: var(--text-sm); max-width: 36ch; }
+
+/* The narrative rail */
+.recog__stages {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: var(--space-5);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0 var(--gutter);
+  list-style: none;
+  color: var(--color-text-tertiary);
+  opacity: clamp(0, calc(1 - var(--photo) * 3), 1);
+}
+.recog__stages li { opacity: 0.45; transition: opacity 0.3s, color 0.3s; }
+.recog__stages li[data-state='done'] { opacity: 0.75; }
+.recog__stages li[data-state='active'] { opacity: 1; color: var(--color-text); }
+
+.recog__end {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100svh;
+  pointer-events: none;
+}
+
+/* Small screens: the award sits under the photograph; the rail shows only the current stage. */
+@media (max-width: 767.98px) {
+  .recog__track { --ground: 0.7; }
+  .recog__photo { height: 42svh; }
+  .recog__award {
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: var(--space-5);
+    gap: var(--space-2);
+    text-align: center;
+    justify-items: center;
+  }
+  .recog__title { font-size: 1.6rem; max-width: none; }
+  .recog__photo figcaption { display: none; }
+  .recog__note { display: none; }
+  .recog__stages li:not([data-state='active']) { display: none; }
+}
+
+@media (min-width: 768px) {
+  .recog__track { --cx: 0.42; }
+  .recog__award {
+    left: calc(var(--cx) * 100% + min(25svh, 280px) * 0.7238 + var(--space-7));
+    right: var(--gutter);
+    bottom: calc(100% - var(--ground) * 100% + var(--space-6));
+    max-width: 420px;
+  }
+}
+
+/* Paused or reduced motion: no scroll track, the photograph and the award side by side. */
+.recog[data-mode='static'] { padding-block: var(--space-section); }
+.recog[data-mode='static'] .recog__track { height: auto; }
+.recog[data-mode='static'] .recog__sticky {
+  position: static;
+  height: auto;
+  overflow: visible;
+  display: grid;
+  gap: var(--space-6);
+  max-width: calc(var(--content-max) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.recog[data-mode='static'] .recog__head { padding: 0; width: auto; max-width: none; margin: 0; }
+.recog[data-mode='static'] .recog__photo img { -webkit-mask-image: none; mask-image: none; filter: none; }
+.recog[data-mode='static'] :is(.recog__photo, .recog__award) {
+  position: static;
+  translate: none;
+  transform: none;
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.recog[data-mode='static'] .recog__photo { height: auto; width: min(100%, 420px); }
+.recog[data-mode='static'] .recog__photo figcaption { position: static; margin-top: var(--space-3); text-align: left; display: block; }
+.recog[data-mode='static'] .recog__award { text-align: left; justify-items: start; align-content: center; }
+@media (min-width: 768px) {
+  .recog[data-mode='static'] .recog__sticky { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--space-8); }
+  .recog[data-mode='static'] .recog__head { grid-column: 1 / -1; }
+}
