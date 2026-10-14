@@ -13,6 +13,7 @@
   grid-column: 1 / -1;
   display: grid;
   gap: var(--space-3);
+  align-content: start;
 }
 .section__title {
   font-size: var(--text-2xl);
@@ -25,7 +26,9 @@
   gap: var(--space-5);
   align-content: start;
 }
-.section__body > p { max-width: var(--measure); color: var(--color-text-secondary); }
+.section__body > p,
+.section__lead { max-width: var(--measure); color: var(--color-text-secondary); }
+.section__lead { margin-top: var(--space-3); }
 
 @media (min-width: 1280px) {
   .section__header { grid-column: 1 / span 5; }

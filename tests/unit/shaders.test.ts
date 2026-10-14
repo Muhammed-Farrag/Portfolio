@@ -1,8 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  MORPH_INSERT,
+  OFFSET_INSERT,
   PALETTE_BRANCH,
   PALETTE_UNIFORMS,
+  STORY_DECLARATIONS,
   FRAGMENT,
   LEGACY_FRAGMENT,
   LEGACY_VERTEX,
@@ -22,14 +25,25 @@ describe('shaders', () => {
     expect(LEGACY_FRAGMENT).toBe(extract('fragment'));
   });
 
-  it('changes nothing but the two colour insertions', () => {
-    expect(VERTEX.replace(PALETTE_UNIFORMS, '').replace(PALETTE_BRANCH, '')).toBe(LEGACY_VERTEX);
+  const withoutInsertions = () =>
+    [PALETTE_UNIFORMS, STORY_DECLARATIONS, MORPH_INSERT, OFFSET_INSERT, PALETTE_BRANCH].reduce((s, part) => s.replace(part, ''), VERTEX);
+
+  it('changes nothing but the documented insertions', () => {
+    expect(withoutInsertions()).toBe(LEGACY_VERTEX);
     expect(FRAGMENT).toBe(LEGACY_FRAGMENT);
   });
 
   it('leaves the physics and point-size code untouched', () => {
     const physics = LEGACY_VERTEX.slice(LEGACY_VERTEX.indexOf('void main(){'), LEGACY_VERTEX.indexOf('float lum='));
-    expect(VERTEX).toContain(physics);
+    expect(withoutInsertions()).toContain(physics);
+  });
+
+  it('takes the per-point seed from the original position, before the morph', () => {
+    expect(VERTEX).toContain('float seed=rnd(p);p=mix(p,aTarget,uMorph);');
+  });
+
+  it('applies the framing offset after scaling and before projection', () => {
+    expect(VERTEX).toContain('vec2 pixel=p*uScale;pixel+=uOffset;gl_Position=');
   });
 
   it('avoids smoothstep with reversed edges (undefined in GLSL ES)', () => {

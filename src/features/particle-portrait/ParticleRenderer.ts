@@ -5,9 +5,10 @@
 // through set() instead of being read from DOM controls each frame, listeners are scoped to an
 // AbortController and released by dispose(), rendering stops while the canvas is off-screen,
 // state is emitted only when it changes, and a lost WebGL context is rebuilt on restore.
-// Two hooks for the site's Hero add nothing to the legacy maths and are inert by default:
-// assemble() plays the reform half of the legacy scatter curve, and setExit() adds a
-// scroll-driven offset to uBurst.
+// Hooks for the site add nothing to the legacy maths and are inert by default: assemble() plays
+// the reform half of the legacy scatter curve, setExit() adds a scroll-driven offset to uBurst,
+// setFrame() draws the portrait inside a rectangle of a larger (optionally transparent) canvas,
+// and setMorphTarget()/setMorph() move every point towards a second shape.
 
 import { FRAGMENT, VERTEX } from './shaders';
 import { DEFAULT_THRESHOLD, POINT_STRIDE, SAMPLE_SIZE, rasterise, samplePortrait, type SampleStep } from './sampling';
@@ -51,7 +52,17 @@ export interface RendererOptions {
   /** Element whose box sets the canvas size. Defaults to the canvas's parent. */
   sizeTarget?: HTMLElement;
   paused?: boolean;
+  /** Transparent canvas: clears to nothing instead of settings.background (the page shows through). */
+  transparent?: boolean;
   settings?: Partial<PortraitSettings>;
+}
+
+/** A rectangle in CSS pixels, relative to the canvas's top-left corner. */
+export interface Frame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 /** The prototype's warm-black stage colour (#110E0A). */
@@ -76,7 +87,9 @@ export const DEFAULT_SETTINGS: PortraitSettings = {
 };
 
 const TONE_INDEX: Record<Tone, number> = { amber: 0, ivory: 1, green: 2, moonlight: 3 };
-const UNIFORMS = ['uResolution', 'uScale', 'uPoint', 'uTime', 'uBurst', 'uForce', 'uTone', 'uMouse', 'uLow', 'uHigh', 'uAccLow', 'uAccHigh'] as const;
+const UNIFORMS = ['uResolution', 'uScale', 'uPoint', 'uTime', 'uBurst', 'uForce', 'uTone', 'uMouse', 'uLow', 'uHigh', 'uAccLow', 'uAccHigh', 'uMorph', 'uOffset'] as const;
+/** Fixed attribute locations, so location 0 is always the always-enabled position array. */
+const ATTRIBUTES = { aPosition: 0, aColor: 1, aTarget: 2 } as const;
 type UniformName = (typeof UNIFORMS)[number];
 const OFF: [number, number] = [-9, -9];
 /** Length of a scatter-and-reform pulse in seconds. */
@@ -89,13 +102,15 @@ type Listener = (state: PortraitState) => void;
  * creating the renderer must use these, because the first getContext() call fixes them.
  */
 export const CONTEXT_ATTRIBUTES: WebGLContextAttributes = { alpha: false, antialias: false };
+/** Context attributes for a transparent renderer (RendererOptions.transparent). */
+export const TRANSPARENT_CONTEXT_ATTRIBUTES: WebGLContextAttributes = { alpha: true, premultipliedAlpha: true, antialias: false };
 
 export function createParticleRenderer(
   canvas: HTMLCanvasElement,
   image: CanvasImageSource,
   options: RendererOptions = {},
 ): ParticleRenderer | { fallback: FallbackReason; error?: unknown } {
-  const gl = canvas.getContext('webgl', CONTEXT_ATTRIBUTES);
+  const gl = canvas.getContext('webgl', options.transparent ? TRANSPARENT_CONTEXT_ATTRIBUTES : CONTEXT_ATTRIBUTES);
   if (!gl) return { fallback: 'no-webgl' };
   let pixels: Uint8ClampedArray;
   try {
@@ -114,6 +129,12 @@ export class ParticleRenderer {
   private settings: PortraitSettings;
   private program: WebGLProgram | null = null;
   private buffer: WebGLBuffer | null = null;
+  private targetBuffer: WebGLBuffer | null = null;
+  private morphTarget: Float32Array | null = null;
+  private morph = 0;
+  private frame: Frame | null = null;
+  private dpr = 1;
+  private readonly transparent: boolean;
   private uniforms = {} as Record<UniformName, WebGLUniformLocation | null>;
   private points: Float32Array = new Float32Array();
   private loaded = false;
@@ -150,6 +171,7 @@ export class ParticleRenderer {
     this.sizeTarget = options.sizeTarget ?? parent;
     this.settings = { ...DEFAULT_SETTINGS, ...options.settings };
     this.paused = options.paused ?? false;
+    this.transparent = options.transparent ?? false;
 
     this.initGL();
     this.loaded = true;
@@ -266,6 +288,36 @@ export class ParticleRenderer {
     if (!this.paused && !this.running) this.draw();
   }
 
+  /** Draws the portrait inside `frame` (CSS px, relative to the canvas) instead of filling the canvas. */
+  setFrame(frame: Frame | null): void {
+    this.frame = frame;
+    if (!this.running) this.draw();
+  }
+
+  /**
+   * A second shape for the same points: x, y pairs in the portrait's coordinate space, one pair
+   * per point in the current sampling order. Cleared automatically if the sampling changes.
+   */
+  setMorphTarget(target: Float32Array | null): void {
+    if (target && target.length !== this.pointCount * 2) throw new Error(`morph target needs ${this.pointCount * 2} values, got ${target.length}`);
+    this.morphTarget = target;
+    this.uploadTarget();
+    if (!this.running) this.draw();
+  }
+
+  /** 0 = the portrait, 1 = the morph target. */
+  setMorph(amount: number): void {
+    const next = Math.max(0, Math.min(1, amount));
+    if (next === this.morph) return;
+    this.morph = next;
+    if (!this.running) this.draw();
+  }
+
+  /** A copy of the sampled points, interleaved x, y, r, g, b (POINT_STRIDE floats per point). */
+  getPoints(): Float32Array {
+    return this.points.slice();
+  }
+
   /** Clears any running pulse and pointer influence (legacy Reset). */
   resetMotion(): void {
     this.pulse = this.burst = 0;
@@ -297,6 +349,7 @@ export class ParticleRenderer {
     if (this.disposed) return;
     const d = Math.min(window.devicePixelRatio || 1, 2);
     const r = this.sizeTarget.getBoundingClientRect();
+    this.dpr = d;
     const width = Math.round(r.width * d);
     const height = Math.round(r.height * d);
     if (this.canvas.width !== width || this.canvas.height !== height) {
@@ -318,6 +371,7 @@ export class ParticleRenderer {
     this.intersectionObserver.disconnect();
     this.listeners.clear();
     if (!this.gl.isContextLost()) {
+      this.gl.deleteBuffer(this.targetBuffer);
       this.gl.deleteBuffer(this.buffer);
       this.gl.deleteProgram(this.program);
     }
@@ -334,6 +388,7 @@ export class ParticleRenderer {
     const fragment = this.compile(gl.FRAGMENT_SHADER, FRAGMENT);
     gl.attachShader(program, vertex);
     gl.attachShader(program, fragment);
+    for (const [name, location] of Object.entries(ATTRIBUTES)) gl.bindAttribLocation(program, location, name);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program) ?? 'link failed');
     gl.deleteShader(vertex);
@@ -342,13 +397,28 @@ export class ParticleRenderer {
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     for (const [name, size, offset] of [['aPosition', 2, 0], ['aColor', 3, 8]] as const) {
-      const loc = gl.getAttribLocation(program, name);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, size, gl.FLOAT, false, POINT_STRIDE * 4, offset);
+      gl.enableVertexAttribArray(ATTRIBUTES[name]);
+      gl.vertexAttribPointer(ATTRIBUTES[name], size, gl.FLOAT, false, POINT_STRIDE * 4, offset);
     }
     for (const name of UNIFORMS) this.uniforms[name] = gl.getUniformLocation(program, name);
     this.program = program;
     this.buffer = buffer;
+    this.targetBuffer = gl.createBuffer();
+  }
+
+  /** Without a target the aTarget array is disabled and reads (0, 0); uMorph is then forced to 0. */
+  private uploadTarget(): void {
+    const gl = this.gl;
+    if (!this.targetBuffer || gl.isContextLost()) return;
+    if (this.morphTarget) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.targetBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this.morphTarget, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(ATTRIBUTES.aTarget);
+      gl.vertexAttribPointer(ATTRIBUTES.aTarget, 2, gl.FLOAT, false, 0, 0);
+    } else {
+      gl.disableVertexAttribArray(ATTRIBUTES.aTarget);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
   }
 
   private compile(type: number, source: string): WebGLShader {
@@ -364,6 +434,10 @@ export class ParticleRenderer {
   private resample(): void {
     this.points = samplePortrait(this.pixels, SAMPLE_SIZE, this.settings.step, this.settings.threshold);
     this.upload();
+    if (this.morphTarget && this.morphTarget.length !== this.pointCount * 2) {
+      this.morphTarget = null;
+      this.uploadTarget();
+    }
   }
 
   private upload(): void {
@@ -376,8 +450,18 @@ export class ParticleRenderer {
     const gl = this.gl;
     const u = this.uniforms;
     const { step, force, tone, background, palette } = this.settings;
-    const scale = Math.min(this.canvas.width, this.canvas.height) * 0.98;
-    gl.clearColor(background[0] / 255, background[1] / 255, background[2] / 255, 1);
+    const { width, height } = this.canvas;
+    let scale = Math.min(width, height) * 0.98;
+    let offsetX = 0;
+    let offsetY = 0;
+    if (this.frame) {
+      const f = this.frame;
+      scale = Math.min(f.width, f.height) * this.dpr * 0.98;
+      offsetX = (f.x + f.width / 2) * this.dpr - width / 2;
+      offsetY = height / 2 - (f.y + f.height / 2) * this.dpr;
+    }
+    if (this.transparent) gl.clearColor(0, 0, 0, 0);
+    else gl.clearColor(background[0] / 255, background[1] / 255, background[2] / 255, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.uniform2f(u.uResolution, this.canvas.width, this.canvas.height);
     gl.uniform1f(u.uScale, scale);
@@ -391,6 +475,8 @@ export class ParticleRenderer {
     gl.uniform3f(u.uHigh, palette.high[0] / 255, palette.high[1] / 255, palette.high[2] / 255);
     gl.uniform3f(u.uAccLow, palette.accentLow[0] / 255, palette.accentLow[1] / 255, palette.accentLow[2] / 255);
     gl.uniform3f(u.uAccHigh, palette.accentHigh[0] / 255, palette.accentHigh[1] / 255, palette.accentHigh[2] / 255);
+    gl.uniform1f(u.uMorph, this.morphTarget ? this.morph : 0);
+    gl.uniform2f(u.uOffset, offsetX, offsetY);
     gl.drawArrays(gl.POINTS, 0, this.pointCount);
   }
 
@@ -444,6 +530,7 @@ export class ParticleRenderer {
     try {
       this.initGL();
       this.upload();
+      this.uploadTarget();
       this.loaded = true;
       this.resize();
       if (this.paused) this.pause();

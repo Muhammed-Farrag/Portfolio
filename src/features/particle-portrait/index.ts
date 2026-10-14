@@ -1,5 +1,6 @@
 export {
   CONTEXT_ATTRIBUTES,
+  TRANSPARENT_CONTEXT_ATTRIBUTES,
   PORTFOLIO_BACKGROUND,
   PORTFOLIO_PALETTE,
   DEFAULT_SETTINGS,
@@ -8,6 +9,7 @@ export {
   createParticleRenderer,
 } from './ParticleRenderer';
 export type {
+  Frame,
   TonePalette,
   FallbackReason,
   PortraitSettings,

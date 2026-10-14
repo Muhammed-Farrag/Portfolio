@@ -103,6 +103,8 @@ The engine, sampling, physics, pointer interaction, scatter/reform and controls 
 
 Phase 3 A/B tests the ramp endpoints and the tie accent against the real portrait. The owner approves the result.
 
+6. **Story hooks (Phase C).** Three more shader insertions, all inert at their defaults: a morph towards a second shape (`aTarget`, `uMorph`, applied after the per-point seed is taken from the original position) and a framing offset (`uOffset`) so the portrait can be drawn inside any rectangle of a larger, transparent canvas. The Lab parity tests run the engine with these at their defaults and still match the prototype pixel for pixel.
+
 ## 4. Typography and layout
 
 Unchanged. Archivo (display, width 125%, uppercase for the name and section titles), Geist (body), JetBrains Mono (labels and readouts). A 12/8/4 column grid with a gutter of at least 16 px. Tested at 390, 768, 1280 and 1440 px.
@@ -112,7 +114,7 @@ Unchanged. Archivo (display, width 125%, uppercase for the name and section titl
 | # | Scene | Color treatment | Motion |
 |---|---|---|---|
 | 01 | Arrival: the hero and Particle Portrait | Oxford Blue ground with a faint Storm depth behind the portrait; Moonlight particles with Frost Blue highlights; Moonlight name; Frost Blue eyebrow and specialism markers; Mist specialisms. Primary CTA is a Moonlight fill with Oxford Blue text (Frost Blue on hover); secondary CTAs have Frost Blue outlines and a Steel hover fill. | Reform intro from the original scatter curve, scroll-driven `uBurst` on exit, render loop stops off-screen. Headline masked reveal. |
-| 02 | How he thinks: system constellation | Route in Steel, the travelling pulse in Frost Light, nodes outlined in Frost Blue, the focused node filled Moonlight | The route draws once with one pulse |
+| 02 | How he thinks: system constellation | Mid ground. The portrait's own particles form four layers (Intelligence, Orchestration, Product, Operations): Moonlight cores, rings and a Steel route, with a faint field of stars; HTML labels in Moonlight with Frost Blue indices. The still SVG uses Frost Blue rings, Steel route and Moonlight cores. | Built in Phase C: scroll carries the portrait from its slot to the figure, dispersing (uBurst, eased), morphing (uMorph) and dimming while it travels. Scroll-linked, reversible, no lock. Links to projects pending. |
 | 03 | Selected work | Storm case panels; the NovaCare attribution map shows his modules in Frost Light and teammates' in Steel with Mist labels | Sticky visuals, hover preview swap, HELIOS gesture console |
 | 04 | Under the hood: Self-Healing | Midnight section, Storm diagram panel, Steel edges, the active step as a Moonlight fill with Oxford Blue text and a Frost Light path | Pinned scroll steps, inject-a-failure simulation |
 | 05 | Beyond the Code: recognition | Storm chapters on Oxford Blue, a Frost Light thread, Moonlight nodes, photographs with an Oxford/Moonlight duotone grade at rest | Pinned horizontal track on desktop; the grade lifts and a halftone-dot reveal plays when a chapter is active |

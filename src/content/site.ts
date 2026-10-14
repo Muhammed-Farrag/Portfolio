@@ -47,7 +47,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'How I work',
     title: 'From model to running system',
     summary: 'Intelligence, orchestration, product and operations: the four layers every project on this page moves through.',
-    pending: 'Scene 02: system constellation linking each layer to the projects that use it.',
+    pending: 'Scene 02: links from each layer to the projects that use it.',
     theme: 'mid',
     blendFrom: 'deep',
   },

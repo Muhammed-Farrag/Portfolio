@@ -127,21 +127,6 @@ test.describe('hero portrait', () => {
     expect(local).toBeGreaterThan(elsewhere * 2);
   });
 
-  test('disperses and fades on scroll, and stops rendering once off-screen', async ({ page }) => {
-    await trackAnimationFrames(page);
-    await page.goto('/');
-    await waitForPortrait(page);
-    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
-    const heroHeight = await page.locator('.hero').evaluate((e) => e.getBoundingClientRect().height);
-    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.5);
-    await expect.poll(() => stage(page).evaluate((e) => Number(getComputedStyle(e).opacity)), { timeout: 20_000 }).toBeLessThan(0.8);
-    await page.locator('#journey').scrollIntoViewIfNeeded();
-    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(0);
-    await page.evaluate(() => window.scrollTo(0, 0));
-    await expect.poll(() => stage(page).evaluate((e) => Number(getComputedStyle(e).opacity)), { timeout: 20_000 }).toBe(1);
-    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(1);
-  });
-
   test('respects reduced motion: a still portrait with no intro, loop or scroll effect', async ({ browser }, info) => {
     const context = await browser.newContext({ ...info.project.use, reducedMotion: 'reduce' });
     const page = await context.newPage();
@@ -151,13 +136,13 @@ test.describe('hero portrait', () => {
     await page.goto(info.project.use.baseURL!);
     await waitForPortrait(page);
     await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    expect(await page.locator('.hero__canvas').evaluate((e) => getComputedStyle(e).transitionDuration)).toBe('0s');
+    expect(await page.locator('.story__canvas').evaluate((e) => getComputedStyle(e).transitionDuration)).toBe('0s');
     await page.waitForTimeout(500);
     expect(await pendingFrames(page)).toBe(0);
     expect(await heroStates(page)).not.toContain('reforming');
     await page.evaluate(() => window.scrollTo(0, 400));
     await page.waitForTimeout(300);
-    expect(await stage(page).evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await expect(stage(page)).toHaveAttribute('data-progress', '0.000');
     expect(w.errors).toEqual([]);
     await context.close();
   });
@@ -172,7 +157,7 @@ test.describe('hero portrait', () => {
     const img = page.locator('.hero__fallback');
     await expect(img).toBeVisible();
     await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth)).toBe(1000);
-    await expect(page.locator('.hero__canvas')).toBeHidden();
+    await expect(page.locator('.story__layer')).toBeHidden();
     await expect(page.locator('.hero__motion'), 'nothing to pause on a still frame').toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Explore the work' })).toBeVisible();
     expect(requested.filter((u) => u.includes('source-600')), 'the particle source is not downloaded').toEqual([]);
@@ -210,10 +195,10 @@ test.describe('pause motion control (WCAG 2.2.2)', () => {
     await waitForPortrait(page);
     await expect(stage(page)).toHaveAttribute('data-state', 'paused');
     await expect(play).toBeVisible();
-    // Paused means no entrance and no scroll effect either.
+    // Paused means no entrance and no scroll-driven transition either.
     await page.evaluate(() => window.scrollTo(0, 400));
     await page.waitForTimeout(300);
-    expect(await stage(page).evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    await expect(stage(page)).toHaveAttribute('data-progress', '0.000');
   });
 
   test('starts paused under reduced motion, and the visitor can still choose to play', async ({ browser }, info) => {

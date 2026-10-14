@@ -33,13 +33,17 @@ legacy/particle-portrait/      Byte-identical copy of D:\particle-portrait (neve
 index.html, src/main.tsx      Public site entry (React 18)
 src/app/                       App composition
 src/components/                Layout (header, section frame, footer) and <Pending>
-src/sections/                  Hero (HeroPortrait mounts the engine) and Contact; the other scenes use the shared Section frame for now
+src/sections/                  HeroApproachStory (the shared particle layer), Hero and HeroPortrait (mounts the engine and drives
+                               the transition), ApproachFigure, Contact; the other scenes use the shared Section frame for now
+src/features/story/            approachDiagram.ts: the four-layer diagram geometry and the particle-to-target pairing
+src/features/motion/           The site-wide Pause motion preference
 src/assets/portrait/            The engine's 600×600 source (lossless WebP) and the no-WebGL still frame
 scripts/portrait-assets.mjs    Regenerates both from the legacy PNG; fails unless the sampled points are identical
 src/content/site.ts            Shell copy and section structure (approved claims only)
 src/styles/                    tokens.css (Moonlight & Oxford tokens and the four section themes) and global.css
 src/features/particle-portrait/
-  shaders.ts                   Legacy GLSL verbatim, plus a colour-only palette tone branch
+  shaders.ts                   Legacy GLSL verbatim, plus documented insertions: the palette tone branch and the story
+                               hooks (morph target, framing offset), all inert at their defaults
   sampling.ts                  Point sampling, byte-identical to the legacy loop
   ParticleRenderer.ts          The engine: legacy draw/tick/scatter, plus lifecycle (dispose, observers, context restore)
 dev/                           Development and test pages only. Never production routes; noindex.
@@ -86,6 +90,16 @@ Sampling, physics, pointer mapping and scatter/reform are unchanged from the pro
 
 The stage exposes `data-state` and `data-points` for the tests.
 
+## Hero to Approach transition
+
+One transparent WebGL canvas (`.story__layer`) sticks to the viewport while the Hero or the Approach section is on screen. Section grounds paint below it and section content above it, so particles never cover text. There is only ever one WebGL context.
+
+- At rest the renderer draws the portrait inside the Hero's portrait slot (`setFrame`). An overlay on the slot fades its edges into the section ground, which is much cheaper than masking a full-viewport canvas.
+- Scrolling moves the drawing frame from the slot to the Approach figure. On the way the points disperse (`setExit`), change shape (`setMorph` towards targets from `approachDiagram.ts`, brightest particles to the cores and rings), then settle into the four-layer diagram while its HTML labels fade in. Progress is a pure function of scroll position: no lag, exact reversal, no scroll locking.
+- The cloud dims while dispersed (more on narrow screens, where it crosses the Hero's text).
+- Paused, reduced motion or no WebGL: the portrait stays on its slot (or the still frame), and the Approach figure shows its SVG drawing with the same labels.
+- The four layers are an ordered list in the Approach section, readable without the animation.
+
 ## Placeholders
 
 `<Pending>` marks unfinished work. It renders only in development (`npm run dev`) or when `VITE_SHOW_PENDING=true`, and renders nothing in a production build. A test checks the production build for placeholders.
@@ -94,7 +108,9 @@ The stage exposes `data-state` and `data-points` for the tests.
 
 The Playwright suite runs the same behaviour tests against the **original prototype** (`legacy-*` projects) and the **maintained engine** (`lab-*` projects), at 1440×900 and 390×844. Tests that document a defect in the original are marked as expected failures for the legacy projects only. WebGL runs on SwiftShader, so no GPU is needed. Tracing is off because DOM snapshots on every action starve a page that redraws WebGL at 60 fps.
 
-The `site-*` projects cover the public site: structure, fonts, skip link, navigation (desktop and the mobile menu), overflow at 390/768/1280/1440 px, axe accessibility scan, reduced motion, and the production build. `tests/unit/tokens.test.ts` checks every allowed colour pair against WCAG.
+The `site-desktop` and `site-mobile` projects cover the public site: structure, fonts, skip link, navigation (desktop and the mobile menu), section themes, overflow at 390/768/1280/1440 px, axe accessibility scan, reduced motion, and the production build. `tests/unit/tokens.test.ts` checks every allowed colour pair in every theme against WCAG.
+
+The `site-webgl-desktop` and `site-webgl-mobile` projects (`hero.spec.ts`, `story.spec.ts`) cover the live portrait and the Hero-to-Approach transition: forward and reverse scrolling, rapid scrolling and section jumps, a single render loop that stops off-screen, Pause motion, reduced motion and the no-WebGL fallback. They render a full-viewport canvas in software, so each runs one test at a time (measured: 2 parallel workers were slower and timed out; 1 worker was faster with no failures) and gets a 120 s budget per test. The other projects stay parallel. Nothing is retried, locally or in CI.
 
 Baseline point counts (Chromium, original prototype): 10,203 / 4,525 / 2,549 at Ultra / Fine / Soft.
 
