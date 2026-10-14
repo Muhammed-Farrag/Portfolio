@@ -1,11 +1,11 @@
-import { Pending } from '../components/Pending';
 import { profile } from '../content/site';
 import './Hero.css';
+import { HeroPortrait } from './HeroPortrait';
 
 export function Hero() {
   return (
     <section id="top" className="hero" aria-labelledby="hero-name">
-      <div className="container grid hero__grid">
+      <div className="container hero__layout">
         <div className="hero__text">
           <p className="eyebrow">{profile.title}</p>
           <h1 id="hero-name" className="display hero__name">
@@ -30,10 +30,7 @@ export function Hero() {
             </a>
           </div>
         </div>
-        {/* Reserved square for the Particle Portrait (next milestone), so the layout does not shift. */}
-        <div className="hero__portrait" aria-hidden="true">
-          <Pending block>Particle Portrait: integrated in the Hero milestone (Moonlight particles on Oxford Blue).</Pending>
-        </div>
+        <HeroPortrait />
       </div>
     </section>
   );

@@ -5,6 +5,9 @@
 // through set() instead of being read from DOM controls each frame, listeners are scoped to an
 // AbortController and released by dispose(), rendering stops while the canvas is off-screen,
 // state is emitted only when it changes, and a lost WebGL context is rebuilt on restore.
+// Two hooks for the site's Hero add nothing to the legacy maths and are inert by default:
+// assemble() plays the reform half of the legacy scatter curve, and setExit() adds a
+// scroll-driven offset to uBurst.
 
 import { FRAGMENT, VERTEX } from './shaders';
 import { DEFAULT_THRESHOLD, POINT_STRIDE, SAMPLE_SIZE, rasterise, samplePortrait, type SampleStep } from './sampling';
@@ -81,12 +84,18 @@ const PULSE = 2.6;
 
 type Listener = (state: PortraitState) => void;
 
+/**
+ * The renderer's WebGL context attributes. A caller that probes a canvas for WebGL before
+ * creating the renderer must use these, because the first getContext() call fixes them.
+ */
+export const CONTEXT_ATTRIBUTES: WebGLContextAttributes = { alpha: false, antialias: false };
+
 export function createParticleRenderer(
   canvas: HTMLCanvasElement,
   image: CanvasImageSource,
   options: RendererOptions = {},
 ): ParticleRenderer | { fallback: FallbackReason; error?: unknown } {
-  const gl = canvas.getContext('webgl', { alpha: false, antialias: false });
+  const gl = canvas.getContext('webgl', CONTEXT_ATTRIBUTES);
   if (!gl) return { fallback: 'no-webgl' };
   let pixels: Uint8ClampedArray;
   try {
@@ -117,6 +126,8 @@ export class ParticleRenderer {
   private time = 0;
   private burst = 0;
   private pulse = 0;
+  private exit = 0;
+  private pulseScale = 1;
   private mouse: [number, number] = [...OFF];
   private target: [number, number] = [...OFF];
   private inside = false;
@@ -229,8 +240,30 @@ export class ParticleRenderer {
   scatter(): boolean {
     if (!this.loaded || this.paused) return false;
     this.pulse = PULSE;
+    this.pulseScale = 1;
     this.start();
     return true;
+  }
+
+  /**
+   * Starts scattered and reforms along the second half of the legacy pulse (1.3 s), as an
+   * entrance. `strength` scales the legacy burst (1 = as far as a full scatter). Returns false
+   * when paused or not ready.
+   */
+  assemble(strength = 1): boolean {
+    if (!this.loaded || this.paused) return false;
+    this.pulse = PULSE / 2;
+    this.pulseScale = Math.max(0, Math.min(1, strength));
+    this.start();
+    return true;
+  }
+
+  /** Extra scatter, added to uBurst while the canvas is drawn (0 = none). Ignored while paused. */
+  setExit(amount: number): void {
+    const next = Math.max(0, Math.min(1, amount));
+    if (next === this.exit) return;
+    this.exit = next;
+    if (!this.paused && !this.running) this.draw();
   }
 
   /** Clears any running pulse and pointer influence (legacy Reset). */
@@ -350,7 +383,7 @@ export class ParticleRenderer {
     gl.uniform1f(u.uScale, scale);
     gl.uniform1f(u.uPoint, Math.max(0.8, (scale / 600) * step * 1.08));
     gl.uniform1f(u.uTime, this.paused ? 0 : this.time);
-    gl.uniform1f(u.uBurst, this.burst);
+    gl.uniform1f(u.uBurst, this.burst + (this.paused ? 0 : this.exit));
     gl.uniform1f(u.uForce, this.paused ? 0 : force);
     gl.uniform1f(u.uTone, TONE_INDEX[tone]);
     gl.uniform2fv(u.uMouse, this.mouse);
@@ -369,7 +402,7 @@ export class ParticleRenderer {
     this.time += dt;
     if (this.pulse > 0) {
       this.pulse = Math.max(0, this.pulse - dt);
-      this.burst = Math.sin(Math.PI * (1 - this.pulse / PULSE)) ** 2 * 0.82;
+      this.burst = Math.sin(Math.PI * (1 - this.pulse / PULSE)) ** 2 * 0.82 * this.pulseScale;
       this.emit(this.pulse > 1.3 ? 'scattering' : 'reforming');
     } else {
       this.burst = 0;

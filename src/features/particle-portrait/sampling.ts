@@ -45,7 +45,11 @@ export function samplePortrait(
 export function rasterise(image: CanvasImageSource, size: number = SAMPLE_SIZE): Uint8ClampedArray {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
-  const ctx = canvas.getContext('2d');
+  // An image that is already size×size is copied pixel for pixel, so it can use a CPU-backed
+  // canvas, which reads back far faster. Anything that has to be scaled keeps the legacy
+  // default canvas, so its resampling (and therefore the sampled points) cannot change.
+  const exact = image instanceof HTMLImageElement && image.naturalWidth === size && image.naturalHeight === size;
+  const ctx = canvas.getContext('2d', exact ? { willReadFrequently: true } : undefined);
   if (!ctx) throw new Error('2D canvas unavailable');
   ctx.drawImage(image, 0, 0, size, size);
   return ctx.getImageData(0, 0, size, size).data;

@@ -83,8 +83,8 @@ describe('index.html', () => {
   const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
   it('uses only token colours (theme-color and the no-JavaScript fallback)', () => {
     expect(html).toMatch(new RegExp(`name="theme-color" content="${resolve('color-bg')}"`, 'i'));
-    const tokens = new Set([resolve('color-bg'), resolve('color-text')]);
-    for (const value of html.match(/#[0-9a-f]{6}/gi) ?? []) expect(tokens.has(value.toLowerCase()), value).toBe(true);
+    const tokens = new Set([resolve('color-bg'), resolve('color-text'), resolve('color-link')]);
+    for (const value of html.match(/#[0-9a-f]{6}\b/gi) ?? []) expect(tokens.has(value.toLowerCase()), value).toBe(true);
   });
 });
 

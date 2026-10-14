@@ -32,6 +32,9 @@ test.describe('site shell', () => {
 
   test('the skip link moves focus to the main content', async ({ page }) => {
     await page.goto('/');
+    // Under software WebGL the portrait's start-up is a busy moment for the main thread; the
+    // first keypress is sent after it so the test checks focus order, not start-up timing.
+    await expect(page.locator('.hero__portrait')).not.toHaveAttribute('data-mode', 'loading', { timeout: 15_000 });
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to content' });
     await expect(skip).toBeFocused();
@@ -54,7 +57,7 @@ test.describe('site shell', () => {
 
   test('reserves a square for the portrait so the layout cannot shift', async ({ page }) => {
     await page.goto('/');
-    const box = await page.locator('.hero__portrait').boundingBox();
+    const box = await page.locator('.hero__stage').boundingBox();
     expect(box).not.toBeNull();
     expect(Math.abs(box!.width - box!.height)).toBeLessThanOrEqual(1);
   });

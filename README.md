@@ -2,7 +2,7 @@
 
 Personal portfolio for Muhammed Farrag, Applied AI Engineer. The hero is built on his original Particle Portrait WebGL renderer.
 
-The work is done in phases, and each phase needs the owner's approval. Phase 1 (stabilising the Particle Portrait) is complete. Phase 2 milestone 1 adds the React application shell: design tokens, typography, responsive navigation and the section structure. See `docs/DESIGN_SPEC.md`, `docs/SOURCE_AUDIT.md` and `docs/CONTENT_APPROVAL.md`.
+The work is done in phases, and each phase needs the owner's approval. Phase 1 (stabilising the Particle Portrait) is complete. Phase 2 milestone 1 added the React application shell: design tokens, typography, responsive navigation and the section structure. The Hero milestone puts the live Particle Portrait into the site. See `docs/DESIGN_SPEC.md`, `docs/SOURCE_AUDIT.md` and `docs/CONTENT_APPROVAL.md`.
 
 ## Requirements
 
@@ -33,7 +33,9 @@ legacy/particle-portrait/      Byte-identical copy of D:\particle-portrait (neve
 index.html, src/main.tsx      Public site entry (React 18)
 src/app/                       App composition
 src/components/                Layout (header, section frame, footer) and <Pending>
-src/sections/                  Hero and Contact; the other scenes use the shared Section frame for now
+src/sections/                  Hero (HeroPortrait mounts the engine) and Contact; the other scenes use the shared Section frame for now
+src/assets/portrait/            The engine's 600×600 source (lossless WebP) and the no-WebGL still frame
+scripts/portrait-assets.mjs    Regenerates both from the legacy PNG; fails unless the sampled points are identical
 src/content/site.ts            Shell copy and section structure (approved claims only)
 src/styles/                    tokens.css (Moonlight & Oxford tokens) and global.css
 src/features/particle-portrait/
@@ -70,6 +72,18 @@ else {
 ```
 
 Sampling, physics, pointer mapping and scatter/reform are unchanged from the prototype. The engine stops rendering when the canvas is off-screen or the tab is hidden, emits state only on change, and rebuilds itself after a lost WebGL context. `dispose()` leaves the WebGL context alive so that a renderer re-created on the same canvas works.
+
+## Hero portrait
+
+`src/sections/HeroPortrait.tsx` creates the renderer in the Moonlight tone on Oxford Blue.
+
+- **Source.** The engine samples a 600×600 lossless WebP (151 KB) instead of the 1.9 MB legacy PNG. Pixels below the sampling threshold are blackened, and `scripts/portrait-assets.mjs` refuses to write the file unless all three densities sample exactly the same points as the PNG.
+- **Density.** Ultra (10,203 points) on capable desktops; Fine (4,525) below 768 px or on devices with 4 or fewer cores or 4 GB or less memory; Soft (2,549) with Save-Data.
+- **Motion.** An entrance that reforms along the legacy scatter curve at 45% strength, and a scroll-away transition that adds up to 0.22 to `uBurst` while the stage fades. Rendering stops off-screen.
+- **Reduced motion.** A still, paused frame. No entrance, no scroll effect and no animation loop.
+- **No WebGL.** The page probes for WebGL before downloading the source, and shows `fallback.webp`, a paused engine frame.
+
+The stage exposes `data-state` and `data-points` for the tests.
 
 ## Placeholders
 

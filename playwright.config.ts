@@ -34,8 +34,8 @@ export default defineConfig({
     { name: 'lab-desktop', testMatch: /(portrait-behaviour|lab-lifecycle|parity|preview)\.spec\.ts/, use: { ...desktop, baseURL: LAB_URL } },
     { name: 'lab-mobile', testMatch: /(portrait-behaviour|parity)\.spec\.ts/, use: { ...mobile, baseURL: LAB_URL } },
     // The public site (Phase 2+). The production-build check runs against `vite preview` of dist/.
-    { name: 'site-desktop', testMatch: 'site-shell.spec.ts', use: { ...desktop, baseURL: SITE_URL } },
-    { name: 'site-mobile', testMatch: 'site-shell.spec.ts', use: { ...mobile, baseURL: SITE_URL } },
+    { name: 'site-desktop', testMatch: /(site-shell|hero)\.spec\.ts/, use: { ...desktop, baseURL: SITE_URL } },
+    { name: 'site-mobile', testMatch: /(site-shell|hero)\.spec\.ts/, use: { ...mobile, baseURL: SITE_URL } },
   ],
   webServer: [
     { command: 'node scripts/serve-static.mjs 4310', url: LEGACY_URL, reuseExistingServer: !process.env.CI },

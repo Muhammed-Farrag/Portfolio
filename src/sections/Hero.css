@@ -1,15 +1,27 @@
+/* Hero: the name and the Particle Portrait share one composition. The canvas clears to the page's
+   Oxford Blue, so the portrait has no frame; a mask dissolves its lower edge into the page.
+   Mobile and tablet: the portrait comes first and dissolves into the name below it.
+   Desktop (≥1024px): the type overlaps one column into the portrait's empty margin, and the
+   portrait bleeds to the edge of the page and stands on the base of the hero. */
 .hero {
-  padding-block: clamp(40px, 7vw, 112px) var(--space-section);
+  --portrait-size: min(100vw, 58svh);
+  padding-block: var(--space-2) var(--space-section);
 }
 
-.hero__grid { align-items: center; }
+.hero__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
 
 .hero__text {
-  grid-column: 1 / -1;
+  position: relative;
+  z-index: 1;
   container-type: inline-size;
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
   align-content: center;
+  /* Starts inside the portrait's fully transparent band. */
+  margin-top: calc(var(--portrait-size) * -0.1);
 }
 
 .hero__name {
@@ -56,17 +68,85 @@
   margin-top: var(--space-2);
 }
 
+/* Portrait */
 .hero__portrait {
-  grid-column: 1 / -1;
-  aspect-ratio: 1;
-  width: 100%;
-  max-width: 560px;
-  justify-self: center;
-  /* A faint Storm depth behind the Moonlight particles; it fades to the Oxford Blue page. */
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--color-surface) 70%, transparent), transparent);
+  order: -1;
+  margin-inline: calc(-1 * var(--gutter));
 }
 
-@media (min-width: 1280px) {
-  .hero__text { grid-column: 1 / span 6; }
-  .hero__portrait { grid-column: 7 / -1; max-width: none; }
+/* The canvas edges are softened on every side, so particles that scatter past them (entrance,
+   scroll-away) fade out instead of being cut off along a straight line. */
+.hero__stage {
+  --fade-bottom: linear-gradient(to bottom, transparent, #000 5%, #000 52%, transparent 90%);
+  --fade-sides: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+  -webkit-mask-image: var(--fade-bottom), var(--fade-sides);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--fade-bottom), var(--fade-sides);
+  mask-composite: intersect;
+}
+
+.hero__stage {
+  position: relative;
+  width: var(--portrait-size);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  opacity: calc(1 - var(--exit, 0) * 0.85);
+}
+
+.hero__canvas,
+.hero__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hero__canvas { opacity: 0; }
+.hero__portrait[data-mode='live'] .hero__canvas { opacity: 1; }
+.hero__portrait[data-mode='static'] .hero__canvas { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__canvas { transition: opacity 0.9s ease-out; }
+}
+
+@media (min-width: 768px) {
+  .hero__text { gap: var(--space-5); }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    --portrait-size: min(
+      100%,
+      calc(100svh - var(--header-h) - var(--space-4))
+    );
+    padding-block: var(--space-4) var(--space-section);
+  }
+
+  .hero__layout {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    min-height: calc(100svh - var(--header-h) - var(--space-4));
+  }
+
+  .hero__text {
+    grid-area: 1 / 1 / 2 / span 7;
+    align-self: start;
+    margin-top: 0;
+    padding-block: clamp(48px, 11svh, 120px) var(--space-8);
+  }
+
+  .hero__portrait {
+    order: 0;
+    grid-area: 1 / 6 / 2 / -1;
+    align-self: end;
+    container-type: inline-size;
+    margin-inline: 0 calc(-1 * var(--gutter));
+  }
+
+  .hero__stage {
+    --fade-bottom: linear-gradient(to bottom, transparent, #000 5%, #000 64%, transparent 98%);
+    width: min(100cqi, calc(100svh - var(--header-h) - var(--space-4)));
+    margin-inline: auto 0;
+  }
 }
