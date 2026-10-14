@@ -1,0 +1,172 @@
+<!doctype html>
+<!--
+  Portrait Lab: development and regression reference only (never a production route).
+  Markup and CSS are the legacy prototype's, formatted, with these deliberate changes:
+  - <brand> (non-standard element) is a <span class="brand">;
+  - the dialog is labelled by its heading;
+  - the dead "Download source" link (../particle-portrait-source.zip, HTTP 404) is removed;
+  - a dev-only "Botanical (Revision 2)" tone option is added;
+  - the favicon request is suppressed and the page is noindex.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="data:," />
+    <title>Portrait study — interactive particles</title>
+    <meta name="description" content="An interactive particle portrait study, made from your photograph." />
+    <style>
+      :root { --bg: #110e0a; --ink: #f3c786; --dim: #a08056; --line: #493723; --accent: #e88640; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font: 12px/1.5 'Courier New', monospace; }
+      button, input, select { font: inherit; }
+      button, select { color: var(--ink); background: transparent; border: 1px solid var(--line); padding: 10px 14px; cursor: pointer; }
+      button:hover, button[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
+      button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+      header { height: 66px; display: flex; align-items: center; justify-content: space-between; margin: 0 32px; border-bottom: 1px solid var(--line); }
+      .brand { font-weight: bold; letter-spacing: 2px; }
+      .led { display: inline-block; width: 6px; height: 6px; background: var(--accent); margin-right: 9px; box-shadow: 0 0 12px var(--accent); }
+      .muted { color: var(--dim); }
+      main { max-width: 1600px; margin: auto; padding: 36px 32px 20px; }
+      .intro { display: flex; justify-content: space-between; align-items: end; }
+      .eyebrow { letter-spacing: 2px; text-transform: uppercase; color: var(--dim); font-size: 10px; }
+      h1 { font-family: Georgia, serif; font-size: clamp(36px, 5.2vw, 76px); line-height: 1; letter-spacing: -3px; font-weight: normal; margin: 10px 0 12px; }
+      h1 em { color: var(--accent); font-weight: normal; }
+      p { margin: 0; }
+      .intro p { max-width: 260px; color: var(--dim); }
+      .workspace { display: grid; grid-template-columns: 1fr 230px; gap: 28px; margin-top: 26px; }
+      .stage { height: min(65vh, 690px); min-height: 420px; position: relative; border: 1px solid var(--line); overflow: hidden; background: #110e0a; }
+      .stage:before, .stage:after { position: absolute; content: '+'; font-size: 22px; color: var(--dim); z-index: 4; pointer-events: none; }
+      .stage:before { top: 8px; left: 14px; }
+      .stage:after { bottom: 8px; right: 14px; }
+      .stage canvas, .source { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; touch-action: pan-y; }
+      .source { opacity: 0; transition: opacity 0.5s; }
+      .stage.photo .source { opacity: 1; }
+      .stage.photo canvas { opacity: 0; }
+      .stage canvas { transition: opacity 0.5s; }
+      .overlay { position: absolute; left: 22px; bottom: 20px; z-index: 5; pointer-events: none; font-size: 10px; letter-spacing: 1px; color: #b18b5c; }
+      .stage-label { position: absolute; top: 20px; right: 20px; color: #b18b5c; font-size: 10px; z-index: 4; }
+      .scan { position: absolute; inset: 0; background: repeating-linear-gradient(transparent 0px, transparent 3px, #0002 4px); pointer-events: none; opacity: 0.4; }
+      .controls { padding-top: 4px; }
+      .controls h2 { font-size: 11px; letter-spacing: 2px; font-weight: normal; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin: 0 0 22px; }
+      .group { margin-bottom: 24px; }
+      .group label, .label { display: block; font-size: 10px; letter-spacing: 1px; margin-bottom: 9px; color: var(--dim); }
+      .switch { display: flex; gap: 6px; }
+      .switch button { flex: 1; padding: 9px 5px; font-size: 11px; }
+      select { width: 100%; background: var(--bg); }
+      input[type='range'] { width: 100%; accent-color: var(--accent); }
+      .value { float: right; color: var(--ink); }
+      .large-button { width: 100%; margin: 0 0 8px; }
+      .help { font-size: 11px; color: var(--dim); margin-top: 22px; line-height: 1.8; }
+      .readout { border-top: 1px solid var(--line); padding-top: 18px; color: var(--dim); font-size: 10px; }
+      .readout div { display: flex; justify-content: space-between; margin-bottom: 6px; }
+      .readout b { font-weight: normal; color: var(--ink); }
+      footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 22px; border-top: 1px solid var(--line); padding: 18px 0; color: var(--dim); font-size: 10px; }
+      a { color: inherit; text-underline-offset: 3px; }
+      dialog { background: var(--bg); color: var(--ink); border: 1px solid var(--line); max-width: 540px; padding: 30px; }
+      dialog::backdrop { background: #000b; }
+      dialog h2 { font: 30px Georgia, serif; }
+      dialog p { margin: 16px 0; color: var(--dim); }
+      dialog button { float: right; }
+      @media (max-width: 700px) {
+        header { margin: 0 18px; height: 58px; }
+        .header-detail { display: none; }
+        main { padding: 26px 18px 10px; }
+        .intro { display: block; }
+        .intro p { margin-top: 15px; max-width: none; }
+        h1 { letter-spacing: -1.5px; }
+        .workspace { grid-template-columns: 1fr; gap: 22px; }
+        .stage { height: 480px; min-height: 0; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+        .controls h2 { grid-column: 1/-1; margin-bottom: 0; }
+        .group { margin-bottom: 2px; }
+        .help { margin-top: 0; }
+        .readout { padding-top: 8px; }
+        footer { flex-wrap: wrap; }
+        .overlay { left: 14px; font-size: 9px; }
+      }
+      @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="brand"><span class="led"></span>PORTRAIT LAB</span>
+      <span class="header-detail muted">PERSONAL PORTFOLIO / EXPERIMENT 001</span>
+      <button id="about">About this study ↗</button>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <div class="eyebrow">Your photograph. A different dimension.</div>
+          <h1>A little more <em>alive.</em></h1>
+        </div>
+        <p>A portrait made of light.<br />Move closer. Pull it apart.<br />Watch it find its way back.</p>
+      </div>
+      <div class="workspace">
+        <div class="stage" id="stage">
+          <img class="source" src="/legacy/particle-portrait/portrait.png" alt="Your portrait rendered in amber dithering" />
+          <canvas id="canvas" role="img" aria-label="Interactive amber particle portrait. Use the Scatter button to disperse and reform it."></canvas>
+          <div class="scan"></div>
+          <div class="stage-label">FIG. 001 / AMBER</div>
+          <div class="overlay" id="hint">MOVE TO DISTURB · CLICK TO SCATTER</div>
+        </div>
+        <aside class="controls">
+          <h2>THE CONTROL ROOM</h2>
+          <div class="group">
+            <span class="label">01 / RENDER</span>
+            <div class="switch">
+              <button id="particles" aria-pressed="true">Particles</button>
+              <button id="photo" aria-pressed="false">Source</button>
+            </div>
+          </div>
+          <div class="group">
+            <label for="density">02 / DETAIL</label>
+            <select id="density">
+              <option value="4">Soft / fewer particles</option>
+              <option value="3">Fine / balanced</option>
+              <option value="2" selected>Ultra / dense</option>
+            </select>
+          </div>
+          <div class="group">
+            <label for="force">03 / REACTION <span class="value" id="force-value">55%</span></label>
+            <input id="force" type="range" min="0" max="100" value="55" />
+          </div>
+          <div class="group">
+            <label for="tone">04 / PHOSPHOR</label>
+            <select id="tone">
+              <option value="0">Amber</option>
+              <option value="1">Warm ivory</option>
+              <option value="2">Terminal green</option>
+              <option value="3">Botanical (Revision 2)</option>
+            </select>
+          </div>
+          <div class="group">
+            <button class="large-button" id="scatter">Scatter &amp; reform ↗</button>
+            <button class="large-button" id="pause" aria-pressed="false">Pause motion</button>
+            <button class="large-button" id="reset">Reset study</button>
+          </div>
+          <div class="readout">
+            <div><span>PARTICLES</span><b id="count">LOADING</b></div>
+            <div><span>RENDERER</span><b id="renderer">WEBGL</b></div>
+            <div><span>STATE</span><b id="state" role="status">ASSEMBLING</b></div>
+          </div>
+          <p class="help">Every point comes from your portrait. Hover or drag across it; use the controls to explore the effect.</p>
+        </aside>
+      </div>
+      <footer>
+        <span>PHOTO → DITHER → PARTICLES</span>
+        <span>Interactive concept · inspired by EddyOS</span>
+        <span>Development reference · not a public page</span>
+      </footer>
+    </main>
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <h2 id="dialog-title">From your photo, into light.</h2>
+      <p>This study samples the amber portrait preview into individual GPU-rendered points. Your pointer displaces them; the scatter action sends them outward before they return.</p>
+      <p>Source shows the static generated portrait used for this experiment. This is an original implementation inspired by the reference, not a copy of its code or its fluid-photo-reveal effect.</p>
+      <p>Reduced motion is respected. All effects can be paused and the static portrait remains available.</p>
+      <button id="close">Back to the portrait</button>
+    </dialog>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
