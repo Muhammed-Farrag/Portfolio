@@ -30,7 +30,7 @@ function Detail({ item }: { item: JourneyItem }) {
           <figcaption className="mono">Photo: supplied by Muhammed</figcaption>
         </figure>
       ) : (
-        item.photoPending && (
+        SHOW_PENDING && item.photoPending && (
           <div className="journey__photo journey__photo--pending">
             <Pending block>{item.photoPending}</Pending>
           </div>
