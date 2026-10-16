@@ -43,6 +43,12 @@
   color: var(--color-text);
 }
 .hero__name span { display: block; }
+/* The owner's reference: the first name in outline, the last name solid. */
+.hero__name-outline {
+  color: transparent;
+  -webkit-text-stroke: max(1.5px, 0.022em) var(--color-text);
+  paint-order: stroke fill;
+}
 
 .hero__headline {
   font: 600 var(--text-xl) / var(--leading-snug) var(--font-display);
@@ -85,45 +91,6 @@
   order: -1;
   position: relative;
   margin-inline: calc(-1 * var(--gutter));
-}
-
-/* Portrait controls: the photograph toggle and Pause motion (WCAG 2.2.2). Top right of the
-   portrait on small screens, bottom right on desktop. */
-.hero__controls {
-  position: absolute;
-  z-index: 2;
-  top: var(--space-2);
-  right: var(--gutter);
-  display: flex;
-  gap: var(--space-2);
-}
-.hero__control {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 44px;
-  padding: 0 var(--space-4);
-  border: 1px solid var(--color-control-edge);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
-  color: var(--color-text-secondary);
-  font: 500 var(--text-xs) / 1 var(--font-mono);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.hero__control:hover { color: var(--color-text); border-color: var(--color-text); }
-.hero__control[aria-pressed='true'] { background: var(--color-focal); border-color: var(--color-focal); color: var(--color-on-focal); }
-
-/* Small screens: an icon-only 44px square in the empty corner beside the head. The label stays
-   in the accessibility tree. */
-@media (max-width: 767.98px) {
-  .hero__control { width: 44px; padding: 0; justify-content: center; }
-  .hero__control-label {
-    position: absolute;
-    width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
-    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-  }
 }
 
 /* Soft edges. The still frame (no WebGL) is masked. The live particles are drawn on the story
@@ -220,7 +187,6 @@
     margin-inline: 0 calc(-1 * var(--gutter));
   }
 
-  .hero__controls { top: auto; bottom: var(--space-6); }
 
   .hero__stage {
     --fade-start: 64%;

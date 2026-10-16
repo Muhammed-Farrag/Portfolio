@@ -12,7 +12,7 @@ export function Hero() {
         <div className="hero__text">
           <p className="eyebrow">{profile.title}</p>
           <h1 id="hero-name" className="display hero__name">
-            <span>Muhammed</span> <span>Farrag</span>
+            <span className="hero__name-outline">Muhammed</span> <span>Farrag</span>
           </h1>
           <p className="hero__headline">{profile.headline}</p>
         </div>

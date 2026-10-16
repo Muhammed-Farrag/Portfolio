@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type FocusEvent, type SyntheticEvent } from 'react';
 import { nav, profile } from '../../content/site';
 import './SiteHeader.css';
 
@@ -28,6 +28,20 @@ export function SiteHeader() {
     };
   }, [open, close]);
 
+  // Desktop hover: one glass pill glides slowly to the link under the pointer (or keyboard focus).
+  const glide = (e: SyntheticEvent<HTMLUListElement>) => {
+    const link = (e.target as HTMLElement).closest('a');
+    if (!link) return;
+    const list = e.currentTarget;
+    list.style.setProperty('--hx', `${link.offsetLeft}px`);
+    list.style.setProperty('--hw', `${link.offsetWidth}px`);
+    list.dataset.hover = '';
+  };
+  const rest = (e: SyntheticEvent<HTMLUListElement>) => {
+    if (e.type === 'blur' && e.currentTarget.contains((e as FocusEvent<HTMLUListElement>).relatedTarget as Node)) return;
+    delete e.currentTarget.dataset.hover;
+  };
+
   return (
     <header className="site-header theme-deep" data-open={open || undefined}>
       <div className="container site-header__bar">
@@ -46,7 +60,7 @@ export function SiteHeader() {
           {open ? 'Close' : 'Menu'}
         </button>
         <nav id={menuId} className="site-header__nav" aria-label="Primary">
-          <ul>
+          <ul onPointerOver={glide} onFocus={glide} onPointerLeave={rest} onBlur={rest}>
             {nav.map((item) => (
               <li key={item.id}>
                 <a href={`#${item.id}`} onClick={() => close(false)}>

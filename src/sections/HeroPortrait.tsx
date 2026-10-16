@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import fallbackUrl from '../assets/portrait/fallback.webp';
 import photoUrl from '../assets/portrait/photo.webp';
 import sourceUrl from '../assets/portrait/source-600.webp';
-import { isMotionPaused, onMotionChange, setMotionPaused, useMotionPaused } from '../features/motion/motion';
+import { isMotionPaused, onMotionChange } from '../features/motion/motion';
 import {
   PORTFOLIO_BACKGROUND,
   TRANSPARENT_CONTEXT_ATTRIBUTES,
@@ -63,7 +63,6 @@ export function HeroPortrait() {
   const canvasRef = useStoryCanvas();
   const [mode, setMode] = useState<Mode>('loading');
   const [photo, setPhoto] = useState(false);
-  const paused = useMotionPaused();
   /** Drives the photograph reveal inside the main effect; replaced once that effect runs. */
   const revealRef = useRef<(on: boolean) => void>(() => {});
   const timers = useRef({ hover: 0, touch: 0 });
@@ -279,16 +278,6 @@ export function HeroPortrait() {
         {mode === 'static' && <img className="hero__fallback" src={fallbackUrl} alt="" width={1000} height={1000} decoding="async" />}
         {mode !== 'loading' && <img className="hero__photo" src={photoUrl} alt="" width={738} height={738} decoding="async" />}
       </div>
-      {mode === 'live' && (
-        <div className="hero__controls">
-          <button type="button" className="hero__control hero__motion" onClick={() => setMotionPaused(!paused)}>
-            <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
-              {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
-            </svg>
-            <span className="hero__control-label">{paused ? 'Play motion' : 'Pause motion'}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }

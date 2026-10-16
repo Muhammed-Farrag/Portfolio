@@ -95,7 +95,7 @@ test.describe('hero portrait', () => {
     expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThanOrEqual(0.05);
   });
 
-  test('shows part of the portrait and the primary CTA in the first viewport', async ({ page }) => {
+  test('shows part of the portrait and the name in the first viewport', async ({ page }) => {
     await page.goto('/');
     await waitForPortrait(page);
     const viewport = page.viewportSize()!;
@@ -233,50 +233,16 @@ test.describe('photograph reveal', () => {
   });
 });
 
-test.describe('pause motion control (WCAG 2.2.2)', () => {
-  test('pauses and restarts the portrait, and stops the animation loop', async ({ page }) => {
+test.describe('hero animation loops', () => {
+  test('there are no control buttons, and the portrait and star loops stop once the hero is scrolled away', async ({ page }) => {
     await trackAnimationFrames(page);
     await page.goto('/');
     await waitForPortrait(page);
-    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
-    await page.getByRole('button', { name: 'Pause motion' }).click();
-    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(0);
-    await page.getByRole('button', { name: 'Play motion' }).click();
-    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
-    // Two loops while playing: the portrait and the hero's star field.
+    await expect(page.locator('.hero__portrait').getByRole('button')).toHaveCount(0);
     await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(2);
-  });
-
-  test('works from the keyboard and is remembered after a reload', async ({ page }) => {
-    await page.goto('/');
-    await waitForPortrait(page);
-    const pause = page.getByRole('button', { name: 'Pause motion' });
-    await pause.focus();
-    await expect(pause).toBeFocused();
-    expect(await pause.evaluate((e) => getComputedStyle(e).outlineStyle)).toBe('solid');
-    await page.keyboard.press('Space');
-    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    const play = page.getByRole('button', { name: 'Play motion' });
-    await expect(play).toBeFocused();
-    await page.reload();
-    await waitForPortrait(page);
-    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    await expect(play).toBeVisible();
-    // Paused means no entrance and no scroll-driven transition either.
-    await page.evaluate(() => window.scrollTo(0, 400));
-    await page.waitForTimeout(300);
-    await expect(stage(page)).toHaveAttribute('data-progress', '0.000');
-  });
-
-  test('starts paused under reduced motion, and the visitor can still choose to play', async ({ browser }, info) => {
-    const context = await browser.newContext({ ...info.project.use, reducedMotion: 'reduce' });
-    const page = await context.newPage();
-    await page.goto(info.project.use.baseURL!);
-    await waitForPortrait(page);
-    await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    await page.getByRole('button', { name: 'Play motion' }).click();
-    await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
-    await context.close();
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(0);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(2);
   });
 });

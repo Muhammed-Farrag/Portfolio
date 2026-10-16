@@ -8,3 +8,4 @@ playwright-report/
 .DS_Store
 .review/
 tools/.venv/
+scripts/__pycache__/
