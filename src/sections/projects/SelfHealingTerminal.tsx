@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from 'react';
-import { FAILURE_CLASSES, FAILURE_LOGS, type FailureClass } from '../../content/work';
+import { FAILURE_CLASSES, FAILURE_LOGS, type FailureClass } from '../../content/projects';
 
 /** Classes the illustration holds for review; the others are shown as approved. Illustrative only. */
 const HELD: FailureClass[] = ['missing_db', 'timeout'];

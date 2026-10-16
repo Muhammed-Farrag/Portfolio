@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { novaCareModules } from '../../content/work';
+import { novaCareModules } from '../../content/projects';
 
 /**
  * Who built what: the NovaCare ecosystem as a hub with five modules. My modules are filled; the

@@ -10,7 +10,7 @@ import { Contact } from '../sections/Contact';
 import { Hero } from '../sections/Hero';
 import { Events } from '../sections/events/Events';
 import { Entries, Roles } from '../sections/experience/Experience';
-import { Work } from '../sections/work/Work';
+import { Projects } from '../sections/projects/Projects';
 import '../styles/backdrops.css';
 import './App.css';
 
@@ -40,7 +40,7 @@ export function App() {
             <Entries id="education" title="Education" entries={education} />
           </div>
         </Section>
-        <Work s={byId('projects')} />
+        <Projects s={byId('projects')} />
         <Section {...certificates} beat="Certificates" effect="cards" lead={<p className="section__lead">{certificates.summary}</p>}>
           <Pending>{certificates.pending}</Pending>
         </Section>

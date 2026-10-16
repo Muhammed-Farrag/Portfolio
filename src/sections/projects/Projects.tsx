@@ -1,11 +1,12 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Pending } from '../../components/Pending';
 import type { SectionDef } from '../../content/site';
-import { helios, novaCare, selfHealing, type CaseStudy } from '../../content/work';
+import { helios, lumina, novaCare, selfHealing, type CaseStudy } from '../../content/projects';
 import { HeliosConsole } from './HeliosConsole';
+import { LuminaOrbits } from './LuminaOrbits';
 import { NovaCareMap } from './NovaCareMap';
 import { SelfHealingTerminal } from './SelfHealingTerminal';
-import './Work.css';
+import './Projects.css';
 
 function External({ href, children, note }: { href: string; children: ReactNode; note?: string | undefined }) {
   return (
@@ -18,7 +19,7 @@ function External({ href, children, note }: { href: string; children: ReactNode;
 }
 
 /** One case study: index, name and facts beside its own interactive visual. */
-function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy; index: number; visual: ReactNode; flip?: boolean; extra?: ReactNode }) {
+function Case({ study, index, visual, flip = false }: { study: CaseStudy; index: number; visual: ReactNode; flip?: boolean }) {
   return (
     <article id={`case-${study.id}`} className="case" data-flip={flip || undefined} aria-labelledby={`case-${study.id}-title`}>
       <div className="case__text" data-reveal="">
@@ -30,15 +31,17 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
           {study.name}
         </h3>
         <p className="case__intro">{study.intro}</p>
-        <dl className="case__facts">
-          {study.facts.map((f) => (
-            <div key={f.label}>
-              <dt className="mono">{f.label}</dt>
-              <dd>{f.text}</dd>
-            </div>
-          ))}
-        </dl>
-        <ul className="case__stack" aria-label="Built with">
+        {study.facts.length > 0 && (
+          <dl className="case__facts">
+            {study.facts.map((f) => (
+              <div key={f.label}>
+                <dt className="mono">{f.label}</dt>
+                <dd>{f.text}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        <ul className="case__stack" aria-label="Built with" data-cinema-skip="">
           {study.stack.map((s) => (
             <li key={s}>{s}</li>
           ))}
@@ -49,8 +52,8 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
               {l.label}
             </External>
           ))}
-          {extra}
         </p>
+        {study.draft && <Pending label="Draft">{study.draft}</Pending>}
       </div>
       <div className="case__visual" data-reveal="" data-cinema-skip="" style={{ '--reveal-order': 1 } as CSSProperties}>
         {visual}
@@ -59,7 +62,8 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
   );
 }
 
-export function Work({ s }: { s: SectionDef }) {
+/** Projects: four case studies, each with its own interactive visual. */
+export function Projects({ s }: { s: SectionDef }) {
   return (
     <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="water" aria-labelledby={`${s.id}-title`}>
       <div className="container">
@@ -71,20 +75,11 @@ export function Work({ s }: { s: SectionDef }) {
           <p className="section__lead work__lead">{s.summary}</p>
         </header>
         <div className="work__cases">
-          <Case
-            study={selfHealing}
-            index={1}
-            visual={<SelfHealingTerminal />}
-            extra={
-              <a className="case__link" href="#under-the-hood">
-                Follow a failure through it <span aria-hidden="true">↓</span>
-              </a>
-            }
-          />
+          <Case study={selfHealing} index={1} visual={<SelfHealingTerminal />} />
           <Case study={helios} index={2} visual={<HeliosConsole />} flip />
           <Case study={novaCare} index={3} visual={<NovaCareMap />} />
+          <Case study={lumina} index={4} visual={<LuminaOrbits />} flip />
         </div>
-        <Pending>Fourth case study: pending the owner’s choice (recommendation: Advanced LangChain, presented as course lab work).</Pending>
       </div>
     </section>
   );

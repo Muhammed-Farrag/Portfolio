@@ -79,7 +79,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Projects',
     title: 'Things I have built',
     summary: 'Four projects from my GitHub, each with something to try.',
-    pending: 'M5: Lumina card and the rain background.',
+    pending: 'Lumina details are draft (see its Draft mark).',
     theme: 'deep',
   },
   {

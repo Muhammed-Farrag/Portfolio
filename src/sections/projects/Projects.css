@@ -1,6 +1,6 @@
-/* Scene 03, Selected work (Light). Each case pairs its facts with its own interactive visual:
-   an episode terminal, a gesture console and an attribution map. Dark instruments sit on the
-   light ground as theme-deep panels, so their colours come from the same tokens. */
+/* Projects (Deep, over still water). Each case pairs its facts with its own interactive visual:
+   an episode terminal, a gesture console, an attribution map and a solar system. The panels use
+   the theme's surface tokens, so they step forward from the Storm ground. */
 .work__header {
   display: grid;
   gap: var(--space-3);
@@ -388,3 +388,24 @@
   .nova__module { padding: 0 10px; font-size: 0.8125rem; }
   .nova__map { aspect-ratio: 1; }
 }
+
+/* Lumina: a solar system in miniature, tilted by the pointer or the slider. */
+.lumina {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(16px, 3vw, 32px);
+  background: var(--color-surface);
+  border-radius: 10px;
+}
+.lumina__stage { width: 100%; height: auto; display: block; touch-action: pan-y; cursor: ns-resize; }
+.lumina__orbit { fill: none; stroke: var(--steel); stroke-width: 1; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
+.lumina__sun { fill: var(--moonlight); }
+.lumina__planet[data-tone='mist'] { fill: var(--mist); }
+.lumina__planet[data-tone='moonlight'] { fill: var(--moonlight); }
+.lumina__planet[data-tone='frost'] { fill: var(--frost-light); }
+.lumina__planet[data-tone='steel'] { fill: var(--steel); stroke: var(--frost-light); stroke-width: 1.5; }
+.lumina__footer { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.lumina__control { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 44px; }
+.lumina__control .mono { color: var(--color-text-tertiary); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.lumina__control input { width: 160px; accent-color: var(--moonlight); }
+.lumina__note { flex: 1 1 220px; color: var(--color-text-secondary); font-size: var(--text-sm); }
