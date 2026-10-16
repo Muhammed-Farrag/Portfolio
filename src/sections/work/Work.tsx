@@ -61,7 +61,7 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
 
 export function Work({ s }: { s: SectionDef }) {
   return (
-    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="water" aria-labelledby={`${s.id}-title`}>
       <div className="container">
         <header className="work__header">
           <p className="eyebrow">{s.eyebrow}</p>

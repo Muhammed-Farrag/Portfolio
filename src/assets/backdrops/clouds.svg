@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 420" fill="#23354D">
+  <!-- A still bank of flat, layered clouds, a shade darker than the ground so text over them keeps its contrast, along the bottom of the section. -->
+  <g opacity="0.22">
+    <circle cx="110" cy="320" r="120"/><circle cx="270" cy="270" r="140"/><circle cx="440" cy="310" r="110"/>
+    <circle cx="620" cy="250" r="160"/><circle cx="800" cy="300" r="120"/><circle cx="970" cy="260" r="150"/>
+    <circle cx="1150" cy="290" r="130"/><circle cx="1320" cy="260" r="150"/><circle cx="1460" cy="310" r="110"/>
+    <rect y="320" width="1440" height="100"/>
+  </g>
+  <g opacity="0.32">
+    <circle cx="40" cy="390" r="90"/><circle cx="190" cy="350" r="105"/><circle cx="340" cy="385" r="80"/>
+    <circle cx="520" cy="370" r="95"/><circle cx="700" cy="345" r="120"/><circle cx="880" cy="330" r="125"/>
+    <circle cx="1030" cy="375" r="90"/><circle cx="1230" cy="350" r="115"/><circle cx="1400" cy="370" r="95"/>
+    <rect y="375" width="1440" height="45"/>
+  </g>
+</svg>

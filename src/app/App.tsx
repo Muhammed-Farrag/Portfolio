@@ -9,6 +9,7 @@ import { Contact } from '../sections/Contact';
 import { Hero } from '../sections/Hero';
 import { Recognition } from '../sections/recognition/Recognition';
 import { Work } from '../sections/work/Work';
+import '../styles/backdrops.css';
 import './App.css';
 
 const byId = (id: string) => sections.find((s) => s.id === id)!;
@@ -28,7 +29,7 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <Hero />
         <Recognition s={byId('events')} />
-        <Section {...experience} beat="Work experience" effect="clouds" lead={<p className="section__lead">{experience.summary}</p>}>
+        <Section {...experience} beat="Work experience" effect="clouds" backdrop="clouds" lead={<p className="section__lead">{experience.summary}</p>}>
           <Pending>{experience.pending}</Pending>
         </Section>
         <Section {...growth} beat="Internships & education" effect="wipe" lead={<p className="section__lead">{growth.summary}</p>}>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900">
+  <!-- Still sun rays fanning up from a low sun at the bottom centre: the finale of the events. -->
+  <defs>
+    <radialGradient id="glow" cx="720" cy="900" r="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0ECDD" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#F0ECDD" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="fade" cx="720" cy="900" r="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F0ECDD" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#F0ECDD" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g fill="url(#fade)">
+    <path d="M720 900 L-300 120 L-120 -40Z"/><path d="M720 900 L40 -60 L260 -80Z"/>
+    <path d="M720 900 L460 -100 L620 -100Z"/><path d="M720 900 L820 -100 L980 -100Z"/>
+    <path d="M720 900 L1180 -80 L1400 -60Z"/><path d="M720 900 L1560 -40 L1740 120Z"/>
+  </g>
+  <circle cx="720" cy="900" r="520" fill="url(#glow)"/>
+</svg>

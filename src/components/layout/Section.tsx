@@ -14,14 +14,16 @@ interface Props {
   /** Name of the scene in the opening sequence, and the transition that brings it on (src/features/cinema). */
   beat?: string;
   effect?: Effect;
+  /** A still background shape behind the section (src/styles/backdrops.css). */
+  backdrop?: 'clouds' | 'water' | 'rays';
   children?: ReactNode;
 }
 
 /** Shared section frame: anchor target, heading structure and the 12/8/4 column grid. */
-export function Section({ id, eyebrow, title, theme, blendFrom, lead, beat, effect, children }: Props) {
+export function Section({ id, eyebrow, title, theme, blendFrom, lead, beat, effect, backdrop, children }: Props) {
   const headingId = `${id}-title`;
   return (
-    <section id={id} className={`section theme-${theme}`} data-blend={blendFrom} data-beat={beat} data-beat-effect={effect} aria-labelledby={headingId}>
+    <section id={id} className={`section theme-${theme}`} data-blend={blendFrom} data-beat={beat} data-beat-effect={effect} data-backdrop={backdrop} aria-labelledby={headingId}>
       <div className="container grid">
         <header className="section__header">
           <p className="eyebrow">{eyebrow}</p>
