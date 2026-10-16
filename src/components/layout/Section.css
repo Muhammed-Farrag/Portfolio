@@ -33,4 +33,7 @@
 @media (min-width: 1280px) {
   .section__header { grid-column: 1 / span 5; }
   .section__body { grid-column: 7 / -1; padding-top: calc(var(--text-xs) * 1.4 + var(--space-3)); }
+  .section--wide .section__header,
+  .section--wide .section__body { grid-column: 1 / -1; padding-top: 0; }
+  .section--wide .section__body { margin-top: var(--space-6); }
 }

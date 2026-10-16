@@ -16,14 +16,16 @@ interface Props {
   effect?: Effect;
   /** A still background shape behind the section (src/styles/backdrops.css). */
   backdrop?: 'clouds' | 'water' | 'rays';
+  /** The body spans the full width under the header, for content laid out in its own columns. */
+  wide?: boolean;
   children?: ReactNode;
 }
 
 /** Shared section frame: anchor target, heading structure and the 12/8/4 column grid. */
-export function Section({ id, eyebrow, title, theme, blendFrom, lead, beat, effect, backdrop, children }: Props) {
+export function Section({ id, eyebrow, title, theme, blendFrom, lead, beat, effect, backdrop, wide, children }: Props) {
   const headingId = `${id}-title`;
   return (
-    <section id={id} className={`section theme-${theme}`} data-blend={blendFrom} data-beat={beat} data-beat-effect={effect} data-backdrop={backdrop} aria-labelledby={headingId}>
+    <section id={id} className={`section theme-${theme}${wide ? ' section--wide' : ''}`} data-blend={blendFrom} data-beat={beat} data-beat-effect={effect} data-backdrop={backdrop} aria-labelledby={headingId}>
       <div className="container grid">
         <header className="section__header">
           <p className="eyebrow">{eyebrow}</p>

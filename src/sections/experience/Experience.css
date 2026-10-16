@@ -1,0 +1,45 @@
+/* Work experience (Elevated, over the clouds) and Internships & Education (Light). */
+
+.roles { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.role {
+  display: grid;
+  gap: var(--space-2);
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: 18px;
+  /* Storm glass over the Steel ground and its clouds: text sits on a darker ground than the section. */
+  background: color-mix(in srgb, var(--storm) 62%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgb(240 236 221 / 0.12);
+  box-shadow: inset 0 1px 0 rgb(240 236 221 / 0.08), 0 24px 48px -32px rgb(35 53 77 / 0.9);
+}
+.role__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--mist); }
+.role__kind { padding: 5px 10px; border: 1px solid rgb(240 236 221 / 0.3); border-radius: 999px; color: var(--moonlight); }
+.role[data-kind='Freelance'] .role__kind { background: var(--moonlight); border-color: var(--moonlight); color: var(--storm); }
+.role__org { margin-top: var(--space-2); font-size: var(--text-xl); }
+.role__title { font-weight: 600; color: var(--moonlight); }
+.role__text { color: var(--mist); max-width: 52ch; }
+.role__stats { display: flex; gap: var(--space-6); margin: var(--space-3) 0 0; }
+.role__stats div { display: flex; flex-direction: column-reverse; }
+.role__stats dt { font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--mist); }
+.role__stats dd { margin: 0; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); line-height: 1; color: var(--moonlight); }
+
+/* Internships & Education: two columns, each a dated list on a rail. */
+.entries__list { display: grid; gap: var(--space-6); margin: var(--space-5) 0 0; padding: 0 0 0 var(--space-5); list-style: none; border-left: 2px solid var(--color-rule); }
+.entry { position: relative; display: grid; gap: var(--space-1); }
+.entry::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--space-5) - 7px);
+  top: 0.3em;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-text);
+}
+.entry__when { font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); }
+.entry__title { font: 700 var(--text-lg) / 1.25 var(--font-body); }
+.entry__org { color: var(--color-text-secondary); font-weight: 500; }
+.entry__text { color: var(--color-text-secondary); max-width: 46ch; }
+.entry__link { justify-self: start; margin-top: var(--space-1); font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }

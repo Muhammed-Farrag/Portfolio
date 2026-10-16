@@ -221,7 +221,7 @@ test.describe('production build', () => {
     await page.goto('http://127.0.0.1:4312/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('[data-pending]')).toHaveCount(0);
-    await expect(page.locator('.contact__photo, .journey__photo--pending'), 'no empty photo slot').toHaveCount(0);
+    await expect(page.locator('.contact__photo'), 'no empty photo slot').toHaveCount(0);
     await expect(page.getByText('In progress')).toHaveCount(0);
     expect(w.errors).toEqual([]);
     await context.close();

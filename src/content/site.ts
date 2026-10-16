@@ -62,8 +62,8 @@ export const sections: SectionDef[] = [
     id: 'experience',
     eyebrow: 'Work experience',
     title: 'Where I have worked',
-    summary: 'Full-time roles and a year of freelance work.',
-    pending: 'M4: TJM Labs, Cluster and freelance cards (draft details).',
+    summary: 'Company roles and a year of freelance work for my own clients.',
+    pending: 'Details marked Draft are for the owner to confirm.',
     theme: 'elevated',
   },
   {
@@ -71,7 +71,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Internships & education',
     title: 'Where I learned',
     summary: 'Internships with the projects they produced, and the programmes behind them.',
-    pending: 'M4: ITI and STC internships; B.Sc., DEPI and GCI World (Japan).',
+    pending: 'Details marked Draft are for the owner to confirm.',
     theme: 'light',
   },
   {

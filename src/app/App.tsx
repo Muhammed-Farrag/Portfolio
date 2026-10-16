@@ -2,12 +2,14 @@ import { Pending } from '../components/Pending';
 import { Section } from '../components/layout/Section';
 import { SiteFooter } from '../components/layout/SiteFooter';
 import { SiteHeader } from '../components/layout/SiteHeader';
+import { education, internships, work } from '../content/experience';
 import { sections } from '../content/site';
 import { Cinema } from '../features/cinema/Cinema';
 import { useSiteMotion } from '../features/motion/reveal';
 import { Contact } from '../sections/Contact';
 import { Hero } from '../sections/Hero';
 import { Events } from '../sections/events/Events';
+import { Entries, Roles } from '../sections/experience/Experience';
 import { Work } from '../sections/work/Work';
 import '../styles/backdrops.css';
 import './App.css';
@@ -30,18 +32,13 @@ export function App() {
         <Hero />
         <Events s={byId('events')} />
         <Section {...experience} beat="Work experience" effect="clouds" backdrop="clouds" lead={<p className="section__lead">{experience.summary}</p>}>
-          <Pending>{experience.pending}</Pending>
+          <Roles roles={work} />
         </Section>
-        <Section {...growth} beat="Internships & education" effect="wipe" lead={<p className="section__lead">{growth.summary}</p>}>
+        <Section {...growth} beat="Internships & education" effect="wipe" wide lead={<p className="section__lead">{growth.summary}</p>}>
           <div className="growth">
-            <div id="internships">
-              <h3 className="growth__title">Internships</h3>
-            </div>
-            <div id="education">
-              <h3 className="growth__title">Education</h3>
-            </div>
+            <Entries id="internships" title="Internships" entries={internships} />
+            <Entries id="education" title="Education" entries={education} />
           </div>
-          <Pending>{growth.pending}</Pending>
         </Section>
         <Work s={byId('projects')} />
         <Section {...certificates} beat="Certificates" effect="cards" lead={<p className="section__lead">{certificates.summary}</p>}>
