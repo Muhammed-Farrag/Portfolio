@@ -67,8 +67,8 @@ export interface Frame {
 
 /** The prototype's warm-black stage colour (#110E0A). */
 export const LEGACY_BACKGROUND: Rgb = [17, 14, 10];
-/** Oxford Blue, the portfolio background. */
-export const PORTFOLIO_BACKGROUND: Rgb = [0x02, 0x12, 0x2f];
+/** Storm, the portfolio background. */
+export const PORTFOLIO_BACKGROUND: Rgb = [0x23, 0x35, 0x4d];
 /** Steel → Moonlight, with Steel → Frost Blue as the cool highlight on the tie. */
 export const PORTFOLIO_PALETTE: TonePalette = {
   low: [0x49, 0x5b, 0x7d],

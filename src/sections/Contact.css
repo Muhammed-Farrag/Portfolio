@@ -1,4 +1,4 @@
-/* Scene 07, Contact (Elevated). The closing pairs the photograph, graded Oxford-to-Moonlight and
+/* Scene 07, Contact (Elevated). The closing pairs the photograph, graded Storm-to-Moonlight and
    cut to his silhouette, with the largest type on the page and a few editorial link rows. */
 .contact {
   position: relative;
@@ -13,7 +13,7 @@
 }
 
 /* Duotone: the grey photograph multiplied onto a Moonlight-to-Frost gradient, its blacks lifted
-   to Oxford Blue, all masked by the cut-out's own alpha. */
+   to Storm, all masked by the cut-out's own alpha. */
 .contact__portrait {
   position: relative;
   width: min(100%, 420px);
@@ -36,7 +36,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--oxford-blue);
+  background: var(--storm);
   mix-blend-mode: lighten;
 }
 

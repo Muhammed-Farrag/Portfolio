@@ -38,12 +38,20 @@ describe('design tokens', () => {
   it('match the owner-specified brand palette exactly', () => {
     expect({
       moonlight: resolve('moonlight'), frost: resolve('frost-blue'), steel: resolve('steel'),
-      storm: resolve('storm'), oxford: resolve('oxford-blue'),
-    }).toEqual({ moonlight: '#f0ecdd', frost: '#8ba3c5', steel: '#495b7d', storm: '#23354d', oxford: '#02122f' });
+      storm: resolve('storm'),
+    }).toEqual({ moonlight: '#f0ecdd', frost: '#8ba3c5', steel: '#495b7d', storm: '#23354d' });
   });
 
-  it('use Oxford Blue as the background, Storm as the secondary surface and Moonlight as text', () => {
-    expect([resolve('color-bg'), resolve('color-surface'), resolve('color-text')]).toEqual(['#02122f', '#23354d', '#f0ecdd']);
+  it('Oxford Blue and Midnight are gone (Revision 4)', () => {
+    expect(css.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/#02122f|#11223d|oxford|midnight/i);
+  });
+
+  it('use Storm as the background, Dusk as the surface and Moonlight as text', () => {
+    expect([resolve('color-bg'), resolve('color-surface'), resolve('color-text')]).toEqual(['#23354d', '#30425e', '#f0ecdd']);
+  });
+
+  it('the four grounds: Storm, Dusk, Steel and Moonlight', () => {
+    expect(THEMES.map((t) => resolve('color-bg', t))).toEqual(['#23354d', '#30425e', '#495b7d', '#f0ecdd']);
   });
 
   it('the root roles are the Deep theme', () => {
@@ -55,8 +63,8 @@ describe('design tokens', () => {
     for (const theme of THEMES) expect([...themeBlock(theme).keys()].sort(), theme).toEqual(roles);
   });
 
-  it('the light theme is genuinely light: Moonlight ground and Oxford Blue text', () => {
-    expect([resolve('color-bg', 'light'), resolve('color-text', 'light')]).toEqual(['#f0ecdd', '#02122f']);
+  it('the light theme is genuinely light: Moonlight ground and Storm text', () => {
+    expect([resolve('color-bg', 'light'), resolve('color-text', 'light')]).toEqual(['#f0ecdd', '#23354d']);
     expect([resolve('color-surface', 'light'), resolve('color-surface-alt', 'light')]).toEqual(['#e2e2da', '#e2e2da']);
   });
 
@@ -118,7 +126,7 @@ describe('index.html', () => {
 });
 
 describe('Particle Portrait colours', () => {
-  it('clear to Oxford Blue', () => {
+  it('clear to Storm', () => {
     expect(hex(PORTFOLIO_BACKGROUND)).toBe(resolve('color-bg'));
   });
 

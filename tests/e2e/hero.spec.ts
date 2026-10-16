@@ -58,7 +58,7 @@ test.describe('hero portrait', () => {
     const states = await heroStates(page);
     expect(states.indexOf('reforming')).toBeLessThan(states.lastIndexOf('responding'));
 
-    // Moonlight particles on Oxford Blue: bright pixels exist, none are amber or red, and the
+    // Moonlight particles on Storm: bright pixels exist, none are amber or red, and the
     // stage has no frame or border of its own.
     const png = PNG.sync.read(await stage(page).screenshot());
     let bright = 0;
@@ -102,7 +102,6 @@ test.describe('hero portrait', () => {
     const box = (await stage(page).boundingBox())!;
     expect(box.y).toBeLessThan(viewport.height * 0.5);
     expect(box.y + box.height * 0.4).toBeLessThan(viewport.height); // the head and shoulders
-    await expect(page.getByRole('link', { name: 'Explore the work' })).toBeInViewport();
     await expect(page.getByRole('heading', { level: 1 })).toBeInViewport();
   });
 
@@ -165,7 +164,7 @@ test.describe('hero portrait', () => {
     await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth)).toBe(1000);
     await expect(page.locator('.story__layer')).toBeHidden();
     await expect(page.locator('.hero__motion'), 'nothing to pause on a still frame').toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'Explore the work' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     expect(requested.filter((u) => u.includes('source-600')), 'the particle source is not downloaded').toEqual([]);
     expect(w.errors).toEqual([]);
     expect(w.failedRequests).toEqual([]);
@@ -196,17 +195,16 @@ test.describe('photograph reveal', () => {
     expect(w.errors).toEqual([]);
   });
 
-  test('a keyboard toggle shows and hides it, and it is the same photograph on every surface', async ({ page }) => {
+  test('keyboard focus on the portrait shows it, and leaving restores the particles (no toggle button)', async ({ page }) => {
     await page.goto('/');
     await waitForPortrait(page);
-    const toggle = page.getByRole('button', { name: 'Show photograph' });
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    await toggle.focus();
-    await page.keyboard.press('Enter');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: /photograph/i })).toHaveCount(0);
+    for (let i = 0; i < 20 && !(await stage(page).evaluate((e) => e === document.activeElement)); i++) await page.keyboard.press('Tab');
+    await expect(stage(page)).toBeFocused();
+    await expect(stage(page)).toHaveAttribute('data-photo', 'on');
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
-    await page.keyboard.press('Space');
-    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await page.keyboard.press('Tab');
+    await expect(stage(page)).toHaveAttribute('data-photo', 'off');
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(0);
     // The photograph is a prepared, background-free cut-out, not a crop of the page.
     const natural = await photo(page).evaluate((e: HTMLImageElement) => [e.naturalWidth, e.naturalHeight]);
@@ -229,7 +227,7 @@ test.describe('photograph reveal', () => {
     await disableWebGL(page);
     await page.goto('/');
     await expect(page.locator('.hero__portrait')).toHaveAttribute('data-mode', 'static', { timeout: 15_000 });
-    await page.getByRole('button', { name: 'Show photograph' }).click();
+    await stage(page).focus();
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
     await expect.poll(() => page.locator('.hero__fallback').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(0);
   });
@@ -246,7 +244,8 @@ test.describe('pause motion control (WCAG 2.2.2)', () => {
     await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(0);
     await page.getByRole('button', { name: 'Play motion' }).click();
     await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
-    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(1);
+    // Two loops while playing: the portrait and the hero's star field.
+    await expect.poll(() => pendingFrames(page), { timeout: 20_000 }).toBe(2);
   });
 
   test('works from the keyboard and is remembered after a reload', async ({ page }) => {
@@ -279,30 +278,5 @@ test.describe('pause motion control (WCAG 2.2.2)', () => {
     await page.getByRole('button', { name: 'Play motion' }).click();
     await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
     await context.close();
-  });
-});
-
-test.describe('hero calls to action', () => {
-  test('are reachable by keyboard and work', async ({ page }) => {
-    await page.goto('/');
-    await waitForPortrait(page);
-    const primary = page.getByRole('link', { name: 'Explore the work' });
-    for (let i = 0; i < 20 && !(await primary.evaluate((e) => e === document.activeElement)); i++) await page.keyboard.press('Tab');
-    await expect(primary).toBeFocused();
-    const ring = await primary.evaluate((e) => getComputedStyle(e).outlineStyle);
-    expect(ring).toBe('solid');
-    await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/#work$/);
-    await expect(page.locator('#work h2')).toBeInViewport();
-
-    await page.goto('/');
-    const contact = page.locator('.hero__actions').getByRole('link', { name: 'Contact' });
-    await contact.focus();
-    await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/#contact$/);
-
-    const github = page.locator('.hero__actions').getByRole('link', { name: /GitHub/ });
-    await expect(github).toHaveAttribute('href', 'https://github.com/Muhammed-Farrag');
-    await expect(github).toHaveAttribute('rel', /noopener/);
   });
 });

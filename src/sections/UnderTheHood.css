@@ -8,7 +8,7 @@
   padding: clamp(16px, 3vw, 40px);
   background: var(--color-surface);
   border-radius: 12px;
-  box-shadow: 0 40px 80px -40px rgb(2 18 47 / 0.8);
+  box-shadow: 0 40px 80px -40px rgb(35 53 77 / 0.8);
 }
 
 .hood__controls { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: end; }
@@ -48,7 +48,7 @@
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-rule);
   border-radius: 8px;
-  background: var(--midnight);
+  background: var(--dusk);
   transition: background 0.35s, border-color 0.35s, opacity 0.35s;
 }
 .hood__num { grid-row: span 3; color: var(--color-text-tertiary); padding-top: 2px; }
@@ -59,7 +59,7 @@
 .hood__step[data-state='done'] { border-color: var(--frost-light); }
 .hood__step[data-state='done'] .hood__num { color: var(--frost-light); }
 .hood__step[data-state='active'] { background: var(--moonlight); border-color: var(--moonlight); }
-.hood__step[data-state='active'] :is(.hood__name, .hood__num, .hood__module, .hood__does) { color: var(--oxford-blue); }
+.hood__step[data-state='active'] :is(.hood__name, .hood__num, .hood__module, .hood__does) { color: var(--storm); }
 .hood__step[data-state='skipped'] { opacity: 0.45; border-style: dashed; }
 
 .hood__review {
@@ -73,13 +73,13 @@
   transition: background 0.35s, color 0.35s;
 }
 .hood__review .mono { color: var(--color-text-tertiary); }
-.hood__review[data-active] { background: var(--moonlight); border-style: solid; border-color: var(--moonlight); color: var(--oxford-blue); }
+.hood__review[data-active] { background: var(--moonlight); border-style: solid; border-color: var(--moonlight); color: var(--storm); }
 .hood__review[data-active] .mono { color: var(--storm); }
 
 .hood__log {
   padding: var(--space-4);
   border-radius: 8px;
-  background: var(--oxford-blue);
+  background: var(--storm);
   min-height: 160px;
 }
 .hood__log-title { color: var(--color-text-tertiary); margin-bottom: var(--space-3); }

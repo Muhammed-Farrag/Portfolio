@@ -124,7 +124,7 @@
 .journey__link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 600; }
 
 .journey__photo { margin: 0; width: min(100%, 360px); }
-.journey__photo img { width: 100%; height: auto; border-radius: 6px; box-shadow: 0 24px 48px -28px rgb(2 18 47 / 0.6); }
+.journey__photo img { width: 100%; height: auto; border-radius: 6px; box-shadow: 0 24px 48px -28px rgb(35 53 77 / 0.6); }
 .journey__photo figcaption { margin-top: var(--space-2); color: var(--color-text-tertiary); }
 .journey__photo--pending { aspect-ratio: 4 / 3; }
 

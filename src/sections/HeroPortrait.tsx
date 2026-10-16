@@ -267,7 +267,11 @@ export function HeroPortrait() {
         ref={stageRef}
         className="hero__stage"
         role="img"
-        aria-label={photo ? 'Photograph of Muhammed Farrag' : 'Portrait of Muhammed Farrag, drawn in particles'}
+        aria-label={photo ? 'Photograph of Muhammed Farrag' : 'Portrait of Muhammed Farrag, drawn in particles. Focus to show the photograph.'}
+        // Keyboard: focusing the portrait develops the photograph, moving focus away restores it.
+        tabIndex={0}
+        onFocus={() => setPhoto(true)}
+        onBlur={() => setPhoto(false)}
         onPointerEnter={onEnter}
         onPointerLeave={onLeave}
         onPointerUp={onTap}
@@ -275,23 +279,14 @@ export function HeroPortrait() {
         {mode === 'static' && <img className="hero__fallback" src={fallbackUrl} alt="" width={1000} height={1000} decoding="async" />}
         {mode !== 'loading' && <img className="hero__photo" src={photoUrl} alt="" width={738} height={738} decoding="async" />}
       </div>
-      {mode !== 'loading' && (
+      {mode === 'live' && (
         <div className="hero__controls">
-          <button type="button" className="hero__control hero__reveal" aria-pressed={photo} onClick={() => setPhoto(!photo)}>
+          <button type="button" className="hero__control hero__motion" onClick={() => setMotionPaused(!paused)}>
             <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
-              <circle cx="5" cy="3.3" r="2.1" fill="currentColor" />
-              <path d="M.8 9.6C1.2 7 2.9 5.8 5 5.8s3.8 1.2 4.2 3.8z" fill="currentColor" />
+              {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
             </svg>
-            <span className="hero__control-label">Show photograph</span>
+            <span className="hero__control-label">{paused ? 'Play motion' : 'Pause motion'}</span>
           </button>
-          {mode === 'live' && (
-            <button type="button" className="hero__control hero__motion" onClick={() => setMotionPaused(!paused)}>
-              <svg aria-hidden="true" viewBox="0 0 10 10" width="10" height="10">
-                {paused ? <path d="M2 1l7 4-7 4z" fill="currentColor" /> : <path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor" />}
-              </svg>
-              <span className="hero__control-label">{paused ? 'Play motion' : 'Pause motion'}</span>
-            </button>
-          )}
         </div>
       )}
     </div>

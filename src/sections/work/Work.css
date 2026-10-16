@@ -100,7 +100,7 @@
 .helios {
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -30px rgb(2 18 47 / 0.55), 0 0 0 1px rgb(2 18 47 / 0.06);
+  box-shadow: 0 30px 60px -30px rgb(35 53 77 / 0.55), 0 0 0 1px rgb(35 53 77 / 0.06);
 }
 
 /* Self-Healing: episode terminal */
@@ -174,7 +174,7 @@
   cursor: crosshair;
   background:
     radial-gradient(120% 90% at 50% 110%, var(--storm), transparent 60%),
-    linear-gradient(var(--oxford-blue), var(--midnight));
+    linear-gradient(var(--storm), var(--dusk));
   user-select: none;
 }
 .helios__view::before {
@@ -334,7 +334,7 @@
 .nova__map { position: relative; aspect-ratio: 5 / 4; }
 .nova__wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .nova__wires line { stroke: var(--steel); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 4; }
-.nova__wires line[data-mine] { stroke: var(--oxford-blue); stroke-dasharray: none; stroke-width: 1.5; }
+.nova__wires line[data-mine] { stroke: var(--storm); stroke-dasharray: none; stroke-width: 1.5; }
 .nova__wires line[data-active] { stroke-width: 2.5; }
 
 .nova__hub {
@@ -347,10 +347,10 @@
   width: clamp(92px, 22%, 132px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--oxford-blue);
+  background: var(--storm);
   color: var(--moonlight);
   text-align: center;
-  box-shadow: 0 0 0 8px rgb(2 18 47 / 0.08), 0 0 0 16px rgb(2 18 47 / 0.04);
+  box-shadow: 0 0 0 8px rgb(35 53 77 / 0.08), 0 0 0 16px rgb(35 53 77 / 0.04);
 }
 .nova__hub .mono { color: var(--moonlight); }
 .nova__rover { font: 400 var(--text-xs) / 1 var(--font-mono); color: var(--frost-light); margin-top: -1.6em; }
@@ -369,7 +369,7 @@
   cursor: pointer;
   transition: background 0.3s, color 0.3s, transform 0.3s;
 }
-.nova__module[data-mine] { background: var(--oxford-blue); border-color: var(--oxford-blue); color: var(--moonlight); }
+.nova__module[data-mine] { background: var(--storm); border-color: var(--storm); color: var(--moonlight); }
 .nova__module[aria-pressed='true'] { transform: scale(1.06); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-text-secondary); }
 /* The team's modules step back with colour, not opacity, so their labels keep AA contrast. */
 .nova[data-mine-only] .nova__module:not([data-mine]):not([aria-pressed='true']) {

@@ -5,8 +5,8 @@
 .section[data-blend] {
   background-image: linear-gradient(to bottom, var(--blend-from), var(--color-bg) clamp(120px, 14vw, 220px));
 }
-.section[data-blend='deep'] { --blend-from: var(--oxford-blue); }
-.section[data-blend='mid'] { --blend-from: var(--midnight); }
+.section[data-blend='deep'] { --blend-from: var(--storm); }
+.section[data-blend='mid'] { --blend-from: var(--dusk); }
 .section[data-blend='elevated'] { --blend-from: var(--storm); }
 
 .section__header {

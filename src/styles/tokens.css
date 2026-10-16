@@ -1,4 +1,5 @@
-/* Moonlight & Oxford design tokens, Revision 3 (docs/DESIGN_SPEC.md §2-4).
+/* Moonlight & Storm design tokens, Revision 4 (16 Oct 2026): Oxford Blue and Midnight removed;
+   Storm and Steel are the dark grounds (docs/DESIGN_SPEC.md §2-4).
    tests/unit/tokens.test.ts checks every allowed text/background pair against WCAG. */
 :root {
   /* Brand palette (owner-specified) */
@@ -6,21 +7,20 @@
   --frost-blue: #8ba3c5;
   --steel: #495b7d;
   --storm: #23354d;
-  --oxford-blue: #02122f;
 
   /* Derived supporting tones (blends of brand colours; no new hues) */
   --mist: #c9d3e2; /* Frost Blue toward Moonlight */
   --frost-light: #b3c4dc; /* Frost Blue, lightened */
-  --midnight: #11223d; /* between Oxford Blue and Storm */
+  --dusk: #30425e; /* Storm with 35% Steel: the Mid ground */
   --dawn: #e2e2da; /* Moonlight with 14% Frost Blue: panels on light sections */
 
   /* Semantic roles. These are the Deep theme; .theme-* below redefine them per section. */
-  --color-bg: var(--oxford-blue);
-  --color-surface: var(--storm);
-  --color-surface-alt: var(--midnight);
+  --color-bg: var(--storm);
+  --color-surface: var(--dusk);
+  --color-surface-alt: var(--dusk);
   --color-text: var(--moonlight);
   --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-blue);
+  --color-text-tertiary: var(--frost-light);
   --color-link: var(--frost-light);
   --color-focus: var(--frost-light);
   --color-rule: var(--steel);
@@ -29,7 +29,7 @@
   --color-interactive-fill: var(--steel);
   --color-focal: var(--moonlight);
   --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--oxford-blue);
+  --color-on-focal: var(--storm);
 
   /* Typography */
   --font-display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
@@ -71,12 +71,12 @@
 /* Section themes (docs/DESIGN_SPEC.md §2.5). Each redefines every semantic role, so anything
    inside a themed section stays readable. Every pair is checked in tests/unit/tokens.test.ts. */
 .theme-deep {
-  --color-bg: var(--oxford-blue);
-  --color-surface: var(--storm);
-  --color-surface-alt: var(--midnight);
+  --color-bg: var(--storm);
+  --color-surface: var(--dusk);
+  --color-surface-alt: var(--dusk);
   --color-text: var(--moonlight);
   --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-blue);
+  --color-text-tertiary: var(--frost-light);
   --color-link: var(--frost-light);
   --color-focus: var(--frost-light);
   --color-rule: var(--steel);
@@ -85,16 +85,16 @@
   --color-interactive-fill: var(--steel);
   --color-focal: var(--moonlight);
   --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--oxford-blue);
+  --color-on-focal: var(--storm);
 }
 
 .theme-mid {
-  --color-bg: var(--midnight);
+  --color-bg: var(--dusk);
   --color-surface: var(--storm);
-  --color-surface-alt: var(--oxford-blue);
+  --color-surface-alt: var(--storm);
   --color-text: var(--moonlight);
   --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-blue);
+  --color-text-tertiary: var(--frost-light);
   --color-link: var(--frost-light);
   --color-focus: var(--frost-light);
   --color-rule: var(--steel);
@@ -103,33 +103,33 @@
   --color-interactive-fill: var(--steel);
   --color-focal: var(--moonlight);
   --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--oxford-blue);
+  --color-on-focal: var(--storm);
 }
 
 .theme-elevated {
-  --color-bg: var(--storm);
-  --color-surface: var(--oxford-blue);
-  --color-surface-alt: var(--midnight);
+  --color-bg: var(--steel);
+  --color-surface: var(--storm);
+  --color-surface-alt: var(--dusk);
   --color-text: var(--moonlight);
   --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-blue);
-  --color-link: var(--frost-light);
-  --color-focus: var(--frost-light);
-  --color-rule: var(--steel);
-  --color-control-edge: var(--frost-blue);
-  --color-accent-support: var(--frost-blue);
-  --color-interactive-fill: var(--steel);
+  --color-text-tertiary: var(--mist);
+  --color-link: var(--moonlight);
+  --color-focus: var(--moonlight);
+  --color-rule: var(--dusk);
+  --color-control-edge: var(--mist);
+  --color-accent-support: var(--frost-light);
+  --color-interactive-fill: var(--storm);
   --color-focal: var(--moonlight);
-  --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--oxford-blue);
+  --color-focal-hover: var(--mist);
+  --color-on-focal: var(--storm);
 }
 
 .theme-light {
   --color-bg: var(--moonlight);
   --color-surface: var(--dawn);
   --color-surface-alt: var(--dawn);
-  --color-text: var(--oxford-blue);
-  --color-text-secondary: var(--storm);
+  --color-text: var(--storm);
+  --color-text-secondary: var(--steel);
   --color-text-tertiary: var(--steel);
   --color-link: var(--storm);
   --color-focus: var(--storm);
@@ -137,8 +137,8 @@
   --color-control-edge: var(--steel);
   --color-accent-support: var(--steel);
   --color-interactive-fill: var(--mist);
-  --color-focal: var(--oxford-blue);
-  --color-focal-hover: var(--storm);
+  --color-focal: var(--storm);
+  --color-focal-hover: var(--steel);
   --color-on-focal: var(--moonlight);
 }
 
