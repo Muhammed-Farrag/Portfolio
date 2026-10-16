@@ -8,6 +8,8 @@ export const profile = {
   headline: 'Engineering intelligence into real-world systems.',
   focus: ['LLM systems', 'Intelligent automation', 'Computer vision'], // CV profile and skills
   github: 'https://github.com/Muhammed-Farrag', // HTTP 200: verified
+  linkedin: 'https://www.linkedin.com/in/muhammed-farrag-/', // approved by the owner, 16 Oct 2026
+  email: 'mohamed.frage19@gmail.com', // approved for publication by the owner, 16 Oct 2026
 } as const;
 
 export interface NavItem {
@@ -15,12 +17,14 @@ export interface NavItem {
   label: string;
 }
 
-/** Sections that appear in the navigation, in page order. */
+/** The navigation, in page order. Internships and Education are the two halves of one section. */
 export const nav: NavItem[] = [
-  { id: 'approach', label: 'Approach' },
-  { id: 'work', label: 'Work' },
-  { id: 'recognition', label: 'Recognition' },
-  { id: 'journey', label: 'Journey' },
+  { id: 'events', label: 'Events' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'internships', label: 'Internships' },
+  { id: 'education', label: 'Education' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'certificates', label: 'Certificates' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -40,48 +44,50 @@ export interface SectionDef {
   blendFrom?: SectionTheme;
 }
 
-/** Scenes 02-06 of the storyboard. The hero (01) and contact (07) have their own components. */
+/**
+ * The sections between the hero and the contact scene, in page order (revision of 16 Oct 2026).
+ * Each is one beat of the opening autoplay sequence (src/features/cinema).
+ */
 export const sections: SectionDef[] = [
   {
-    id: 'approach',
-    eyebrow: 'How I work',
-    title: 'From model to running system',
-    summary: 'Intelligence, orchestration, product and operations: the four layers every project on this page moves through.',
-    pending: 'Scene 02: links from each layer to the projects that use it.',
+    id: 'events',
+    eyebrow: 'Important events',
+    title: 'Three moments',
+    summary: 'A trophy in Beijing, an honour at home, and a seat on the judging panel.',
+    pending: 'M3: Events 2 and 3 as particle scenes; Event 3 details are draft.',
     theme: 'mid',
     blendFrom: 'deep',
   },
   {
-    id: 'work',
-    eyebrow: 'Selected work',
-    title: 'Projects, with the engineering shown',
-    summary: 'Three projects from my repositories and CV, each with the engineering shown and something to try.',
-    pending: 'Scene 03: fourth case study pending the owner’s choice.',
-    theme: 'light',
-  },
-  {
-    id: 'under-the-hood',
-    eyebrow: 'Under the hood',
-    title: 'One real system, step by step',
-    summary: 'How the Self-Healing workflow turns an injected pipeline failure into a governed, auditable repair plan.',
-    pending: 'Scene 04: threshold values pending confirmation (SOURCE_AUDIT.md).',
+    id: 'experience',
+    eyebrow: 'Work experience',
+    title: 'Where I have worked',
+    summary: 'Full-time roles and a year of freelance work.',
+    pending: 'M4: TJM Labs, Cluster and freelance cards (draft details).',
     theme: 'elevated',
   },
   {
-    id: 'recognition',
-    eyebrow: 'Recognition',
-    title: 'The moment of victory',
-    summary: 'A symbolic particle scene, then the real photograph: the Best Creativity Trophy at RoboRAVE International in Beijing, August 2025.',
-    pending: 'Scene 05: original-resolution trophy photograph requested (current file 582×805).',
-    theme: 'deep',
-    blendFrom: 'elevated',
+    id: 'growth',
+    eyebrow: 'Internships & education',
+    title: 'Where I learned',
+    summary: 'Internships with the projects they produced, and the programmes behind them.',
+    pending: 'M4: ITI and STC internships; B.Sc., DEPI and GCI World (Japan).',
+    theme: 'light',
   },
   {
-    id: 'journey',
-    eyebrow: 'Experience',
-    title: 'Experience and evolution',
-    summary: 'From an internship at ITI in 2024 to judging at RoboRAVE Egypt in 2026, alongside a B.Sc. in Artificial Intelligence Science. Select any point for its story.',
-    pending: 'Scene 06: STC, TJM Labs and Cluster wording, the current role, and the judging photograph are pending.',
+    id: 'projects',
+    eyebrow: 'Projects',
+    title: 'Things I have built',
+    summary: 'Four projects from my GitHub, each with something to try.',
+    pending: 'M5: Lumina card and the rain background.',
+    theme: 'deep',
+  },
+  {
+    id: 'certificates',
+    eyebrow: 'Certificates',
+    title: 'Always learning',
+    summary: 'Courses and certificates, from Python to deep learning.',
+    pending: 'M6: the moving certificate gallery.',
     theme: 'light',
   },
 ];

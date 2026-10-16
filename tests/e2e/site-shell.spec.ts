@@ -1,10 +1,10 @@
 // Phase 2, milestone 1: application shell, navigation, layout and responsiveness.
 import AxeBuilder from '@axe-core/playwright';
 import { existsSync, readdirSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { expectNoHorizontalOverflow, watch } from './helpers';
 
-const SECTIONS = ['top', 'approach', 'work', 'under-the-hood', 'recognition', 'journey', 'contact'];
+const SECTIONS = ['top', 'events', 'experience', 'growth', 'internships', 'education', 'projects', 'certificates', 'contact'];
 const isMobile = (name: string) => name.includes('mobile');
 
 test.describe('site shell', () => {
@@ -83,11 +83,11 @@ test.describe('navigation', () => {
   test('every navigation link reaches its section', async ({ page }, info) => {
     await page.goto('/');
     const nav = page.getByRole('navigation', { name: 'Primary' });
-    for (const [label, id] of [['Approach', 'approach'], ['Work', 'work'], ['Recognition', 'recognition'], ['Journey', 'journey'], ['Contact', 'contact']]) {
+    for (const [label, id] of [['Events', 'events'], ['Experience', 'experience'], ['Internships', 'internships'], ['Education', 'education'], ['Projects', 'projects'], ['Certificates', 'certificates'], ['Contact', 'contact']]) {
       if (isMobile(info.project.name)) await page.getByRole('button', { name: 'Menu' }).click();
       await nav.getByRole('link', { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`#${id}$`));
-      await expect(page.locator(`#${id} h2`)).toBeInViewport();
+      await expect(page.locator(`#${id}`).locator('h2, h3').first()).toBeInViewport();
       if (isMobile(info.project.name)) await expect(nav).toBeHidden();
     }
   });
@@ -113,7 +113,7 @@ test.describe('navigation', () => {
     await expect(page.getByRole('button', { name: 'Close' })).toHaveAttribute('aria-expanded', 'true');
     await expect(nav).toBeVisible();
     await page.keyboard.press('Tab');
-    await expect(nav.getByRole('link', { name: 'Approach' })).toBeFocused();
+    await expect(nav.getByRole('link', { name: 'Events' })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(nav).toBeHidden();
     await expect(page.getByRole('button', { name: 'Menu' })).toBeFocused();
@@ -128,13 +128,13 @@ test.describe('navigation', () => {
 });
 
 const THEME_GROUNDS: [string, string][] = [
-  ['top', 'rgb(2, 18, 47)'], // Deep: Oxford Blue
-  ['approach', 'rgb(17, 34, 61)'], // Mid: Midnight
-  ['work', 'rgb(240, 236, 221)'], // Light: Moonlight
-  ['under-the-hood', 'rgb(35, 53, 77)'], // Elevated: Storm
-  ['recognition', 'rgb(2, 18, 47)'], // Deep
-  ['journey', 'rgb(240, 236, 221)'], // Light
-  ['contact', 'rgb(35, 53, 77)'], // Elevated
+  ['top', 'rgb(35, 53, 77)'], // Deep: Storm
+  ['events', 'rgb(48, 66, 94)'], // Mid: Dusk
+  ['experience', 'rgb(73, 91, 125)'], // Elevated: Steel
+  ['growth', 'rgb(240, 236, 221)'], // Light: Moonlight
+  ['projects', 'rgb(35, 53, 77)'], // Deep
+  ['certificates', 'rgb(240, 236, 221)'], // Light
+  ['contact', 'rgb(73, 91, 125)'], // Elevated
 ];
 
 test.describe('section themes', () => {
@@ -143,15 +143,14 @@ test.describe('section themes', () => {
     for (const [id, ground] of THEME_GROUNDS) {
       expect(await page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundColor), id).toBe(ground);
     }
-    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(2, 18, 47)');
+    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(35, 53, 77)');
   });
 
   test('dark sections that meet blend with a gradient; light sections keep a clean edge', async ({ page }) => {
     await page.goto('/');
     const image = (id: string) => page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundImage);
-    expect(await image('approach')).toContain('rgb(2, 18, 47)'); // from the Deep hero
-    expect(await image('recognition')).toContain('rgb(35, 53, 77)'); // from the Elevated section above
-    for (const id of ['work', 'under-the-hood', 'journey', 'contact']) expect(await image(id), id).toBe('none');
+    expect(await image('events')).toContain('rgb(35, 53, 77)'); // from the Deep hero
+    for (const id of ['experience', 'growth', 'projects', 'certificates', 'contact']) expect(await image(id), id).toBe('none');
   });
 
   test('headings, body text and labels meet WCAG AA against their own section', async ({ page }) => {
@@ -183,33 +182,31 @@ test.describe('section themes', () => {
     expect(failures).toEqual([]);
   });
 
-  test('the header stays Oxford Blue and readable over light sections', async ({ page }, info) => {
+  test('the glass header takes the tone of the section under it, so its links stay readable', async ({ page }, info) => {
     await page.goto('/');
-    await page.locator('#work').scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollBy(0, 200));
     const header = page.getByRole('banner');
-    // Chrome reports color-mix() as color(srgb r g b / a) with 0-1 channels.
-    const ground = await header.evaluate((e) => getComputedStyle(e).backgroundColor);
-    const [r, g, bl, alpha] = (ground.match(/[\d.]+/g) ?? []).map(Number).map((v, i, all) => (all.length === 4 && i < 3 && ground.startsWith('color(') ? Math.round(v * 255) : v));
-    expect([r, g, bl, alpha]).toEqual([2, 18, 47, 0.92]);
+    await expect(header).toHaveAttribute('data-over', 'dark');
+    // Put the top of the light Internships & Education section just under the bar.
+    await page.evaluate(() => window.scrollTo({ top: document.getElementById('growth')!.getBoundingClientRect().top + scrollY + 20, behavior: 'instant' }));
+    await expect(header).toHaveAttribute('data-over', 'light');
     if (!info.project.name.includes('mobile')) {
-      const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Work', exact: true });
-      expect(await link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(201, 211, 226)'); // Mist
+      const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Projects', exact: true });
+      await expect.poll(() => link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(35, 53, 77)'); // Storm on light glass
     } else {
       await page.getByRole('button', { name: 'Menu' }).click();
-      const nav = page.getByRole('navigation', { name: 'Primary' });
-      expect(await nav.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(2, 18, 47)');
+      const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Projects', exact: true });
+      expect(await link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(201, 211, 226)'); // Mist on the dark menu panel
     }
   });
 
   test('controls inside light sections use the light focus ring and outlines', async ({ page }) => {
     await page.goto('/');
-    const vars = await page.locator('#work').evaluate((e) => {
+    const vars = await page.locator('#growth').evaluate((e) => {
       const cs = getComputedStyle(e);
       return ['--color-focus', '--color-control-edge', '--color-focal', '--color-on-focal'].map((v) => cs.getPropertyValue(v).trim());
     });
-    // Storm focus ring, Steel outlines, Oxford Blue primary fill with Moonlight text.
-    expect(vars).toEqual(['#23354d', '#495b7d', '#02122f', '#f0ecdd']);
+    // Storm focus ring, Steel outlines, Storm primary fill with Moonlight text.
+    expect(vars).toEqual(['#23354d', '#495b7d', '#23354d', '#f0ecdd']);
   });
 });
 

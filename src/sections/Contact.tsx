@@ -11,7 +11,7 @@ const LINKS = [
 
 export function Contact() {
   return (
-    <section id="contact" className="contact theme-elevated" aria-labelledby="contact-title">
+    <section id="contact" className="contact theme-elevated" aria-labelledby="contact-title" data-beat="Contact" data-beat-min="5000" data-beat-effect="rays">
       <div className="container contact__grid">
         {/* The Hero's photograph again, graded into the palette and cut to his silhouette. */}
         <div className="contact__portrait" style={{ '--photo': `url(${photoUrl})` } as CSSProperties} aria-hidden="true">

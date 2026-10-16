@@ -115,7 +115,7 @@ export function Recognition({ s }: { s: SectionDef }) {
   }, [live, near]);
 
   return (
-    <section id={s.id} className="section recog theme-deep" data-blend={s.blendFrom} data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section recog theme-${s.theme}`} data-blend={s.blendFrom} data-beat="Important events" data-beat-scrub="" data-beat-min="24000" data-beat-effect="warp" data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
       <div className="recog__track" ref={trackRef} style={{ '--photo': live ? 0 : 1 } as CSSProperties}>
         <div className="recog__sticky">
           <div className="container recog__head">

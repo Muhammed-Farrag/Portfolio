@@ -50,6 +50,24 @@ export function HeroStars() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       const lit: [number, number, number][] = [];
+      // Warp: as the hero scrolls away, every star streaks out from the centre (the transition
+      // into the next scene). A pure function of the scroll position.
+      const warp = paused ? 0 : Math.min(1, Math.max(0, window.scrollY / (h * 0.7)));
+      if (warp > 0.01) {
+        ctx.strokeStyle = '#f0ecdd';
+        ctx.lineCap = 'round';
+        for (const s of stars) {
+          const k = warp * warp * 0.9 * (0.5 + s.speed / 3);
+          ctx.globalAlpha = Math.min(1, 0.35 + warp) * (1 - warp * 0.35);
+          ctx.lineWidth = s.r * 1.2;
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(s.x + (s.x - w / 2) * k, s.y + (s.y - h / 2) * k);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        return;
+      }
       for (const s of stars) {
         const twinkle = paused ? 0.7 : 0.55 + 0.45 * Math.sin(s.phase + t * 0.001 * s.speed);
         const d = Math.hypot(s.x - pointer.x, s.y - pointer.y);

@@ -22,9 +22,9 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
   return (
     <article id={`case-${study.id}`} className="case" data-flip={flip || undefined} aria-labelledby={`case-${study.id}-title`}>
       <div className="case__text" data-reveal="">
-        <p className="case__index" aria-hidden="true">
+        <div className="case__index" aria-hidden="true">
           {String(index).padStart(2, '0')}
-        </p>
+        </div>
         <p className="eyebrow">{study.kind}</p>
         <h3 id={`case-${study.id}-title`} className="case__name display">
           {study.name}
@@ -52,7 +52,7 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
           {extra}
         </p>
       </div>
-      <div className="case__visual" data-reveal="" style={{ '--reveal-order': 1 } as CSSProperties}>
+      <div className="case__visual" data-reveal="" data-cinema-skip="" style={{ '--reveal-order': 1 } as CSSProperties}>
         {visual}
       </div>
     </article>
@@ -61,7 +61,7 @@ function Case({ study, index, visual, flip = false, extra }: { study: CaseStudy;
 
 export function Work({ s }: { s: SectionDef }) {
   return (
-    <section id={s.id} className="section work theme-light" aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" aria-labelledby={`${s.id}-title`}>
       <div className="container">
         <header className="work__header">
           <p className="eyebrow">{s.eyebrow}</p>

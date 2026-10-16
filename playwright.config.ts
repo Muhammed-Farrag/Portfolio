@@ -43,8 +43,8 @@ export default defineConfig({
     // lighter projects above keep running in parallel. Their tests walk through several scroll
     // stages of a continuously rendering page (30-90 s each on a busy machine), so they get a
     // 120 s budget instead of 60 s. There are no retries: a hang or a wrong state still fails.
-    { name: 'site-webgl-desktop', testMatch: /(hero|story)\.spec\.ts/, workers: 1, timeout: 120_000, use: { ...desktop, baseURL: SITE_URL } },
-    { name: 'site-webgl-mobile', testMatch: /(hero|story)\.spec\.ts/, workers: 1, timeout: 120_000, use: { ...mobile, baseURL: SITE_URL } },
+    { name: 'site-webgl-desktop', testMatch: /(hero|cinema)\.spec\.ts/, workers: 1, timeout: 120_000, use: { ...desktop, baseURL: SITE_URL } },
+    { name: 'site-webgl-mobile', testMatch: /(hero|cinema)\.spec\.ts/, workers: 1, timeout: 120_000, use: { ...mobile, baseURL: SITE_URL } },
   ],
   webServer: [
     { command: 'node scripts/serve-static.mjs 4310', url: LEGACY_URL, reuseExistingServer: !process.env.CI },

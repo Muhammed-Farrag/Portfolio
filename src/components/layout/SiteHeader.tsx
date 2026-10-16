@@ -28,6 +28,26 @@ export function SiteHeader() {
     };
   }, [open, close]);
 
+  // The glass takes the tone of the section underneath: light glass with Storm text over a light
+  // section, so the links stay readable (a dark tint over Moonlight would turn grey).
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const header = headerRef.current!;
+    // The hero is dark; the observer takes over once a section passes under the bar.
+    header.dataset.over = 'dark';
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) header.dataset.over = e.target.classList.contains('theme-light') ? 'light' : 'dark';
+        }
+      },
+      // A thin band where the header floats.
+      { rootMargin: '-40px 0px -94% 0px' },
+    );
+    document.querySelectorAll('main > section, footer').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   // Desktop hover: one glass pill glides slowly to the link under the pointer (or keyboard focus).
   const glide = (e: SyntheticEvent<HTMLUListElement>) => {
     const link = (e.target as HTMLElement).closest('a');
@@ -43,7 +63,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="site-header theme-deep" data-open={open || undefined}>
+    <header ref={headerRef} className="site-header theme-deep" data-open={open || undefined}>
       <div className="container site-header__bar">
         <a className="site-header__brand" href="#top" onClick={() => close(false)}>
           <span className="site-header__mark" aria-hidden="true">MF</span>

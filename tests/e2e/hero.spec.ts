@@ -1,6 +1,6 @@
 // Phase 2, Hero milestone: the Particle Portrait in the public site.
 import { PNG } from 'pngjs';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './fixtures';
 import { disableWebGL, expectNoHorizontalOverflow, pendingFrames, trackAnimationFrames, watch } from './helpers';
 
 const isMobile = (name: string) => name.includes('mobile');
@@ -141,7 +141,7 @@ test.describe('hero portrait', () => {
     await page.goto(info.project.use.baseURL!);
     await waitForPortrait(page);
     await expect(stage(page)).toHaveAttribute('data-state', 'paused');
-    expect(await page.locator('.story__canvas').evaluate((e) => getComputedStyle(e).transitionDuration)).toBe('0s');
+    expect(await page.locator('.hero__layer').evaluate((e) => getComputedStyle(e).transitionDuration)).toBe('0s');
     await page.waitForTimeout(500);
     expect(await pendingFrames(page)).toBe(0);
     expect(await heroStates(page)).not.toContain('reforming');
@@ -162,7 +162,7 @@ test.describe('hero portrait', () => {
     const img = page.locator('.hero__fallback');
     await expect(img).toBeVisible();
     await expect.poll(() => img.evaluate((e: HTMLImageElement) => e.complete && e.naturalWidth)).toBe(1000);
-    await expect(page.locator('.story__layer')).toBeHidden();
+    await expect(page.locator('.hero__canvas')).toBeHidden();
     await expect(page.locator('.hero__motion'), 'nothing to pause on a still frame').toHaveCount(0);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     expect(requested.filter((u) => u.includes('source-600')), 'the particle source is not downloaded').toEqual([]);
@@ -187,11 +187,11 @@ test.describe('photograph reveal', () => {
     await expect(stage(page)).toHaveAttribute('aria-label', 'Photograph of Muhammed Farrag');
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(1);
     // The particles fade while the photograph is shown.
-    await expect.poll(() => page.locator('.story__layer').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(0);
+    await expect.poll(() => page.locator('.hero__canvas').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(0);
     await page.mouse.move(2, box.y + box.height / 2);
     await expect(stage(page)).toHaveAttribute('data-photo', 'off');
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(0);
-    await expect.poll(() => page.locator('.story__layer').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(1);
+    await expect.poll(() => page.locator('.hero__canvas').evaluate((e) => Number(getComputedStyle(e).opacity))).toBe(1);
     expect(w.errors).toEqual([]);
   });
 

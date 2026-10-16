@@ -9,6 +9,24 @@
   padding-block: var(--space-2) var(--space-section);
 }
 
+/* The particle layer covers the whole hero, so the portrait can burst across the scene on exit.
+   It fades in once live; scroll-linked dimming (--dim, set by HeroPortrait) has no transition. */
+.hero { isolation: isolate; overflow: hidden; }
+.hero__layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+}
+.hero[data-mode='live'] .hero__layer { opacity: 1; }
+.hero[data-mode='static'] .hero__layer { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero__layer { transition: opacity 0.9s ease-out; }
+}
+.hero__canvas { display: block; width: 100%; height: 100%; opacity: var(--dim, 1); }
+.hero__layout { position: relative; z-index: 2; }
+
 /* The star field fills the hero behind the portrait and the type. */
 .hero__stars {
   position: absolute;

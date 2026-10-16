@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent, type RefObject } from 'react';
 import fallbackUrl from '../assets/portrait/fallback.webp';
 import photoUrl from '../assets/portrait/photo.webp';
 import sourceUrl from '../assets/portrait/source-600.webp';
@@ -10,14 +10,11 @@ import {
   type ParticleRenderer,
   type SampleStep,
 } from '../features/particle-portrait';
-import { assignTargets, diagramTargets } from '../features/story/approachDiagram';
-import { APPROACH_FIGURE_ID } from './ApproachFigure';
-import { useStoryCanvas } from './HeroApproachStory';
 
 type Mode = 'loading' | 'live' | 'static';
 
-/** uBurst at the middle of the Hero-to-Approach transition. */
-const TRANSITION_BURST = 0.42;
+/** uBurst once the hero has scrolled away: the portrait bursts into the next scene. */
+const EXIT_BURST = 0.75;
 /** The entrance starts at this fraction of a full legacy scatter. */
 const ASSEMBLE_STRENGTH = 0.45;
 /** Extra uBurst while the photograph is shown: the particles part around it. */
@@ -44,23 +41,14 @@ const smooth = (a: number, b: number, v: number) => {
   const t = clamp01((v - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-/**
- * Transition progress, a pure function of the scroll position (so it never lags and reverses
- * exactly): 0 at the top of the page, 1 once the Approach figure is centred in the viewport.
- */
-function transitionProgress(figure: DOMRect): number {
-  const travelled = window.scrollY;
-  const remaining = figure.top + figure.height / 2 - window.innerHeight / 2;
-  if (remaining <= 0) return 1;
-  if (travelled <= 0) return 0;
-  return travelled / (travelled + remaining);
+/** Exit progress, a pure function of the scroll position: 0 at the top, 1 once most of the hero has gone. */
+function exitProgress(hero: HTMLElement): number {
+  return clamp01(window.scrollY / (hero.offsetHeight * 0.7));
 }
 
-export function HeroPortrait() {
+/** The portrait slot. It draws on the hero-wide canvas (owned by <Hero>) so the particles can burst across the scene. */
+export function HeroPortrait({ canvasRef }: { canvasRef: RefObject<HTMLCanvasElement> }) {
   const stageRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useStoryCanvas();
   const [mode, setMode] = useState<Mode>('loading');
   const [photo, setPhoto] = useState(false);
   /** Drives the photograph reveal inside the main effect; replaced once that effect runs. */
@@ -80,7 +68,7 @@ export function HeroPortrait() {
     const stage = stageRef.current!;
     const canvas = canvasRef.current!;
     const layer = canvas.parentElement!;
-    const story = layer.parentElement!;
+    const hero = layer.parentElement!;
     const controller = new AbortController();
     const { signal } = controller;
     let renderer: ParticleRenderer | null = null;
@@ -93,7 +81,7 @@ export function HeroPortrait() {
     let revealLast = 0;
 
     const setStoryMode = (next: Mode) => {
-      story.dataset.mode = next;
+      hero.dataset.mode = next;
       setMode(next);
     };
 
@@ -104,22 +92,16 @@ export function HeroPortrait() {
       setStoryMode('static');
     };
 
-    // Places the portrait on its slot and, while motion is allowed, carries it to the Approach
-    // figure: it disperses on the way (uBurst), changes shape in the middle (uMorph) and settles.
+    // Places the portrait on its slot. As the hero scrolls away (by hand or in the autoplay
+    // sequence) the particles burst outwards and fade: the transition into the next scene.
     const update = () => {
       frame = 0;
-      const figure = document.getElementById(APPROACH_FIGURE_ID);
       const still = isMotionPaused() || !renderer;
       const layerBox = layer.getBoundingClientRect();
       const a = stage.getBoundingClientRect();
-      const b = figure?.getBoundingClientRect();
-      const t = still || !b ? 0 : transitionProgress(b);
-      const travel = smooth(0.2, 0.85, t);
-      const box = b
-        ? { left: lerp(a.left, b.left, travel), top: lerp(a.top, b.top, travel), width: lerp(a.width, b.width, travel), height: lerp(a.height, b.height, travel) }
-        : a;
+      const t = still ? 0 : exitProgress(hero);
 
-      // Scrolling away returns the photograph to particles before the transition starts.
+      // Scrolling away returns the photograph to particles before the exit starts.
       if (revealTarget && window.scrollY > a.height * 0.25) setPhoto(false);
       stage.style.setProperty('--free', smooth(0, 0.12, t).toFixed(3));
       // The photograph develops through a soft circle that widens from the pointer, while the
@@ -128,21 +110,12 @@ export function HeroPortrait() {
       stage.style.setProperty('--photo-r', `${(smooth(0.15, 1, reveal) * 150).toFixed(2)}%`);
       stage.style.setProperty('--photo-o', smooth(0.1, 0.55, reveal).toFixed(3));
       stage.style.setProperty('--photo-fade', fade.toFixed(3));
-      // The cloud dims while dispersed, so any text it passes behind stays easy to read. On narrow
-      // screens it has to cross the Hero's text and buttons, so it dims further.
-      const depth = matchMedia('(max-width: 1023.98px)').matches ? 0.6 : 0.45;
-      layer.style.setProperty('--dim', ((1 - depth * Math.sin(Math.PI * smooth(0.1, 0.9, t))) * (1 - fade)).toFixed(3));
+      layer.style.setProperty('--dim', ((1 - smooth(0.35, 1, t)) * (1 - fade)).toFixed(3));
+      hero.style.setProperty('--exit', t.toFixed(3));
       stage.dataset.progress = t.toFixed(3);
-      if (figure) {
-        figure.dataset.live = String(!still);
-        // Complete just before the end, so a page that settles a few pixels short still shows the labels fully.
-        figure.style.setProperty('--reveal', smooth(0.8, 0.98, t).toFixed(3));
-      }
       if (!renderer) return;
-      renderer.setFrame({ x: box.left - layerBox.left, y: box.top - layerBox.top, width: box.width, height: box.height });
-      // Eased at both ends: the portrait holds its shape briefly before it dissolves.
-      renderer.setExit(Math.sin(Math.PI * smooth(0, 1, t)) * TRANSITION_BURST + smooth(0, 0.7, reveal) * PHOTO_BURST);
-      renderer.setMorph(smooth(0.3, 0.8, t));
+      renderer.setFrame({ x: a.left - layerBox.left, y: a.top - layerBox.top, width: a.width, height: a.height });
+      renderer.setExit(smooth(0, 1, t) * EXIT_BURST + smooth(0, 0.7, reveal) * PHOTO_BURST);
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -199,7 +172,6 @@ export function HeroPortrait() {
       });
       if ('fallback' in result) return fail();
       renderer = result;
-      result.setMorphTarget(assignTargets(result.getPoints(), diagramTargets(result.pointCount)));
       stage.dataset.points = String(result.pointCount);
       stage.dataset.state = result.state ?? 'starting';
       result.on('state', (state) => {
@@ -207,7 +179,7 @@ export function HeroPortrait() {
         if (state === 'failed') fail();
       });
       update();
-      // The entrance plays only when the page opens at the portrait, not mid-transition.
+      // The entrance plays only when the page opens at the portrait, not mid-exit.
       if (!isMotionPaused() && Number(stage.dataset.progress) === 0) result.assemble(ASSEMBLE_STRENGTH);
       setStoryMode('live');
     };
