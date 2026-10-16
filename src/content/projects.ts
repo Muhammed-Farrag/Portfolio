@@ -26,20 +26,6 @@ export interface CaseStudy {
   draft?: string;
 }
 
-export const selfHealing: CaseStudy = {
-  id: 'self-healing',
-  name: 'Self-Healing Automation Workflow',
-  kind: 'Autonomous diagnosis and repair for data pipelines',
-  stack: ['Python', 'Apache Airflow', 'scikit-learn', 'FAISS', 'Llama 3.3 70B', 'FastAPI', 'React'],
-  intro: 'When an Airflow task fails, it reads the log, names the failure, drafts a repair and decides whether a person must approve it.',
-  facts: [
-    { label: 'Diagnosis', text: 'Drain log templates, regex rules and a TF-IDF and Random Forest classifier.' },
-    { label: 'Repair', text: 'Similar fixes from a FAISS playbook; Llama 3.3 70B on Groq drafts the plan.' },
-    { label: 'Governance', text: 'Flagged or low-confidence plans wait for a person. Approved ones are patched, sandboxed and audited.' },
-  ],
-  links: [{ label: 'Repository', href: 'https://github.com/Muhammed-Farrag/SelfHealing-AutomationWorkflow' }],
-};
-
 export const helios: CaseStudy = {
   id: 'helios',
   name: 'HELIOS',
@@ -85,36 +71,3 @@ export const novaCareModules: { id: string; label: string; detail: string; mine:
   { id: 'ble', label: 'BLE link', detail: 'Bluetooth Low Energy communication (team).', mine: false, x: 50, y: 88 },
   { id: 'dash', label: 'Dashboards', detail: 'Monitoring dashboards (team).', mine: false, x: 12, y: 64 },
 ];
-
-/** The five failure classes the repository's classifier reports. */
-export const FAILURE_CLASSES = ['http_error', 'missing_column', 'missing_db', 'missing_file', 'timeout'] as const;
-export type FailureClass = (typeof FAILURE_CLASSES)[number];
-
-/** Illustrative log lines for each class, written for the simulation (not taken from a real run). */
-export const FAILURE_LOGS: Record<FailureClass, { task: string; line: string; playbook: string }> = {
-  http_error: {
-    task: 'fetch_rates',
-    line: 'requests.exceptions.HTTPError: 503 Server Error: Service Unavailable',
-    playbook: 'retry with backoff; check the endpoint',
-  },
-  missing_column: {
-    task: 'transform_orders',
-    line: "KeyError: 'customer_id' not in DataFrame columns",
-    playbook: 'map the renamed column; update the schema',
-  },
-  missing_db: {
-    task: 'load_orders',
-    line: 'sqlite3.OperationalError: unable to open database file',
-    playbook: 'restore the connection setting in .env',
-  },
-  missing_file: {
-    task: 'extract_daily',
-    line: "FileNotFoundError: [Errno 2] No such file or directory: 'data/daily.csv'",
-    playbook: 'point the task at the configured input path',
-  },
-  timeout: {
-    task: 'aggregate_week',
-    line: 'AirflowTaskTimeout: Timeout, PID: 4127',
-    playbook: 'raise execution_timeout; split the batch',
-  },
-};

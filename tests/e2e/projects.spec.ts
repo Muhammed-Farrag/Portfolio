@@ -1,13 +1,14 @@
-// Projects: four case studies, each with its repository; Lumina's orbits tilt from the keyboard too.
+// Projects: three case studies, each with its repository; Lumina's orbits tilt from the keyboard too.
 import { expect, test } from './fixtures';
 
-test('lists the four projects, each with a repository link', async ({ page }) => {
+test('lists the three projects, each with a repository link', async ({ page }) => {
   await page.goto('/#projects');
-  for (const name of ['Self-Healing Automation Workflow', 'HELIOS', 'NovaCare', 'Lumina']) {
+  for (const name of ['HELIOS', 'NovaCare', 'Lumina']) {
     const card = page.locator('article.case', { has: page.getByRole('heading', { level: 3, name }) });
     await expect(card).toHaveCount(1);
     await expect(card.getByRole('link', { name: /repository/i })).toHaveAttribute('href', /^https:\/\/github\.com\//);
   }
+  await expect(page.locator('article.case')).toHaveCount(3);
 });
 
 test('the Lumina view angle slider tilts the orbits from the keyboard', async ({ page }) => {

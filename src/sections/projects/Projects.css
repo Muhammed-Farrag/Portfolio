@@ -1,5 +1,5 @@
 /* Projects (Deep, over still water). Each case pairs its facts with its own interactive visual:
-   an episode terminal, a gesture console, an attribution map and a solar system. The panels use
+   a gesture console, an attribution map and a solar system. The panels use
    the theme's surface tokens, so they step forward from the Storm ground. */
 .work__header {
   display: grid;
@@ -95,74 +95,11 @@
 }
 .case__link-note { font-weight: 400; color: var(--color-text-secondary); }
 
-/* Shared dark-instrument frame */
-.terminal,
+/* Dark-instrument frame */
 .helios {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 30px 60px -30px rgb(35 53 77 / 0.55), 0 0 0 1px rgb(35 53 77 / 0.06);
-}
-
-/* Self-Healing: episode terminal */
-.terminal { display: grid; }
-.terminal__bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface);
-  color: var(--color-text-tertiary);
-}
-.terminal__dots { display: inline-flex; gap: 6px; }
-.terminal__dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--steel); }
-.terminal__classes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-4) 0;
-}
-.terminal__class {
-  min-height: 36px;
-  padding: 0 12px;
-  border: 1px solid var(--color-rule);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  font: 500 var(--text-xs) / 1 var(--font-mono);
-  cursor: pointer;
-}
-.terminal__class:hover { border-color: var(--color-control-edge); color: var(--color-text); }
-.terminal__class[aria-pressed='true'] { background: var(--color-focal); border-color: var(--color-focal); color: var(--color-on-focal); }
-
-.terminal__log {
-  list-style: none;
-  margin: 0;
-  padding: var(--space-5) var(--space-4);
-  display: grid;
-  gap: 6px;
-  min-height: 300px;
-  font: 400 0.8125rem / 1.55 var(--font-mono);
-}
-.terminal__line { display: grid; grid-template-columns: 9ch minmax(0, 1fr); gap: var(--space-3); }
-.terminal__who { color: var(--color-text-tertiary); }
-.terminal__text { color: var(--color-text-secondary); overflow-wrap: anywhere; }
-.terminal__line[data-tone='bad'] .terminal__text { color: var(--color-text); }
-.terminal__line[data-tone='raw'] { grid-template-columns: minmax(0, 1fr); padding: 6px 10px; background: var(--color-surface-alt); border-left: 2px solid var(--frost-blue); }
-.terminal__line[data-tone='raw'] .terminal__who { display: none; }
-.terminal__line[data-tone='hit'] .terminal__text,
-.terminal__line[data-tone='ok'] .terminal__text { color: var(--color-text); }
-.terminal__line[data-tone='hit'] .terminal__text::before { content: '■ '; color: var(--frost-light); }
-.terminal__line[data-tone='ok'] .terminal__text::before { content: '✓ '; color: var(--frost-light); }
-.terminal__line[data-tone='warn'] .terminal__text { color: var(--color-on-focal); background: var(--color-focal); padding: 0 6px; justify-self: start; }
-.terminal__note { padding: 0 var(--space-4) var(--space-4); color: var(--color-text-tertiary); }
-
-:root[data-motion='playing'] .case__visual[data-inview] .terminal__line {
-  animation: line-in 0.38s both steps(6, end);
-  animation-delay: calc(var(--line) * 160ms + 120ms);
-}
-@keyframes line-in {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
 }
 
 /* HELIOS: gesture console */

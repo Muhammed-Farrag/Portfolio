@@ -1,11 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { Pending } from '../../components/Pending';
 import type { SectionDef } from '../../content/site';
-import { helios, lumina, novaCare, selfHealing, type CaseStudy } from '../../content/projects';
+import { helios, lumina, novaCare, type CaseStudy } from '../../content/projects';
 import { HeliosConsole } from './HeliosConsole';
 import { LuminaOrbits } from './LuminaOrbits';
 import { NovaCareMap } from './NovaCareMap';
-import { SelfHealingTerminal } from './SelfHealingTerminal';
 import './Projects.css';
 
 function External({ href, children, note }: { href: string; children: ReactNode; note?: string | undefined }) {
@@ -62,7 +61,7 @@ function Case({ study, index, visual, flip = false }: { study: CaseStudy; index:
   );
 }
 
-/** Projects: four case studies, each with its own interactive visual. */
+/** Projects: three case studies, each with its own interactive visual. */
 export function Projects({ s }: { s: SectionDef }) {
   return (
     <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="water" aria-labelledby={`${s.id}-title`}>
@@ -75,10 +74,9 @@ export function Projects({ s }: { s: SectionDef }) {
           <p className="section__lead work__lead">{s.summary}</p>
         </header>
         <div className="work__cases">
-          <Case study={selfHealing} index={1} visual={<SelfHealingTerminal />} />
-          <Case study={helios} index={2} visual={<HeliosConsole />} flip />
-          <Case study={novaCare} index={3} visual={<NovaCareMap />} />
-          <Case study={lumina} index={4} visual={<LuminaOrbits />} flip />
+          <Case study={helios} index={1} visual={<HeliosConsole />} />
+          <Case study={novaCare} index={2} visual={<NovaCareMap />} flip />
+          <Case study={lumina} index={3} visual={<LuminaOrbits />} />
         </div>
       </div>
     </section>
