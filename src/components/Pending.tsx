@@ -7,12 +7,13 @@ import './Pending.css';
  */
 export const SHOW_PENDING = import.meta.env.DEV || import.meta.env.VITE_SHOW_PENDING === 'true';
 
-export function Pending({ children, block = false }: { children: ReactNode; block?: boolean }) {
+/** `label` names the kind of mark: work still to build (the default), or draft content the owner will edit. */
+export function Pending({ children, block = false, label = 'In progress' }: { children: ReactNode; block?: boolean; label?: string }) {
   if (!SHOW_PENDING) return null;
   const Tag = block ? 'div' : 'p';
   return (
     <Tag className={block ? 'pending pending--block' : 'pending'} data-pending="">
-      <span className="pending__tag">In progress</span> {children}
+      <span className="pending__tag">{label}</span> {children}
     </Tag>
   );
 }

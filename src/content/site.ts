@@ -54,7 +54,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Important events',
     title: 'Three moments',
     summary: 'A trophy in Beijing, an honour at home, and a seat on the judging panel.',
-    pending: 'M3: Events 2 and 3 as particle scenes; Event 3 details are draft.',
+    pending: 'Event 3 details are draft (see its Draft mark).',
     theme: 'mid',
     blendFrom: 'deep',
   },

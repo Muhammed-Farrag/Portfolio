@@ -1,6 +1,6 @@
-/* Scene 05, Recognition: the Moment of Victory (Deep). A tall track scrolls past a sticky stage;
-   the scene is a pure function of the scroll position (--p, --photo and data-stage, set by
-   Recognition.tsx). Paused or reduced motion: no track, just the photograph and the award. */
+/* Important Events: three tracks, each scrolling past a sticky stage. A scene is a pure function
+   of the scroll position (--p, --photo and data-stage, set by Events.tsx); --aspect is the shape of
+   the event's photograph. Paused or reduced motion: no tracks, just the photographs and the titles. */
 .recog { padding-block: 0; }
 
 .recog__track {
@@ -60,7 +60,7 @@
   left: calc(var(--cx) * 100%);
   bottom: calc(100% - var(--ground) * 100%);
   height: min(50svh, 560px);
-  aspect-ratio: 582 / 805;
+  aspect-ratio: var(--aspect, 0.723);
   margin: 0;
   translate: -50% 0;
   opacity: var(--photo);
@@ -95,15 +95,7 @@
 .recog__team { color: var(--color-text-tertiary); }
 .recog__title { font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem); max-width: 11ch; }
 .recog__event { color: var(--color-text-secondary); max-width: 34ch; }
-.recog__evidence { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
-.recog__evidence li {
-  font: 500 var(--text-xs) / 1 var(--font-mono);
-  padding: 7px 10px;
-  border: 1px solid var(--color-rule);
-  border-radius: 999px;
-  color: var(--color-text-secondary);
-}
-.recog__note { color: var(--color-text-tertiary); font-size: var(--text-sm); max-width: 36ch; }
+.recog__count { color: var(--color-text-secondary); }
 
 /* The narrative rail */
 .recog__stages {
@@ -147,14 +139,13 @@
   }
   .recog__title { font-size: 1.6rem; max-width: none; }
   .recog__photo figcaption { display: none; }
-  .recog__note { display: none; }
   .recog__stages li:not([data-state='active']) { display: none; }
 }
 
 @media (min-width: 768px) {
   .recog__track { --cx: 0.42; }
   .recog__award {
-    left: calc(var(--cx) * 100% + min(25svh, 280px) * 0.7238 + var(--space-7));
+    left: calc(var(--cx) * 100% + min(25svh, 280px) * var(--aspect, 0.723) + var(--space-7));
     right: var(--gutter);
     bottom: calc(100% - var(--ground) * 100% + var(--space-6));
     max-width: 420px;
@@ -164,6 +155,7 @@
 /* Paused or reduced motion: no scroll track, the photograph and the award side by side. */
 .recog[data-mode='static'] { padding-block: var(--space-section); }
 .recog[data-mode='static'] .recog__track { height: auto; }
+.recog[data-mode='static'] .recog__track + .recog__track { margin-top: var(--space-8); }
 .recog[data-mode='static'] .recog__sticky {
   position: static;
   height: auto;

@@ -56,12 +56,12 @@ export const STAGE = { startX: -1.45, stopX: -0.18, trophyX: 0.16 };
 
 export const STAGES = ['Walks on', 'Notices', 'Bends', 'Picks it up', 'Raises it', 'Disperses', 'The photograph'] as const;
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+export const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 export const smooth = (a: number, b: number, v: number) => {
   const t = clamp01((v - a) / (b - a));
   return t * t * (3 - 2 * t);
 };
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const down = (angle: number, length: number): Vec => ({ x: Math.sin(angle) * length, y: -Math.cos(angle) * length });
 const add = (a: Vec, b: Vec): Vec => ({ x: a.x + b.x, y: a.y + b.y });
 
@@ -77,13 +77,13 @@ export function stageAt(p: number): number {
   return 6;
 }
 
-const STAND: Pose = { hipX: 0, spine: 0.04, head: 0, thigh: [0, 0.02], knee: [0.06, 0.06], upper: [-0.06, 0.08], elbow: [0.18, 0.2] };
-const NOTICE: Pose = { ...STAND, spine: 0.1, head: 0.55, upper: [-0.04, 0.1] };
+export const STAND: Pose = { hipX: 0, spine: 0.04, head: 0, thigh: [0, 0.02], knee: [0.06, 0.06], upper: [-0.06, 0.08], elbow: [0.18, 0.2] };
+export const NOTICE: Pose = { ...STAND, spine: 0.1, head: 0.55, upper: [-0.04, 0.1] };
 const BEND: Pose = { hipX: 0, spine: 1.3, head: 0.25, thigh: [1.0, 1.35], knee: [2.0, 1.9], upper: [0.5, 0], elbow: [0.5, 0] };
 const LIFT: Pose = { hipX: 0, spine: 0.06, head: -0.05, thigh: [0, 0.04], knee: [0.08, 0.08], upper: [-0.1, 0.35], elbow: [0.3, 1.7] };
 const RAISE: Pose = { hipX: 0, spine: -0.08, head: -0.45, thigh: [-0.06, 0.12], knee: [0.04, 0.1], upper: [2.55, 3.0], elbow: [0.25, 0.05] };
 
-function mix(a: Pose, b: Pose, t: number): Pose {
+export function mix(a: Pose, b: Pose, t: number): Pose {
   const pair = (x: [number, number], y: [number, number]): [number, number] => [lerp(x[0], y[0], t), lerp(x[1], y[1], t)];
   return {
     hipX: lerp(a.hipX, b.hipX, t),
@@ -97,7 +97,7 @@ function mix(a: Pose, b: Pose, t: number): Pose {
 }
 
 /** A walk cycle at phase φ, scaled by amplitude a (0 = standing). */
-function walk(phi: number, a: number): Pose {
+export function walk(phi: number, a: number): Pose {
   const leg = (offset: number) => {
     const s = Math.sin(phi + offset);
     const swing = Math.max(0, Math.cos(phi + offset));
@@ -138,8 +138,8 @@ export function solve(pose: Pose): Joints {
   return { hip, neck, shoulder, head, knee, ankle, toe, elbow, hand };
 }
 
-/** Two-bone IK: the front arm's [upper, elbow] angles that put the hand on `target`. */
-function reach(shoulder: Vec, target: Vec): [number, number] {
+/** Two-bone IK: an arm's [upper, elbow] angles that put the hand on `target`. */
+export function reach(shoulder: Vec, target: Vec): [number, number] {
   const a = BONES.upper;
   const b = BONES.fore;
   const dx = target.x - shoulder.x;
@@ -233,7 +233,7 @@ export interface Particles {
   seed: Float32Array;
 }
 
-function mulberry32(a: number) {
+export function mulberry32(a: number) {
   return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
@@ -260,8 +260,11 @@ export function inTrophy(x: number, y: number): boolean {
   return false;
 }
 
-export function createParticles(count: number, seed = 11): Particles {
+/** Particles over the body and, unless `trophy` is false, the trophy. */
+export function createParticles(count: number, seed = 11, trophy = true): Particles {
   const rnd = mulberry32(seed);
+  const shares = trophy ? SHARES : SHARES.filter(([name]) => name !== 'trophy');
+  const total = shares.reduce((sum, [, share]) => sum + share, 0);
   const part: Part[] = [];
   const u = new Float32Array(count);
   const v = new Float32Array(count);
@@ -269,8 +272,8 @@ export function createParticles(count: number, seed = 11): Particles {
   const dy = new Float32Array(count);
   const s = new Float32Array(count);
   let k = 0;
-  for (const [name, share] of SHARES) {
-    const n = name === SHARES[SHARES.length - 1]![0] ? count - k : Math.round(count * share);
+  for (const [name, share] of shares) {
+    const n = name === shares[shares.length - 1]![0] ? count - k : Math.round((count * share) / total);
     for (let j = 0; j < n && k < count; j++, k++) {
       part[k] = name;
       if (name === 'head') {

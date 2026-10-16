@@ -7,7 +7,7 @@ import { Cinema } from '../features/cinema/Cinema';
 import { useSiteMotion } from '../features/motion/reveal';
 import { Contact } from '../sections/Contact';
 import { Hero } from '../sections/Hero';
-import { Recognition } from '../sections/recognition/Recognition';
+import { Events } from '../sections/events/Events';
 import { Work } from '../sections/work/Work';
 import '../styles/backdrops.css';
 import './App.css';
@@ -28,7 +28,7 @@ export function App() {
       <SiteHeader />
       <main id="main" tabIndex={-1}>
         <Hero />
-        <Recognition s={byId('events')} />
+        <Events s={byId('events')} />
         <Section {...experience} beat="Work experience" effect="clouds" backdrop="clouds" lead={<p className="section__lead">{experience.summary}</p>}>
           <Pending>{experience.pending}</Pending>
         </Section>
