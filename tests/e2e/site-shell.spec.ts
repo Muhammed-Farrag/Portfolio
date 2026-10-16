@@ -214,7 +214,8 @@ test.describe('production build', () => {
   test('contains only the public site and never renders placeholders', async ({ browser }) => {
     expect(existsSync('dist/index.html'), 'run `npm run build` first').toBe(true);
     const files = readdirSync('dist', { recursive: true }).map(String);
-    expect(files.filter((f) => /dev[\\/]|legacy|lab|lifecycle|\.png$/.test(f))).toEqual([]);
+    // No lab pages, source PNGs or certificate PDFs: the gallery ships rendered images only.
+    expect(files.filter((f) => /dev[\\/]|legacy|lab|lifecycle|\.png$|\.pdf$/i.test(f))).toEqual([]);
     const context = await browser.newContext();
     const page = await context.newPage();
     const w = watch(page);

@@ -87,7 +87,7 @@ export const sections: SectionDef[] = [
     eyebrow: 'Certificates',
     title: 'Always learning',
     summary: 'Courses and certificates, from Python to deep learning.',
-    pending: 'M6: the moving certificate gallery.',
+    pending: 'Generated from the certificate PDFs by scripts/certificates.py.',
     theme: 'light',
   },
 ];

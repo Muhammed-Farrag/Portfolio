@@ -1,4 +1,3 @@
-import { Pending } from '../components/Pending';
 import { Section } from '../components/layout/Section';
 import { SiteFooter } from '../components/layout/SiteFooter';
 import { SiteHeader } from '../components/layout/SiteHeader';
@@ -8,6 +7,7 @@ import { Cinema } from '../features/cinema/Cinema';
 import { useSiteMotion } from '../features/motion/reveal';
 import { Contact } from '../sections/Contact';
 import { Hero } from '../sections/Hero';
+import { Certificates } from '../sections/certificates/Certificates';
 import { Events } from '../sections/events/Events';
 import { Entries, Roles } from '../sections/experience/Experience';
 import { Projects } from '../sections/projects/Projects';
@@ -41,9 +41,7 @@ export function App() {
           </div>
         </Section>
         <Projects s={byId('projects')} />
-        <Section {...certificates} beat="Certificates" effect="cards" lead={<p className="section__lead">{certificates.summary}</p>}>
-          <Pending>{certificates.pending}</Pending>
-        </Section>
+        <Certificates s={certificates} />
         <Contact />
       </main>
       <SiteFooter />
