@@ -1,59 +1,122 @@
 # Muhammed Farrag — Portfolio
 
-Personal portfolio for Muhammed Farrag, Applied AI Engineer. The hero is built on his original Particle Portrait WebGL renderer.
+Personal portfolio of Muhammed Farrag, Applied AI Engineer. Built with Vite, React 18 and
+TypeScript. The hero is his original Particle Portrait, a WebGL renderer.
 
-The work is done in phases, and each phase needs the owner's approval. Phase 1 (stabilising the Particle Portrait) is complete. Phase 2 milestone 1 added the React application shell: design tokens, typography, responsive navigation and the section structure. The Hero milestone puts the live Particle Portrait into the site. See `docs/DESIGN_SPEC.md`, `docs/SOURCE_AUDIT.md` and `docs/CONTENT_APPROVAL.md`.
+On the first visit in a browser tab, the site plays itself as a short cinematic sequence: each
+section arrives with its own transition and stays long enough to read. Any scroll, key, tap or
+navigation click hands the page back to the visitor, who then has a normal scrolling site with
+a glass navbar.
 
-## Requirements
+## The page
 
-- Node 24 (see `.nvmrc`; Node 20 or later works) and npm.
-- Chromium for the browser tests: `npx playwright install chromium`.
+| Section | What it shows |
+|---|---|
+| **Hero** | The particle portrait over a field of stars that link up near the pointer. Hovering, tapping or focusing the portrait reveals the photograph. |
+| **Important Events** | Three particle scenes, each ending on the real photograph: the Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). Still sun rays behind the finale. |
+| **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), over still clouds. |
+| **Internships & Education** | Two columns: STC and ITI; GCI World 2026 (University of Tokyo), DEPI and the B.Sc. in AI Science. |
+| **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link, over still water. |
+| **Certificates** | 28 certificates in two drifting rows; each opens in full. |
+| **Contact** | Email, LinkedIn, GitHub and a message form. |
 
-## Commands
+Palette: Storm `#23354D`, Dusk `#30425E`, Steel `#495B7D` and Moonlight `#F0ECDD`, with Mist,
+Frost and Dawn tones (`src/styles/tokens.css`). Every text and background pair is checked
+against WCAG contrast by a unit test.
+
+## Getting started
+
+Requirements: Node 20 or later (24 in `.nvmrc`) and npm. The browser tests need Chromium:
+`npx playwright install chromium`.
+
+```
+npm ci
+npm run dev        # http://127.0.0.1:4311
+```
 
 | Command | What it does |
 |---|---|
-| `npm ci` | Installs the exact dependency versions from `package-lock.json`. |
-| `npm run dev` | Starts Vite on http://127.0.0.1:4311 and opens the site. Development reference pages are at `/dev/`. |
-| `npm run build` | Production build of the public site into `dist/` (index.html only; never includes `dev/` or `legacy/`). |
-| `npm run preview` | Serves `dist/` on http://127.0.0.1:4312. |
-| `npm run serve:legacy` | Serves the untouched original prototype at http://127.0.0.1:4310/legacy/particle-portrait/. |
+| `npm run dev` | Development server on port 4311. Draft and in-progress marks are visible here. |
+| `npm run build` | Production build into `dist/`. Draft marks never render, and no PDF is ever included. |
+| `npm run preview` | Serves `dist/` on port 4312. |
 | `npm run typecheck` | TypeScript, strict mode. |
 | `npm run lint` | ESLint. |
-| `npm test` | Unit tests (Vitest): sampling parity, shader provenance, legacy file integrity, recognition manifest rules. |
-| `npm run build:reference` | Builds the development reference pages into `dist-reference/`. This is not a production build. |
-| `npm run build:preview` | Builds the portable single-file Portrait Lab: `dist-preview/particle-portrait-preview.html`. |
-| `npm run test:e2e` | Builds the site and the preview, then runs the Playwright suite. It starts all three servers itself. |
+| `npm test` | Unit tests (Vitest). Also prints the list of open drafts. |
+| `npm run test:e2e` | Builds, then runs the Playwright suite. It starts the servers it needs. |
 | `npm run check` | All of the above, in order. |
+| `npm run serve:legacy` | Serves the untouched original prototype on port 4310. |
+
+## Contact form settings
+
+Copy `.env.example` to `.env.local` (git-ignored):
+
+| Setting | Meaning |
+|---|---|
+| `VITE_CONTACT_MODE=mailto` | Default. The form writes the message out and offers four ways to send it: the email app, Gmail, Outlook.com, or copying the text. |
+| `VITE_CONTACT_MODE=service` | Posts the message as JSON to `VITE_FORM_ENDPOINT`, e.g. a Formspree form. Without an endpoint it falls back to `mailto`. |
+
+In development, a switch on the form tries both.
+
+## Content
+
+All text lives in `src/content/`. Each statement follows `docs/CONTENT_APPROVAL.md`.
+
+| File | Holds |
+|---|---|
+| `site.ts` | Profile, navigation and section titles. |
+| `events.ts` | The three important events and their photographs. |
+| `experience.ts` | Work, internships and education. |
+| `projects.ts` | The project case studies. |
+| `certificates.ts` | Generated from the certificate PDFs (below). |
+| `drafts.ts` | Collects every entry marked `draft`. |
+
+**Drafts.** Details the owner has not confirmed yet carry a `draft` note. In development they
+show a dashed **Draft** mark; production renders the entry without it. `npm test` prints the
+full list, so none is forgotten.
+
+**Certificates.** The PDFs are in `content-source/certificates/originals/` and are never
+published. `scripts/certificates.py` renders page 1 of each to WebP and reads title, issuer and
+date from the PDF itself. It runs from a project-local Python environment with PyMuPDF and
+Pillow; see `content-source/certificates/README.md`.
+
+**Photographs.** Event photographs and the hero cut-out come from `content-source/`. Each folder
+has a README that explains how its images were made (`scripts/portrait-photo.py` for the cut-out).
 
 ## Layout
 
 ```
-legacy/particle-portrait/      Byte-identical copy of D:\particle-portrait (never edited; hashes enforced by a test)
-index.html, src/main.tsx      Public site entry (React 18)
-src/app/                       App composition
-src/components/                Layout (header, section frame, footer) and <Pending>
-src/sections/                  HeroApproachStory (the shared particle layer), Hero and HeroPortrait (mounts the engine and drives
-                               the transition), ApproachFigure, Contact; the other scenes use the shared Section frame for now
-src/features/story/            approachDiagram.ts: the four-layer diagram geometry and the particle-to-target pairing
-src/features/motion/           The site-wide Pause motion preference
-src/assets/portrait/            The engine's 600×600 source (lossless WebP) and the no-WebGL still frame
-scripts/portrait-assets.mjs    Regenerates both from the legacy PNG; fails unless the sampled points are identical
-src/content/site.ts            Shell copy and section structure (approved claims only)
-src/styles/                    tokens.css (Moonlight & Oxford tokens and the four section themes) and global.css
-src/features/particle-portrait/
-  shaders.ts                   Legacy GLSL verbatim, plus documented insertions: the palette tone branch and the story
-                               hooks (morph target, framing offset), all inert at their defaults
-  sampling.ts                  Point sampling, byte-identical to the legacy loop
-  ParticleRenderer.ts          The engine: legacy draw/tick/scatter, plus lifecycle (dispose, observers, context restore)
-dev/                           Development and test pages only. Never production routes; noindex.
-  lab/                         The original Portrait Lab interface running on the maintained engine
-  lifecycle/                   Harness for the create/dispose tests
-content-source/recognition/    Owner-supplied event photos and manifest.json (see its README)
-tests/unit/                    Vitest
-tests/e2e/                     Playwright
+src/app/                       Page composition
+src/components/                Header (glass navbar), section frame, footer, <Pending> marks
+src/sections/                  Hero, events/, experience/, projects/, certificates/, Contact
+src/features/
+  cinema/                      The opening sequence: a pure timing director and its runtime
+  particle-portrait/           The WebGL portrait engine
+  recognition/                 The event scenes: figures, actors and canvas drawing
+  contact/                     Form checks and delivery
+  motion/                      Reduced-motion preference and scroll reveals
+src/content/                   Text and data (see Content)
+src/assets/                    Portrait, event photos, certificate images, still backdrops
+src/styles/                    Design tokens, section themes, backdrops
+content-source/                Originals: portrait, event photographs, certificate PDFs
+scripts/                       Asset generators (portrait, certificates)
+legacy/particle-portrait/      Byte-identical copy of the original prototype (never edited)
+dev/                           Development pages only (Portrait Lab, lifecycle harness)
+tests/unit/, tests/e2e/        Vitest and Playwright
 docs/                          Design specification, source audit, content approval register
 ```
+
+## How it moves
+
+- **Opening sequence** (`src/features/cinema/`). Each section is a scene (`data-beat`). It holds
+  for its animation or for long enough to read 80% of its words at 220 words a minute, whichever
+  is longer. It plays once per browser tab. It is skipped for reduced motion and for links to a
+  section (e.g. `/#contact`). On screen: a progress pill with Pause and Skip intro.
+- **Transitions.** Each section has its own: warp, clouds, wipe, ripple, cards and rays. After the
+  sequence they play when the visitor scrolls down into a section.
+- **Event scenes.** Pure functions of scroll position. They never lag, reverse exactly and can be
+  skipped. Each ends on the real photograph, and the figure is labelled "Symbolic animation".
+- **Reduced motion.** No sequence, no particle scenes. Photographs and text are shown as they are,
+  and the certificate rows stand still and scroll sideways.
 
 ## Particle Portrait engine
 
@@ -62,58 +125,38 @@ import { createParticleRenderer, PORTFOLIO_BACKGROUND } from './src/features/par
 
 const result = createParticleRenderer(canvas, image, {
   pointerTarget: stage,        // element whose pointer movement displaces particles
-  sizeTarget: stage,           // element whose box sizes the canvas (ResizeObserver)
+  sizeTarget: stage,           // element whose box sizes the canvas
   paused: matchMedia('(prefers-reduced-motion: reduce)').matches,
   settings: { tone: 'moonlight', background: PORTFOLIO_BACKGROUND },
 });
 if ('fallback' in result) showStaticImage(result.fallback); // 'no-webgl' | 'shader-error' | 'tainted-image'
 else {
-  result.on('state', (s) => /* responding | scattering | reforming | paused | inactive | context-lost | failed */ {});
-  result.set({ step: 3 });     // re-samples only when step or threshold change
+  result.setExit(0.5);         // disperses the particles (the Hero uses it as you scroll away)
   result.scatter();
   result.dispose();            // removes every listener and observer and stops the loop
 }
 ```
 
-Sampling, physics, pointer mapping and scatter/reform are unchanged from the prototype. The engine stops rendering when the canvas is off-screen or the tab is hidden, emits state only on change, and rebuilds itself after a lost WebGL context. `dispose()` leaves the WebGL context alive so that a renderer re-created on the same canvas works.
-
-## Hero portrait
-
-`src/sections/HeroPortrait.tsx` creates the renderer in the Moonlight tone on Oxford Blue.
-
-- **Source.** The engine samples a 600×600 lossless WebP (151 KB) instead of the 1.9 MB legacy PNG. Pixels below the sampling threshold are blackened, and `scripts/portrait-assets.mjs` refuses to write the file unless all three densities sample exactly the same points as the PNG.
-- **Density.** Ultra (10,203 points) on capable desktops; Fine (4,525) below 768 px or on devices with 4 or fewer cores or 4 GB or less memory; Soft (2,549) with Save-Data.
-- **Motion.** An entrance that reforms along the legacy scatter curve at 45% strength, and a scroll-away transition that adds up to 0.22 to `uBurst` while the stage fades. Rendering stops off-screen.
-- **Reduced motion.** A still, paused frame. No entrance, no scroll effect and no animation loop.
-- **Pause motion** (WCAG 2.2.2). A button on the portrait pauses and resumes it. `src/features/motion/motion.ts` holds the site-wide preference: it follows `prefers-reduced-motion` until the visitor chooses, and the choice is remembered in the browser. Later particle scenes read the same preference.
-- **No WebGL.** The page probes for WebGL before downloading the source, and shows `fallback.webp`, a paused engine frame.
-
-The stage exposes `data-state` and `data-points` for the tests.
-
-## Hero to Approach transition
-
-One transparent WebGL canvas (`.story__layer`) sticks to the viewport while the Hero or the Approach section is on screen. Section grounds paint below it and section content above it, so particles never cover text. There is only ever one WebGL context.
-
-- At rest the renderer draws the portrait inside the Hero's portrait slot (`setFrame`). An overlay on the slot fades its edges into the section ground, which is much cheaper than masking a full-viewport canvas.
-- Scrolling moves the drawing frame from the slot to the Approach figure. On the way the points disperse (`setExit`), change shape (`setMorph` towards targets from `approachDiagram.ts`, brightest particles to the cores and rings), then settle into the four-layer diagram while its HTML labels fade in. Progress is a pure function of scroll position: no lag, exact reversal, no scroll locking.
-- The cloud dims while dispersed (more on narrow screens, where it crosses the Hero's text).
-- Paused, reduced motion or no WebGL: the portrait stays on its slot (or the still frame), and the Approach figure shows its SVG drawing with the same labels.
-- The four layers are an ordered list in the Approach section, readable without the animation.
-
-## Placeholders
-
-`<Pending>` marks unfinished work. It renders only in development (`npm run dev`) or when `VITE_SHOW_PENDING=true`, and renders nothing in a production build. A test checks the production build for placeholders.
+Sampling, physics and pointer behaviour are unchanged from the original prototype. The engine
+stops drawing off-screen or in a hidden tab, and rebuilds itself after a lost WebGL context.
+Density adapts to the device: Ultra (10,203 points) on capable desktops, Fine (4,525) on small or
+modest devices, and Soft (2,549) with Save-Data. Without WebGL, the Hero shows a still frame.
 
 ## Tests
 
-The Playwright suite runs the same behaviour tests against the **original prototype** (`legacy-*` projects) and the **maintained engine** (`lab-*` projects), at 1440×900 and 390×844. Tests that document a defect in the original are marked as expected failures for the legacy projects only. WebGL runs on SwiftShader, so no GPU is needed. Tracing is off because DOM snapshots on every action starve a page that redraws WebGL at 60 fps.
+- **Unit (Vitest).** Contrast of every colour pair, the sequence timing, the event figures
+  (feet on the ground, the certificate hand-off, the claps), contact form checks, the drafts
+  list, and the engine's parity with the prototype.
+- **Browser (Playwright, Chromium).** Runs at 1440×900 and 390×844:
+  - the public site: structure, navigation, themes, overflow, axe accessibility scan, and the
+    production build;
+  - each section's behaviour;
+  - the live portrait and the opening sequence;
+  - the original prototype against the maintained engine.
 
-The `site-desktop` and `site-mobile` projects cover the public site: structure, fonts, skip link, navigation (desktop and the mobile menu), section themes, overflow at 390/768/1280/1440 px, axe accessibility scan, reduced motion, and the production build. `tests/unit/tokens.test.ts` checks every allowed colour pair in every theme against WCAG.
+  WebGL runs in software, so no GPU is needed. Nothing is retried.
 
-The `site-webgl-desktop` and `site-webgl-mobile` projects (`hero.spec.ts`, `story.spec.ts`) cover the live portrait and the Hero-to-Approach transition: forward and reverse scrolling, rapid scrolling and section jumps, a single render loop that stops off-screen, Pause motion, reduced motion and the no-WebGL fallback. They render a full-viewport canvas in software, so each runs one test at a time (measured: 2 parallel workers were slower and timed out; 1 worker was faster with no failures) and gets a 120 s budget per test. The other projects stay parallel. Nothing is retried, locally or in CI.
+## Repository
 
-Baseline point counts (Chromium, original prototype): 10,203 / 4,525 / 2,549 at Ultra / Fine / Soft.
-
-## Git
-
-Commits are local only. No remote is configured, and nothing is pushed until the owner confirms the destination.
+Work happens on the `roualwaysright` branch of
+[Muhammed-Farrag/Portfolio](https://github.com/Muhammed-Farrag/Portfolio).
