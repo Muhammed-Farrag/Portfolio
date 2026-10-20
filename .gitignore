@@ -9,3 +9,8 @@ playwright-report/
 .review/
 tools/.venv/
 scripts/__pycache__/
+
+# Local settings (contact form endpoint etc.): never committed
+.env
+.env.local
+.env.*.local
