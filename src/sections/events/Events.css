@@ -1,14 +1,22 @@
 /* Important Events: three tracks, each scrolling past a sticky stage. A scene is a pure function
-   of the scroll position (--p, --photo and data-stage, set by Events.tsx); --aspect is the shape of
-   the event's photograph. Paused or reduced motion: no tracks, just the photographs and the titles. */
+   of the scroll position (--p, --gather, --photo and data-stage, set by Events.tsx); --aspect and
+   --native-h are the shape and pixel height of the event's photograph. The photograph lands as a
+   printed polaroid. Paused or reduced motion: no tracks, just the prints and the titles. */
 .recog { padding-block: 0; }
 
 .recog__track {
   --cx: 0.5;
   --ground: 0.8;
+  /* The print: its picture's height, its paper border, and its full width. */
+  --edge: 14px;
+  --strip: 56px;
+  --ph: min(68svh - 70px, 720px, calc(var(--native-h, 800) * 1.3px), calc((52vw - 28px) / var(--aspect, 0.723)));
+  --pw: calc(var(--ph) * var(--aspect, 0.723) + 2 * var(--edge));
   position: relative;
-  height: 460svh;
+  height: 250svh;
 }
+.recog__track[data-event='ceremony'] { height: 270svh; }
+.recog__track[data-event='judging'] { height: 290svh; }
 .recog__sticky {
   position: sticky;
   top: 0;
@@ -22,14 +30,16 @@
   gap: var(--space-3);
   padding-top: calc(var(--header-h) + var(--space-6));
   justify-items: start;
+  /* The head steps aside as the print lands, so nothing overlaps it. */
+  opacity: clamp(0, calc(1 - var(--gather, 0) * 1.6), 1);
 }
+.recog[data-mode='live'] .recog__track[data-landed] .recog__head { pointer-events: none; }
 .recog__skip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 44px;
   font: 500 var(--text-sm) / 1 var(--font-body);
-  opacity: calc(1 - var(--photo));
 }
 
 .recog__canvas {
@@ -46,41 +56,52 @@
   top: calc(var(--ground) * 100% + var(--space-3));
   translate: -50% 0;
   padding: 4px 10px;
-  border: 1px solid var(--color-rule);
-  border-radius: 999px;
   color: var(--color-text-tertiary);
+  font-size: 10px;
   white-space: nowrap;
-  opacity: calc(1 - var(--photo) * 2);
+  opacity: clamp(0, calc(1 - var(--gather, 0) * 3), 1);
 }
 
-/* The real photograph appears where the figure stood, lifting from monochrome to full colour. */
+/* The print: a Moonlight polaroid with the caption in its bottom strip. It settles from a slight
+   tilt as it lands, and the picture develops from dark monochrome to full colour. */
 .recog__photo {
   position: absolute;
   z-index: 1;
   left: calc(var(--cx) * 100%);
-  bottom: calc(100% - var(--ground) * 100%);
-  height: min(50svh, 560px);
-  aspect-ratio: var(--aspect, 0.723);
+  top: calc((100svh + var(--header-h) - 64px) / 2);
+  translate: -50% -50%;
+  /* Absolutely placed at the centre line, it would otherwise shrink to the space right of it. */
+  width: max-content;
   margin: 0;
-  translate: -50% 0;
-  opacity: var(--photo);
+  padding: var(--edge) var(--edge) var(--strip);
+  background: var(--moonlight);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.25),
+    0 14px 28px -10px rgb(0 0 0 / 0.4),
+    0 44px 90px -30px rgb(0 0 0 / 0.65);
+  opacity: clamp(0, calc(var(--photo) * 2.5), 1);
+  transform: rotate(calc((1 - var(--photo)) * 3deg)) translateY(calc((1 - var(--photo)) * 18px));
 }
 .recog__photo img {
-  width: 100%;
-  height: 100%;
+  display: block;
+  height: var(--ph);
+  width: auto;
+  aspect-ratio: var(--aspect, 0.723);
   object-fit: cover;
-  border-radius: 4px;
-  filter: grayscale(calc(1 - var(--photo))) contrast(1.02);
-  -webkit-mask-image: radial-gradient(circle at 50% 100%, #000 calc(var(--photo) * 120%), transparent calc(var(--photo) * 150%));
-  mask-image: radial-gradient(circle at 50% 100%, #000 calc(var(--photo) * 120%), transparent calc(var(--photo) * 150%));
-  box-shadow: 0 30px 80px -30px #000;
+  filter: grayscale(calc(1 - var(--photo))) brightness(calc(0.45 + 0.55 * var(--photo))) contrast(1.03);
 }
 .recog__photo figcaption {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(100% + var(--space-3));
-  color: var(--color-text-tertiary);
+  left: var(--edge);
+  right: var(--edge);
+  bottom: 0;
+  height: var(--strip);
+  display: grid;
+  place-items: center;
+  color: var(--storm);
+  font-size: 12px;
+  letter-spacing: 0.04em;
   text-align: center;
 }
 
@@ -89,11 +110,9 @@
   z-index: 2;
   display: grid;
   gap: var(--space-3);
-  opacity: clamp(0, calc(var(--photo) * 1.6 - 0.6), 1);
-  transform: translateY(calc((1 - var(--photo)) * 24px));
 }
 .recog__team { color: var(--color-text-tertiary); }
-.recog__title { font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.5rem); max-width: 11ch; }
+.recog__title { font-size: clamp(1.75rem, 1.1rem + 2.2vw, 3rem); max-width: 14ch; }
 .recog__event { color: var(--color-text-secondary); max-width: 34ch; }
 .recog__count { color: var(--color-text-secondary); }
 
@@ -103,7 +122,7 @@
   z-index: 2;
   left: 0;
   right: 0;
-  bottom: var(--space-5);
+  bottom: 74px;
   display: flex;
   justify-content: center;
   gap: var(--space-5);
@@ -117,42 +136,84 @@
 .recog__stages li[data-state='done'] { opacity: 0.75; }
 .recog__stages li[data-state='active'] { opacity: 1; color: var(--color-text); }
 
+/* The visitor always sees that scrolling moves the scene: a progress line, and a nudge until they start. */
+.recog__scroll {
+  position: absolute;
+  z-index: 3;
+  bottom: 22px;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  gap: 12px;
+  width: min(320px, 80%);
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+.recog__hint {
+  display: inline-block;
+  animation: recog-hint 1.6s ease-in-out infinite;
+  opacity: clamp(0, calc(1 - var(--p, 0) * 30), 1);
+}
+@keyframes recog-hint {
+  50% { translate: 0 4px; }
+}
+.recog__progress { display: block; height: 2px; background: var(--color-rule); overflow: hidden; }
+.recog__progress span { display: block; height: 100%; background: var(--color-text); transform-origin: left; transform: scaleX(var(--p, 0)); }
+
 .recog__end {
   position: absolute;
   left: 0;
   bottom: 0;
   height: 100svh;
   pointer-events: none;
+  /* The page's scroll padding keeps anchors clear of the header; this one must land at the very end. */
+  scroll-margin-top: calc(-1 * var(--header-h));
 }
 
-/* Small screens: the award sits under the photograph; the rail shows only the current stage. */
-@media (max-width: 767.98px) {
-  .recog__track { --ground: 0.7; }
-  .recog__photo { height: 42svh; }
+/* Phones and tablets: the scene first, then the award at the top and the print below it. */
+@media (max-width: 1099.98px) {
+  .recog__track {
+    --ph: min(46svh, 100svh - 380px, calc(var(--native-h, 800) * 1.3px), calc((100vw - 2 * var(--gutter) - 2 * var(--edge)) / var(--aspect, 0.723)));
+  }
+  .recog__photo { top: auto; bottom: 104px; translate: -50% 0; }
   .recog__award {
     left: var(--gutter);
     right: var(--gutter);
-    bottom: var(--space-5);
+    top: calc(var(--header-h) + var(--space-4));
     gap: var(--space-2);
     text-align: center;
     justify-items: center;
+    opacity: clamp(0, calc(var(--photo) * 2.5 - 0.5), 1);
+    transform: translateY(calc((1 - var(--photo)) * 16px));
   }
-  .recog__title { font-size: 1.6rem; max-width: none; }
-  .recog__photo figcaption { display: none; }
+  /* Hidden during the scene, the award sits over the skip link: it takes no taps until it shows. */
+  .recog[data-mode='live'] .recog__track:not([data-landed]) .recog__award { pointer-events: none; }
+  .recog__title { max-width: none; }
+}
+@media (max-width: 767.98px) {
+  .recog__track { --ground: 0.72; --edge: 10px; --strip: 40px; height: 220svh; }
+  .recog__track[data-event='ceremony'] { height: 240svh; }
+  .recog__track[data-event='judging'] { height: 260svh; }
+  .recog__title { font-size: 1.6rem; }
+  .recog__event { font-size: var(--text-sm); }
+  .recog__photo figcaption { font-size: 11px; }
   .recog__stages li:not([data-state='active']) { display: none; }
 }
 
-@media (min-width: 768px) {
+/* Desktop: the award stands beside the print from the start of the scene, so the visitor always
+   knows which moment this is. */
+@media (min-width: 1100px) {
   .recog__track { --cx: 0.42; }
   .recog__award {
-    left: calc(var(--cx) * 100% + min(25svh, 280px) * var(--aspect, 0.723) + var(--space-7));
+    left: calc(var(--cx) * 100% + var(--pw) / 2 + var(--space-7));
     right: var(--gutter);
-    bottom: calc(100% - var(--ground) * 100% + var(--space-6));
+    top: calc(var(--header-h) + var(--space-6));
     max-width: 420px;
   }
 }
 
-/* Paused or reduced motion: no scroll track, the photograph and the award side by side. */
+/* Paused or reduced motion: no scroll track, the print and the award side by side. */
 .recog[data-mode='static'] { padding-block: var(--space-section); }
 .recog[data-mode='static'] .recog__track { height: auto; }
 .recog[data-mode='static'] .recog__track + .recog__track { margin-top: var(--space-8); }
@@ -166,18 +227,21 @@
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
-.recog[data-mode='static'] .recog__head { padding: 0; width: auto; max-width: none; margin: 0; }
-.recog[data-mode='static'] .recog__photo img { -webkit-mask-image: none; mask-image: none; filter: none; }
+.recog[data-mode='static'] .recog__head { padding: 0; width: auto; max-width: none; margin: 0; opacity: 1; }
 .recog[data-mode='static'] :is(.recog__photo, .recog__award) {
   position: static;
   translate: none;
   transform: none;
   opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
 }
-.recog[data-mode='static'] .recog__photo { height: auto; width: min(100%, 420px); }
-.recog[data-mode='static'] .recog__photo figcaption { position: static; margin-top: var(--space-3); text-align: left; display: block; }
+/* The print keeps its own box, so the caption stays in its bottom strip. */
+.recog[data-mode='static'] .recog__photo { position: relative; inset: auto; justify-self: start; width: fit-content; max-width: 100%; }
+.recog[data-mode='static'] .recog__photo img {
+  width: min(calc(var(--native-h, 800) * 1.3px * var(--aspect, 0.723)), 460px);
+  max-width: 100%;
+  height: auto;
+  filter: none;
+}
 .recog[data-mode='static'] .recog__award { text-align: left; justify-items: start; align-content: center; }
 @media (min-width: 768px) {
   .recog[data-mode='static'] .recog__sticky { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--space-8); }

@@ -13,7 +13,7 @@ a glass navbar.
 | Section | What it shows |
 |---|---|
 | **Hero** | The particle portrait over a field of stars that link up near the pointer. Hovering, tapping or focusing the portrait reveals the photograph. |
-| **Important Events** | Three particle scenes, each ending on the real photograph: the Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). Still sun rays behind the finale. |
+| **Important Events** | Three scroll-driven scenes drawn as halftone dots, whose dots gather into the real photograph as it lands as a polaroid print: the Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). Still sun rays behind the finale. |
 | **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), over still clouds. |
 | **Internships & Education** | Two columns: STC and ITI; GCI World 2026 (University of Tokyo), DEPI and the B.Sc. in AI Science. |
 | **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link, over still water. |
@@ -81,6 +81,8 @@ Pillow; see `content-source/certificates/README.md`.
 
 **Photographs.** Event photographs and the hero cut-out come from `content-source/`. Each folder
 has a README that explains how its images were made (`scripts/portrait-photo.py` for the cut-out).
+The small density masks the event scenes gather into (`src/assets/recognition/*.mask.webp`) come
+from `scripts/recognition-silhouettes.py` (rembg `birefnet-portrait` in `tools/.venv`).
 
 ## Layout
 
@@ -91,14 +93,14 @@ src/sections/                  Hero, events/, experience/, projects/, certificat
 src/features/
   cinema/                      The opening sequence: a pure timing director and its runtime
   particle-portrait/           The WebGL portrait engine
-  recognition/                 The event scenes: figures, actors and canvas drawing
+  recognition/                 The event scenes: figures, actors, halftone drawing and the gather
   contact/                     Form checks and delivery
   motion/                      Reduced-motion preference and scroll reveals
 src/content/                   Text and data (see Content)
 src/assets/                    Portrait, event photos, certificate images, still backdrops
 src/styles/                    Design tokens, section themes, backdrops
 content-source/                Originals: portrait, event photographs, certificate PDFs
-scripts/                       Asset generators (portrait, certificates)
+scripts/                       Asset generators (portrait, certificates, event photo masks)
 legacy/particle-portrait/      Byte-identical copy of the original prototype (never edited)
 dev/                           Development pages only (Portrait Lab, lifecycle harness)
 tests/unit/, tests/e2e/        Vitest and Playwright
@@ -115,7 +117,7 @@ docs/                          Design specification, source audit, content appro
   sequence they play when the visitor scrolls down into a section.
 - **Event scenes.** Pure functions of scroll position. They never lag, reverse exactly and can be
   skipped. Each ends on the real photograph, and the figure is labelled "Symbolic animation".
-- **Reduced motion.** No sequence, no particle scenes. Photographs and text are shown as they are,
+- **Reduced motion.** No sequence, no event scenes. Photographs and text are shown as they are,
   and the certificate rows stand still and scroll sideways.
 
 ## Particle Portrait engine

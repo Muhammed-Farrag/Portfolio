@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BONES, STAGE, TIMELINE, TROPHY, createParticles, frameAt, inTrophy, placeParticles, stageAt } from '../../src/features/recognition/figure';
+import { BONES, STAGE, TIMELINE, TROPHY, frameAt, stageAt } from '../../src/features/recognition/figure';
 
 const progress = Array.from({ length: 201 }, (_, k) => k / 200);
 
@@ -42,9 +42,11 @@ describe('the Moment of Victory figure', () => {
     expect(raised.hand[1].y, 'trophy hand above the head').toBeGreaterThan(raised.head.y + 0.15);
   });
 
-  it('disperses, then hands over to the photograph, in order', () => {
-    expect(frameAt(TIMELINE.disperseStart).disperse).toBe(0);
-    expect(frameAt(TIMELINE.disperseEnd).disperse).toBe(1);
+  it('holds the trophy up until the dots gather, then hands over to the photograph, in order', () => {
+    expect(TIMELINE.raise).toBeLessThan(TIMELINE.gatherStart);
+    expect(frameAt(TIMELINE.gatherStart).gather).toBe(0);
+    expect(frameAt(TIMELINE.gatherEnd).gather).toBe(1);
+    expect(TIMELINE.photoStart).toBeLessThan(TIMELINE.gatherEnd);
     expect(frameAt(TIMELINE.photoStart).photo).toBe(0);
     expect(frameAt(1).photo).toBe(1);
     expect(progress.map(stageAt)).toEqual([...progress.map(stageAt)].sort((a, b) => a - b));
@@ -54,17 +56,5 @@ describe('the Moment of Victory figure', () => {
 
   it('is a pure function of progress, so scrolling back reverses it exactly', () => {
     for (const p of [0.12, 0.44, 0.67, 0.8]) expect(frameAt(p)).toEqual(frameAt(p));
-  });
-
-  it('samples particles over the body and the trophy, deterministically', () => {
-    const a = createParticles(2000);
-    const b = createParticles(2000);
-    expect(a.count).toBe(2000);
-    expect(Array.from(a.u)).toEqual(Array.from(b.u));
-    const trophy = a.part.filter((p) => p === 'trophy').length;
-    expect(trophy).toBeGreaterThan(300);
-    for (let i = 0; i < a.count; i++) if (a.part[i] === 'trophy') expect(inTrophy(a.u[i]!, a.v[i]!)).toBe(true);
-    const out = placeParticles(a, frameAt(0.5), new Float32Array(a.count * 2));
-    expect(out.every(Number.isFinite)).toBe(true);
   });
 });

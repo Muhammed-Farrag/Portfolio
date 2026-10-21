@@ -1,10 +1,15 @@
 // Drawing the three event scenes on a 2D canvas. Each scene is a pure function of the scroll
-// progress p; this module only turns a frame into dots.
+// progress p; this module paints a frame as clean silhouettes into a small mask, reads the mask
+// back as a fixed grid of halftone dots (halftone.ts), and at the reveal flies those dots into
+// the photograph's own density map, over the place where the print lands.
 
-import { CERT, ceremonyAt, certificatePoints, deskPoints, FLOOR, judgingAt, pagePoints, toStage, type Actor } from './actors';
-import { createParticles, frameAt, mulberry32, placeParticles, type Frame, type Particles } from './figure';
+import { CEREMONY, CERT, ceremonyAt, FLOOR, JUDGING, judgingAt, toStage, type Place } from './actors';
+import { clamp01, frameAt, lerp, TIMELINE, type Joints, type Vec } from './figure';
+import { easeInOut, INK, makeDots, paintCertificate, paintDesk, paintPerson, paintTrophy, pair, readMask, sampleDensity, TONE, type Dots, type Pen } from './halftone';
 
-const COLORS = { back: '#8ba3c5', front: '#f0ecdd', dim: '#b3c4dc', ground: '#495b7d', flash: '#f0ecdd' } as const;
+/** Dot colours by tone: back (audience, back limbs), front (the main figures), props. */
+const COLORS = ['#8ba3c5', '#f0ecdd', '#f0ecdd'] as const;
+const FLASH = '#f0ecdd';
 
 export interface Box {
   x: number;
@@ -13,7 +18,7 @@ export interface Box {
   h: number;
 }
 
-/** The canvas in CSS pixels, the stage centre and ground line, and where the photograph sits. */
+/** The canvas in CSS pixels, the stage centre and ground line, and the photograph's image box. */
 export interface View {
   w: number;
   h: number;
@@ -23,206 +28,260 @@ export interface View {
   photo: Box;
 }
 
+/** A photograph's density map: w × h, row-major, 0..255 (brighter = more dots). */
+export interface Density {
+  data: ArrayLike<number>;
+  w: number;
+  h: number;
+}
+
+export interface SceneFrame {
+  /** How far the photograph has appeared (0..1). */
+  photo: number;
+  /** How far the dots have gathered into the photograph (0..1). */
+  gather: number;
+  /** The current narrative stage. */
+  stage: number;
+}
+
 export interface Scene {
   draw(ctx: CanvasRenderingContext2D, p: number, view: View): void;
-  /** How far the photograph has appeared (0..1), and the current narrative stage. */
-  frame(p: number): { photo: number; stage: number };
+  frame(p: number): SceneFrame;
+  /** The photograph's density map, once it has loaded; until then the dots fill its box evenly. */
+  setTarget(map: Density | null): void;
 }
 
 /**
  * Pixels per figure unit: the figure stands a little under half the stage high. On a phone the
  * stage fits `span` figure units across, so the wider scenes keep everyone in view.
  */
-const unit = (v: View, span = 1.6) => Math.min(v.h * 0.46, v.w < 768 ? v.w / span : v.w * 0.36);
+const unit = (v: View, span: number) => Math.min(v.h * 0.46, v.w < 768 ? v.w / span : v.w * 0.36);
 /** Width, in figure units, of the scenes with several figures. */
 const WIDE = 3.3;
-const dotSize = (v: View, span?: number) => Math.max(1.6, unit(v, span) / 190) * v.dpr;
+/** Halftone cell, CSS pixels: about 90 cells to a figure's height, within readable limits. */
+const cellFor = (v: View, span: number) => Math.min(5.2, Math.max(2.6, unit(v, span) / 90));
 
-function clear(ctx: CanvasRenderingContext2D, v: View) {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.globalAlpha = 1;
-  ctx.clearRect(0, 0, v.w * v.dpr, v.h * v.dpr);
+/** A soft round dot, pre-rendered once per colour. */
+function sprite(color: string): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = c.height = 32;
+  const g = c.getContext('2d')!;
+  const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  grad.addColorStop(0, color);
+  grad.addColorStop(0.55, color);
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 32, 32);
+  return c;
 }
 
-/** The ground: a dotted line that fades with the figures. */
-function ground(ctx: CanvasRenderingContext2D, v: View, alpha: number, span?: number) {
-  if (alpha <= 0) return;
-  const size = dotSize(v, span);
-  const y = v.ground;
-  ctx.globalAlpha = 0.7 * alpha;
-  ctx.fillStyle = COLORS.ground;
-  for (let x = 0; x < v.w; x += 6) ctx.fillRect(x * v.dpr, y * v.dpr, size * 0.8, size * 0.8);
+/** Draws into the mask: maps stage points to mask pixels. */
+export interface Painter {
+  /** A pen for a figure placed on the stage (or the stage itself). */
+  pen(at?: Place): Pen;
+  person(joints: Joints, at: Place, main: boolean): void;
+  ink(color: string): void;
+}
+
+interface Spec {
+  span: number;
+  frame: (p: number) => SceneFrame;
+  /** The progress at which the dots leave the grid. */
+  gatherStart: number;
+  paint: (m: Painter, p: number) => void;
+  overlay?: (ctx: CanvasRenderingContext2D, p: number, v: View) => void;
+}
+
+const STAGE_AT: Place = { x: 0, y: 0, facing: 1, scale: 1 };
+
+function halftoneScene(spec: Spec): Scene {
+  const mask = document.createElement('canvas');
+  const mctx = mask.getContext('2d', { willReadFrequently: true })!;
+  const sprites = COLORS.map(sprite);
+  let target: Density | null = null;
+  let key = '';
+  let cell = 4;
+  let cols = 0;
+  let rows = 0;
+  let scale = 1;
+  let view: View | null = null;
+  let live: Dots = makeDots(4096);
+  // The dots at the moment they leave the grid, and where each one lands.
+  let snap: { dots: Dots; tx: Float32Array; ty: Float32Array; size: number; delay: Float32Array } | null = null;
+
+  const toMask = (s: Vec): Vec => ({ x: (view!.cx + s.x * scale) / cell, y: (view!.ground - s.y * scale) / cell });
+  const painter: Painter = {
+    pen: (at = STAGE_AT) => ({ ctx: mctx, map: (v) => toMask(toStage(v, at)), s: (scale * at.scale) / cell }),
+    person: (joints, at, main) => paintPerson(painter.pen(at), joints, main ? INK.front : INK.back, INK.back),
+    ink: (color) => {
+      mctx.fillStyle = color;
+      mctx.strokeStyle = color;
+    },
+  };
+
+  const layout = (v: View) => {
+    const k = `${v.w}x${v.h}@${v.dpr}:${v.cx},${v.ground}:${v.photo.x},${v.photo.y},${v.photo.w},${v.photo.h}`;
+    if (k === key) return;
+    key = k;
+    view = v;
+    scale = unit(v, spec.span);
+    cell = cellFor(v, spec.span);
+    cols = Math.ceil(v.w / cell);
+    rows = Math.ceil(v.h / cell);
+    mask.width = cols;
+    mask.height = rows;
+    snap = null;
+  };
+
+  const render = (p: number, out?: Dots): Dots => {
+    mctx.setTransform(1, 0, 0, 1, 0, 0);
+    mctx.globalCompositeOperation = 'source-over';
+    mctx.clearRect(0, 0, cols, rows);
+    mctx.globalCompositeOperation = 'lighter';
+    spec.paint(painter, p);
+    return readMask(mctx.getImageData(0, 0, cols, rows).data, cols, rows, cell, out);
+  };
+
+  const snapshot = (v: View) => {
+    if (snap) return snap;
+    const dots = render(spec.gatherStart);
+    const n = dots.count;
+    const uv = sampleDensity(n, target);
+    const tx = new Float32Array(n);
+    const ty = new Float32Array(n);
+    let cover = 0;
+    for (let k = 0; k < n; k++) {
+      tx[k] = v.photo.x + uv[k * 2]! * v.photo.w;
+      ty[k] = v.photo.y + uv[k * 2 + 1]! * v.photo.h;
+    }
+    if (target) {
+      for (let k = 0; k < target.w * target.h; k++) cover += target.data[k]! / 255;
+      cover /= target.w * target.h;
+    } else cover = 1;
+    const to = pair(dots.x, dots.y, tx, ty, n);
+    const px = Float32Array.from(to, (t) => tx[t]!);
+    const py = Float32Array.from(to, (t) => ty[t]!);
+    // Dots set off in a sweep from the top of the photograph down, with a little randomness.
+    const delay = new Float32Array(n);
+    for (let k = 0; k < n; k++) delay[k] = 0.22 * dots.seed[k]! + 0.13 * clamp01((py[k]! - v.photo.y) / (v.photo.h || 1));
+    const size = Math.min(cell * 1.15, Math.max(cell * 0.55, Math.sqrt((v.photo.w * v.photo.h * cover) / Math.max(1, n)) * 1.05));
+    snap = { dots, tx: px, ty: py, size, delay };
+    return snap;
+  };
+
+  const dot = (ctx: CanvasRenderingContext2D, tone: number, x: number, y: number, size: number, alpha: number, dpr: number) => {
+    if (alpha <= 0.01) return;
+    const back = tone === TONE.back;
+    const s = size * (back ? 0.88 : 1) * 1.45 * dpr;
+    ctx.globalAlpha = Math.min(1, alpha * (back ? 0.62 : 1));
+    ctx.drawImage(sprites[tone]!, x * dpr - s / 2, y * dpr - s / 2, s, s);
+  };
+
+  const ground = (ctx: CanvasRenderingContext2D, v: View, alpha: number) => {
+    if (alpha <= 0) return;
+    const y = (Math.round(v.ground / cell) + 0.5) * cell;
+    for (let i = 0; i < cols; i += 2) dot(ctx, TONE.back, (i + 0.5) * cell, y, cell * 0.42, 0.75 * alpha, v.dpr);
+  };
+
+  return {
+    frame: spec.frame,
+    setTarget(map) {
+      target = map;
+      snap = null;
+    },
+    draw(ctx, p, v) {
+      layout(v);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1;
+      ctx.clearRect(0, 0, v.w * v.dpr, v.h * v.dpr);
+      const f = spec.frame(p);
+      ground(ctx, v, 1 - f.gather * 2);
+      if (f.gather <= 0) {
+        live = render(p, live);
+        for (let k = 0; k < live.count; k++) dot(ctx, live.tone[k]!, live.x[k]!, live.y[k]!, live.size[k]!, live.alpha[k]!, v.dpr);
+      } else {
+        const { dots, tx, ty, size, delay } = snapshot(v);
+        const fade = 1 - f.photo;
+        if (fade > 0.01) {
+          for (let k = 0; k < dots.count; k++) {
+            const e = easeInOut(clamp01((f.gather - delay[k]!) / 0.65));
+            const sx = dots.x[k]!;
+            const sy = dots.y[k]!;
+            const dx = tx[k]! - sx;
+            const dy = ty[k]! - sy;
+            // A gentle arc, alternating sides, so the swarm doesn't fly in straight lines.
+            const arc = Math.sin(Math.PI * e) * (dots.seed[k]! - 0.5) * 0.3;
+            const tone = e > 0.6 ? TONE.front : dots.tone[k]!;
+            dot(ctx, tone, sx + dx * e - dy * arc, sy + dy * e + dx * arc, lerp(dots.size[k]!, size, e), lerp(dots.alpha[k]!, 0.9, e) * fade, v.dpr);
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+      spec.overlay?.(ctx, p, v);
+    },
+  };
 }
 
 // ---- Event 1: the trophy --------------------------------------------------------------------
 
-export function victoryScene(small: boolean): Scene {
-  const ps = createParticles(small ? 1300 : 2400);
-  const buf = new Float32Array(ps.count * 2);
-  return {
+export function victoryScene(): Scene {
+  return halftoneScene({
+    span: 1.6,
     frame: (p) => frameAt(p),
-    draw(ctx, p, v) {
+    gatherStart: TIMELINE.gatherStart,
+    paint(m, p) {
       const f = frameAt(p);
-      const scale = unit(v);
-      const size = dotSize(v);
-      clear(ctx, v);
-      ground(ctx, v, 1 - f.disperse);
-      placeParticles(ps, f, buf);
-      const alpha = 1 - f.disperse ** 1.6;
-      if (alpha <= 0.002) return;
-      for (let i = 0; i < ps.count; i++) {
-        const part = ps.part[i]!;
-        const s = ps.seed[i]!;
-        ctx.fillStyle = part === 'trophy' ? (s > 0.35 ? COLORS.front : COLORS.dim) : part.endsWith('0') ? COLORS.back : s > 0.82 ? COLORS.back : COLORS.front;
-        ctx.globalAlpha = alpha * (part.endsWith('0') ? 0.7 : 0.75 + s * 0.25);
-        const x = (v.cx + buf[i * 2]! * scale) * v.dpr;
-        const y = (v.ground - buf[i * 2 + 1]! * scale) * v.dpr;
-        ctx.fillRect(x - size / 2, y - size / 2, size, size);
-      }
-      ctx.globalAlpha = 1;
+      m.person(f.joints, STAGE_AT, true);
+      m.ink(INK.prop);
+      paintTrophy(m.pen(), f.trophy);
     },
-  };
+  });
 }
-
-// ---- Shared: a stage of several figures and props -------------------------------------------
-
-type Tone = 0 | 1 | 2; // 0 back (dim figures), 1 front (the main figures), 2 prop
-
-/**
- * A pool of dots on the stage. Each frame the scene writes every dot's stage position in order;
- * the pool adds the dispersal and the gathering into the page, and draws.
- */
-class Crowd {
-  readonly pos: Float32Array;
-  readonly tone: Uint8Array;
-  readonly seed: Float32Array;
-  readonly dir: Float32Array;
-  private n = 0;
-  private readonly tmp = new Float32Array(4096);
-
-  constructor(readonly count: number, tones: Tone[]) {
-    const rnd = mulberry32(5);
-    this.pos = new Float32Array(count * 2);
-    this.tone = Uint8Array.from(tones);
-    this.seed = new Float32Array(count).map(() => rnd());
-    this.dir = new Float32Array(count * 2);
-    for (let i = 0; i < count; i++) {
-      const a = rnd() * Math.PI * 2;
-      const speed = 0.4 + rnd() * 1.1;
-      this.dir[i * 2] = Math.cos(a) * speed;
-      this.dir[i * 2 + 1] = Math.sin(a) * speed + 0.35;
-    }
-  }
-
-  begin() {
-    this.n = 0;
-  }
-
-  body(ps: Particles, a: Actor) {
-    placeParticles(ps, { joints: a.joints, trophy: { x: 0, y: 0 }, disperse: 0 } as Frame, this.tmp);
-    for (let i = 0; i < ps.count; i++) {
-      const s = toStage({ x: this.tmp[i * 2]!, y: this.tmp[i * 2 + 1]! }, a.at);
-      this.pos[this.n * 2] = s.x;
-      this.pos[this.n * 2 + 1] = s.y;
-      this.n++;
-    }
-  }
-
-  points(pts: Float32Array, ox: number, oy: number) {
-    for (let i = 0; i < pts.length; i += 2) {
-      this.pos[this.n * 2] = ox + pts[i]!;
-      this.pos[this.n * 2 + 1] = oy + pts[i + 1]!;
-      this.n++;
-    }
-  }
-
-  /** Draws the pool. `page` gathers every dot into `target` (page coordinates) over the photograph's box. */
-  draw(ctx: CanvasRenderingContext2D, v: View, disperse: number, page = 0, target?: Float32Array) {
-    const scale = unit(v, WIDE);
-    const size = dotSize(v, WIDE);
-    const spread = disperse * disperse * 1.8;
-    const alpha = 1 - disperse ** 1.6;
-    if (alpha <= 0.002) return;
-    const fill = [COLORS.back, COLORS.front, COLORS.dim];
-    for (let i = 0; i < this.count; i++) {
-      const tone = this.tone[i]!;
-      const s = this.seed[i]!;
-      let x = v.cx + (this.pos[i * 2]! + this.dir[i * 2]! * spread) * scale;
-      let y = v.ground - (this.pos[i * 2 + 1]! + this.dir[i * 2 + 1]! * spread) * scale;
-      if (page > 0 && target) {
-        x += (v.photo.x + target[i * 2]! * v.photo.w - x) * page;
-        y += (v.photo.y + target[i * 2 + 1]! * v.photo.h - y) * page;
-      }
-      ctx.fillStyle = page > 0.5 ? (s > 0.3 ? COLORS.front : COLORS.dim) : tone === 1 && s > 0.82 ? COLORS.back : fill[tone]!;
-      ctx.globalAlpha = alpha * (tone === 0 ? 0.55 + s * 0.2 : 0.75 + s * 0.25);
-      ctx.fillRect(x * v.dpr - size / 2, y * v.dpr - size / 2, size, size);
-    }
-    ctx.globalAlpha = 1;
-  }
-}
-
-const tones = (parts: [number, Tone][]) => parts.flatMap(([n, t]) => Array<Tone>(n).fill(t));
 
 // ---- Event 2: the certificate ---------------------------------------------------------------
 
-export function ceremonyScene(small: boolean): Scene {
-  const k = small ? 0.55 : 1;
-  const recipient = createParticles(Math.round(900 * k), 12, false);
-  const official = createParticles(Math.round(820 * k), 13, false);
-  const audience = Array.from({ length: 6 }, (_, i) => createParticles(Math.round(240 * k), 40 + i, false));
-  const cert = certificatePoints(Math.round(300 * k));
-  const crowd = new Crowd(
-    recipient.count + official.count + audience.reduce((n, a) => n + a.count, 0) + cert.length / 2,
-    tones([[audience.reduce((n, a) => n + a.count, 0), 0], [official.count, 1], [recipient.count, 1], [cert.length / 2, 2]]),
-  );
-  return {
+export function ceremonyScene(): Scene {
+  return halftoneScene({
+    span: WIDE,
     frame: (p) => ceremonyAt(p),
-    draw(ctx, p, v) {
+    gatherStart: CEREMONY.gatherStart,
+    paint(m, p) {
       const f = ceremonyAt(p);
-      clear(ctx, v);
-      ground(ctx, v, 1 - f.disperse, WIDE);
-      crowd.begin();
-      f.audience.forEach((a, i) => crowd.body(audience[i]!, a));
-      crowd.body(official, f.official);
-      crowd.body(recipient, f.recipient);
-      crowd.points(cert, f.certificate.x, f.certificate.y - CERT.h * 0.15);
-      crowd.draw(ctx, v, f.disperse);
+      for (const a of f.audience) m.person(a.joints, a.at, false);
+      m.person(f.official.joints, f.official.at, true);
+      m.person(f.recipient.joints, f.recipient.at, true);
+      m.ink(INK.prop);
+      paintCertificate(m.pen(), { x: f.certificate.x, y: f.certificate.y - CERT.h * 0.15 }, CERT.w, CERT.h);
     },
-  };
+  });
 }
 
 // ---- Event 3: the judge ---------------------------------------------------------------------
 
-export function judgingScene(small: boolean): Scene {
-  const k = small ? 0.55 : 1;
-  const judge = createParticles(Math.round(950 * k), 14, false);
-  const team = FLOOR.tables.map((_, i) => createParticles(Math.round(520 * k), 50 + i, false));
-  const desks = FLOOR.tables.map((_, i) => deskPoints(Math.round(300 * k), 60 + i));
-  const teamCount = team.reduce((n, t) => n + t.count, 0);
-  const deskCount = desks.reduce((n, d) => n + d.length / 2, 0);
-  const crowd = new Crowd(teamCount + deskCount + judge.count, tones([[teamCount, 0], [deskCount, 2], [judge.count, 1]]));
-  const page = pagePoints(crowd.count);
-  return {
+export function judgingScene(): Scene {
+  return halftoneScene({
+    span: WIDE,
     frame: (p) => judgingAt(p),
-    draw(ctx, p, v) {
+    gatherStart: JUDGING.gatherStart,
+    paint(m, p) {
       const f = judgingAt(p);
-      clear(ctx, v);
-      ground(ctx, v, 1 - f.page, WIDE);
-      crowd.begin();
-      f.team.forEach((a, i) => crowd.body(team[i]!, a));
-      desks.forEach((d, i) => crowd.points(d, FLOOR.tables[i]!, 0));
-      crowd.body(judge, f.judge);
-      crowd.draw(ctx, v, f.disperse, f.page, page);
-      // The camera flash: a white-out from where the photographer stands, off stage at the front.
-      if (f.flash > 0) {
-        const g = ctx.createRadialGradient(v.w * 0.5 * v.dpr, v.h * v.dpr, 0, v.w * 0.5 * v.dpr, v.h * v.dpr, Math.max(v.w, v.h) * v.dpr);
-        g.addColorStop(0, COLORS.flash);
-        g.addColorStop(1, 'rgba(240, 236, 221, 0.6)');
-        ctx.globalAlpha = 0.85 * f.flash;
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, v.w * v.dpr, v.h * v.dpr);
-        ctx.globalAlpha = 1;
-      }
+      for (const a of f.team) m.person(a.joints, a.at, false);
+      // The desks stay in the background tone, so the judge is what the eye follows.
+      m.ink(INK.back);
+      for (const x of FLOOR.tables) paintDesk(m.pen(), x, FLOOR.tableTop, FLOOR.tableFrom, FLOOR.tableTo);
+      m.person(f.judge.joints, f.judge.at, true);
     },
-  };
+    // The camera flash: a white-out from where the photographer stands, off stage at the front.
+    overlay(ctx, p, v) {
+      const { flash } = judgingAt(p);
+      if (flash <= 0) return;
+      const g = ctx.createRadialGradient(v.w * 0.5 * v.dpr, v.h * v.dpr, 0, v.w * 0.5 * v.dpr, v.h * v.dpr, Math.max(v.w, v.h) * v.dpr);
+      g.addColorStop(0, FLASH);
+      g.addColorStop(1, 'rgba(240, 236, 221, 0.6)');
+      ctx.globalAlpha = 0.85 * flash;
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, v.w * v.dpr, v.h * v.dpr);
+      ctx.globalAlpha = 1;
+    },
+  });
 }

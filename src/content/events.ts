@@ -1,5 +1,8 @@
+import aharamMask from '../assets/recognition/al-ahram-2026-09-07.mask.webp';
 import aharamUrl from '../assets/recognition/al-ahram-2026-09-07.webp';
+import depiMask from '../assets/recognition/depi-2026.mask.webp';
 import depiUrl from '../assets/recognition/depi-2026.webp';
+import beijingMask from '../assets/recognition/roborave-beijing-2025.mask.webp';
 import beijingUrl from '../assets/recognition/roborave-beijing-2025.webp';
 
 /** The three Important Events (revision of 16 Oct 2026), in page order. Facts as in content-source/recognition/manifest.json. */
@@ -9,7 +12,8 @@ export interface EventDef {
   role: string;
   title: string;
   event: string;
-  photo: { src: string; alt: string; width: number; height: number; caption: string };
+  /** `mask`: where the scene's dots gather in the photograph (scripts/recognition-silhouettes.py). */
+  photo: { src: string; mask: string; alt: string; width: number; height: number; caption: string };
   /** Draft content the owner will confirm or edit; shown as a Draft mark in development only. */
   draft?: string;
 }
@@ -23,6 +27,7 @@ export const events: EventDef[] = [
     event: 'RoboRAVE International Entrepreneurial Challenge · Beijing · August 2025',
     photo: {
       src: beijingUrl,
+      mask: beijingMask,
       alt: 'Muhammed Farrag on the RoboRAVE 2025 arena floor, wearing the Egyptian flag and holding a trophy.',
       width: 582,
       height: 805,
@@ -37,6 +42,7 @@ export const events: EventDef[] = [
     event: 'Digital Egypt Pioneers Initiative (MCIT) · Egypt · April 2026',
     photo: {
       src: depiUrl,
+      mask: depiMask,
       alt: 'Muhammed Farrag at a Digital Egypt Pioneers ceremony, wearing a recognition sash and holding a certificate.',
       width: 722,
       height: 732,
@@ -51,6 +57,7 @@ export const events: EventDef[] = [
     event: 'Robotics, Software and AI · Alexandria · July 2026',
     photo: {
       src: aharamUrl,
+      mask: aharamMask,
       alt: 'Al-Ahram clipping, 7 September 2026: the headline reads that three teams from Alexandria’s Faculty of Computers compete in the cybersecurity finals in Japan, above a photo of the team on stage.',
       width: 391,
       height: 405,

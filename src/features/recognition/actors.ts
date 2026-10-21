@@ -1,10 +1,10 @@
-// Events 2 and 3: several particle figures on one stage, built on the figure of Event 1
+// Events 2 and 3: several figures on one stage, built on the figure of Event 1
 // (figure.ts). Like Event 1, every scene is a pure function of the scroll progress p ∈ [0, 1].
 //
 // Each figure is posed in its own local frame (facing right, standing at x = 0) and placed on the
 // stage by a transform: position, facing (1 right, -1 left) and scale. Units are figure units.
 
-import { NOTICE, STAND, clamp01, lerp, mix, mulberry32, reach, smooth, solve, walk, type Joints, type Pose, type Vec } from './figure';
+import { NOTICE, STAND, clamp01, lerp, mix, reach, smooth, solve, walk, type Joints, type Pose, type Vec } from './figure';
 
 export interface Place {
   x: number;
@@ -54,14 +54,14 @@ export const CEREMONY = {
   meet: 0.42,
   take: 0.5,
   clapStart: 0.46,
-  clapEnd: 0.74,
-  disperseStart: 0.76,
-  disperseEnd: 0.88,
-  photoStart: 0.8,
-  photoEnd: 0.92,
+  clapEnd: 0.7,
+  gatherStart: 0.72,
+  gatherEnd: 0.88,
+  photoStart: 0.84,
+  photoEnd: 0.95,
 } as const;
 
-export const CEREMONY_STAGES = ['Walks up', 'The certificate', 'Applause', 'Disperses', 'The photograph'] as const;
+export const CEREMONY_STAGES = ['The approach', 'The handover', 'The applause', 'The reveal', 'The photograph'] as const;
 
 /** Where people stand. The audience is further back: smaller, higher, either side of the stage. */
 export const CEREMONY_PLACES = {
@@ -94,7 +94,8 @@ export interface CeremonyFrame {
   audience: Actor[];
   /** The certificate's grip (the middle of its lower edge), on the stage. */
   certificate: Vec;
-  disperse: number;
+  /** 0 = the scene on stage, 1 = its dots fully gathered into the photograph. */
+  gather: number;
   photo: number;
   stage: number;
 }
@@ -103,8 +104,8 @@ export function ceremonyStageAt(p: number): number {
   const C = CEREMONY;
   if (p < C.walkEnd) return 0;
   if (p < C.take) return 1;
-  if (p < C.disperseStart) return 2;
-  if (p < C.photoStart + 0.04) return 3;
+  if (p < C.gatherStart) return 2;
+  if (p < C.photoStart) return 3;
   return 4;
 }
 
@@ -147,7 +148,7 @@ export function ceremonyAt(p: number): CeremonyFrame {
     official,
     audience,
     certificate: hand(holder, 1),
-    disperse: smooth(C.disperseStart, C.disperseEnd, p),
+    gather: smooth(C.gatherStart, C.gatherEnd, p),
     photo: smooth(C.photoStart, C.photoEnd, p),
     stage: ceremonyStageAt(p),
   };
@@ -160,16 +161,14 @@ export const JUDGING = {
   look1End: 0.29,
   walk2End: 0.43,
   look2End: 0.53,
-  flash: 0.57,
-  pageStart: 0.59,
-  pageEnd: 0.7,
-  disperseStart: 0.78,
-  disperseEnd: 0.9,
-  photoStart: 0.78,
-  photoEnd: 0.9,
+  flash: 0.62,
+  gatherStart: 0.68,
+  gatherEnd: 0.86,
+  photoStart: 0.82,
+  photoEnd: 0.94,
 } as const;
 
-export const JUDGING_STAGES = ['The teams build', 'The judge', 'Camera flash', 'In the press'] as const;
+export const JUDGING_STAGES = ['Meet the teams', 'A closer look', 'The moment', 'The photograph'] as const;
 
 /** Tables along the floor; a team member stands at each, typing, and the judge walks between them. */
 export const FLOOR = {
@@ -190,9 +189,8 @@ export interface JudgingFrame {
   team: Actor[];
   /** 0..1: the white-out of the camera flash. */
   flash: number;
-  /** 0..1: how far everything has gathered into the magazine page. */
-  page: number;
-  disperse: number;
+  /** 0 = the scene on stage, 1 = its dots fully gathered into the clipping. */
+  gather: number;
   photo: number;
   stage: number;
 }
@@ -201,7 +199,7 @@ export function judgingStageAt(p: number): number {
   const J = JUDGING;
   if (p < J.walk1End * 0.6) return 0;
   if (p < J.flash - 0.02) return 1;
-  if (p < J.pageEnd) return 2;
+  if (p < J.photoStart) return 2;
   return 3;
 }
 
@@ -232,8 +230,7 @@ export function judgingAt(p: number): JudgingFrame {
     judge,
     team,
     flash,
-    page: smooth(J.pageStart, J.pageEnd, p),
-    disperse: smooth(J.disperseStart, J.disperseEnd, p),
+    gather: smooth(J.gatherStart, J.gatherEnd, p),
     photo: smooth(J.photoStart, J.photoEnd, p),
     stage: judgingStageAt(p),
   };
@@ -241,60 +238,5 @@ export function judgingAt(p: number): JudgingFrame {
 
 // ---- Props ----------------------------------------------------------------------------------
 
-/** Points sampled inside a shape test over a box, deterministically. */
-function sample(count: number, seed: number, box: [number, number, number, number], inside: (x: number, y: number) => boolean): Float32Array {
-  const rnd = mulberry32(seed);
-  const out = new Float32Array(count * 2);
-  const [x0, y0, x1, y1] = box;
-  for (let i = 0; i < count; i++) {
-    let x = 0;
-    let y = 0;
-    let tries = 0;
-    do {
-      x = lerp(x0, x1, rnd());
-      y = lerp(y0, y1, rnd());
-    } while (!inside(x, y) && ++tries < 50);
-    out[i * 2] = x;
-    out[i * 2 + 1] = y;
-  }
-  return out;
-}
-
-/** The certificate, relative to its grip (the middle of its lower edge): a sheet with a border and a seal. */
+/** The certificate's size; its grip is the middle of its lower edge. */
 export const CERT = { w: 0.19, h: 0.13 };
-export function inCertificate(x: number, y: number): boolean {
-  const hx = CERT.w / 2;
-  if (Math.abs(x) > hx || y < 0 || y > CERT.h) return false;
-  const edge = Math.min(hx - Math.abs(x), y, CERT.h - y);
-  if (edge < 0.008) return true; // border
-  if (Math.hypot(x - hx * 0.55, y - CERT.h * 0.3) < 0.018) return true; // seal
-  // Two lines of text.
-  return Math.abs(x + 0.01) < hx * 0.62 && (Math.abs(y - CERT.h * 0.68) < 0.006 || Math.abs(y - CERT.h * 0.5) < 0.004);
-}
-export const certificatePoints = (count: number) => sample(count, 21, [-CERT.w / 2, 0, CERT.w / 2, CERT.h], inCertificate);
-
-/** A table with an open laptop, relative to the table's x (y up from the ground). */
-export function inDesk(x: number, y: number): boolean {
-  const F = FLOOR;
-  if (y <= F.tableTop && y > F.tableTop - 0.025 && x > F.tableFrom && x < F.tableTo) return true; // top
-  if (y < F.tableTop && (Math.abs(x - F.tableFrom - 0.03) < 0.012 || Math.abs(x - F.tableTo + 0.03) < 0.012)) return true; // legs
-  if (y > F.tableTop && y < F.tableTop + 0.012 && x > -0.07 && x < 0.09) return true; // laptop base
-  // The screen, leaning back from the hinge.
-  const t = (y - F.tableTop) / 0.13;
-  return t > 0 && t < 1 && Math.abs(x - (0.09 + t * 0.03)) < 0.008;
-}
-export const deskPoints = (count: number, seed: number) => sample(count, seed, [FLOOR.tableFrom, 0, 0.13 + FLOOR.tableTo, FLOOR.tableTop + 0.14], inDesk);
-
-/**
- * The magazine page, in page coordinates (0..1 across, 0..1 down): a right-aligned headline, a
- * date line and a large photograph, like the clipping it becomes.
- */
-export function inPage(u: number, v: number): boolean {
-  if (u < 0 || u > 1 || v < 0 || v > 1) return false;
-  if (u < 0.012 || u > 0.988 || v < 0.01 || v > 0.99) return true; // edge
-  const line = (top: number, from: number, h: number) => v > top && v < top + h && u > from && u < 0.95;
-  if (line(0.05, 0.08, 0.06) || line(0.14, 0.12, 0.06) || line(0.23, 0.3, 0.06)) return true; // headline
-  if (line(0.34, 0.2, 0.018) || line(0.38, 0.75, 0.018)) return true; // date and issue
-  return v > 0.48 && v < 0.96 && u > 0.04 && u < 0.96; // photograph
-}
-export const pagePoints = (count: number, seed = 31) => sample(count, seed, [0, 0, 1, 1], inPage);

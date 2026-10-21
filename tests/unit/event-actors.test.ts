@@ -2,18 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   CEREMONY,
   CEREMONY_PLACES,
-  CERT,
   CLAPS,
   HANDOFF,
   JUDGING,
   ceremonyAt,
   ceremonyStageAt,
-  certificatePoints,
-  inCertificate,
-  inPage,
   judgingAt,
   judgingStageAt,
-  pagePoints,
   toStage,
   type Actor,
 } from '../../src/features/recognition/actors';
@@ -61,18 +56,12 @@ describe('Event 2: the certificate', () => {
     expect(dist(hand(between, 0), hand(between, 1))).toBeGreaterThan(0.06);
   });
 
-  it('disperses into the photograph, with the stages in order', () => {
-    expect(ceremonyAt(CEREMONY.disperseStart).disperse).toBe(0);
+  it('gathers into the photograph, with the stages in order', () => {
+    expect(CEREMONY.clapEnd).toBeLessThanOrEqual(CEREMONY.gatherStart);
+    expect(ceremonyAt(CEREMONY.gatherStart).gather).toBe(0);
+    expect(ceremonyAt(CEREMONY.gatherEnd).gather).toBe(1);
     expect(ceremonyAt(1).photo).toBe(1);
     expect(progress.map(ceremonyStageAt)).toEqual([...progress.map(ceremonyStageAt)].sort((a, b) => a - b));
-  });
-
-  it('samples the certificate inside its sheet', () => {
-    const pts = certificatePoints(400);
-    for (let i = 0; i < pts.length; i += 2) {
-      expect(inCertificate(pts[i]!, pts[i + 1]!)).toBe(true);
-      expect(Math.abs(pts[i]!)).toBeLessThanOrEqual(CERT.w / 2);
-    }
   });
 });
 
@@ -93,18 +82,13 @@ describe('Event 3: the judge', () => {
     still(JUDGING.walk2End, JUDGING.look2End);
   });
 
-  it('flashes once, then gathers into the page, then hands over to the clipping', () => {
+  it('flashes once, then gathers into the clipping, then hands over to it', () => {
     expect(judgingAt(JUDGING.flash).flash).toBe(1);
     expect(judgingAt(JUDGING.flash - 0.05).flash).toBe(0);
-    expect(judgingAt(JUDGING.pageStart).page).toBe(0);
-    expect(judgingAt(JUDGING.pageEnd).page).toBe(1);
+    expect(judgingAt(JUDGING.gatherStart).flash).toBe(0);
+    expect(judgingAt(JUDGING.gatherStart).gather).toBe(0);
+    expect(judgingAt(JUDGING.gatherEnd).gather).toBe(1);
     expect(judgingAt(1).photo).toBe(1);
     expect(progress.map(judgingStageAt)).toEqual([...progress.map(judgingStageAt)].sort((a, b) => a - b));
-  });
-
-  it('samples the page inside its layout, deterministically', () => {
-    const a = pagePoints(800);
-    expect(Array.from(a)).toEqual(Array.from(pagePoints(800)));
-    for (let i = 0; i < a.length; i += 2) expect(inPage(a[i]!, a[i + 1]!)).toBe(true);
   });
 });
