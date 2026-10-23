@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" stroke="#B3C4DC" stroke-width="1.2" stroke-linecap="round">
-  <!-- A tile of still rain streaks, repeated down the section. -->
-  <g stroke-opacity="0.09">
-    <path d="M20 10 l-6 26"/><path d="M92 54 l-5 22"/><path d="M168 18 l-6 28"/><path d="M220 96 l-5 20"/>
-    <path d="M48 128 l-6 26"/><path d="M130 150 l-5 22"/><path d="M196 196 l-6 26"/><path d="M70 206 l-5 20"/>
-  </g>
-</svg>
