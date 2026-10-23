@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 360">
+  <!-- The edge of a large planet along the bottom of the section: a dark disc, its atmosphere lit in Desert Titanium along the rim. -->
+  <defs>
+    <radialGradient id="air" cx="720" cy="1620" r="1460" gradientUnits="userSpaceOnUse">
+      <stop offset="0.9" stop-color="#BFA48F" stop-opacity="0"/>
+      <stop offset="0.955" stop-color="#BFA48F" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#BFA48F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="disc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#15120F" stop-opacity="0.5"/><stop offset="1" stop-color="#15120F" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <circle cx="720" cy="1620" r="1460" fill="url(#air)"/>
+  <circle cx="720" cy="1620" r="1400" fill="url(#disc)"/>
+  <path d="M-40 236 Q 720 140 1480 236" fill="none" stroke="#E8DCCB" stroke-opacity="0.22" stroke-width="1.2"/>
+</svg>

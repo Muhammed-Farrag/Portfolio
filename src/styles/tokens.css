@@ -1,35 +1,41 @@
-/* Moonlight & Storm design tokens, Revision 4 (16 Oct 2026): Oxford Blue and Midnight removed;
-   Storm and Steel are the dark grounds (docs/DESIGN_SPEC.md §2-4).
+/* Desert Titanium night-sky design tokens, Revision 5 (21 Oct 2026): warm-black space grounds,
+   Desert Titanium as the metal accent and ivory text (docs/DESIGN_SPEC.md §2-4). The two nebula
+   tints are for still backdrops only, never for text or controls.
    tests/unit/tokens.test.ts checks every allowed text/background pair against WCAG. */
 :root {
   /* Brand palette (owner-specified) */
-  --moonlight: #f0ecdd;
-  --frost-blue: #8ba3c5;
-  --steel: #495b7d;
-  --storm: #23354d;
+  --ivory: #f4eee4;
+  --titanium: #bfa48f; /* Desert Titanium */
+  --sandstone: #3a3129;
+  --void: #15120f;
 
   /* Derived supporting tones (blends of brand colours; no new hues) */
-  --mist: #c9d3e2; /* Frost Blue toward Moonlight */
-  --frost-light: #b3c4dc; /* Frost Blue, lightened */
-  --dusk: #30425e; /* Storm with 35% Steel: the Mid ground */
-  --dawn: #e2e2da; /* Moonlight with 14% Frost Blue: panels on light sections */
+  --titanium-light: #e8dccb; /* Titanium toward Ivory: the Light ground, secondary text on dark */
+  --titanium-soft: #d2bba6; /* Titanium, lightened: tertiary text and links on dark */
+  --umber: #221d18; /* Void with 30% Sandstone: the Mid ground */
+  --dune: #dccdb9; /* Titanium Light with 12% Titanium: panels on light sections */
+  --bronze: #6b5747; /* Titanium darkened: edges and accents on light sections */
+
+  /* Nebula tints: backdrops only */
+  --copper-nebula: #8c5e4a;
+  --dust-violet: #4a3a5c;
 
   /* Semantic roles. These are the Deep theme; .theme-* below redefine them per section. */
-  --color-bg: var(--storm);
-  --color-surface: var(--dusk);
-  --color-surface-alt: var(--dusk);
-  --color-text: var(--moonlight);
-  --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-light);
-  --color-link: var(--frost-light);
-  --color-focus: var(--frost-light);
-  --color-rule: var(--steel);
-  --color-control-edge: var(--frost-blue);
-  --color-accent-support: var(--frost-blue);
-  --color-interactive-fill: var(--steel);
-  --color-focal: var(--moonlight);
-  --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--storm);
+  --color-bg: var(--void);
+  --color-surface: var(--umber);
+  --color-surface-alt: var(--umber);
+  --color-text: var(--ivory);
+  --color-text-secondary: var(--titanium-light);
+  --color-text-tertiary: var(--titanium-soft);
+  --color-link: var(--titanium-soft);
+  --color-focus: var(--titanium-soft);
+  --color-rule: var(--sandstone);
+  --color-control-edge: var(--titanium);
+  --color-accent-support: var(--titanium);
+  --color-interactive-fill: var(--sandstone);
+  --color-focal: var(--ivory);
+  --color-focal-hover: var(--titanium);
+  --color-on-focal: var(--void);
 
   /* Typography */
   --font-display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
@@ -71,75 +77,75 @@
 /* Section themes (docs/DESIGN_SPEC.md §2.5). Each redefines every semantic role, so anything
    inside a themed section stays readable. Every pair is checked in tests/unit/tokens.test.ts. */
 .theme-deep {
-  --color-bg: var(--storm);
-  --color-surface: var(--dusk);
-  --color-surface-alt: var(--dusk);
-  --color-text: var(--moonlight);
-  --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-light);
-  --color-link: var(--frost-light);
-  --color-focus: var(--frost-light);
-  --color-rule: var(--steel);
-  --color-control-edge: var(--frost-blue);
-  --color-accent-support: var(--frost-blue);
-  --color-interactive-fill: var(--steel);
-  --color-focal: var(--moonlight);
-  --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--storm);
+  --color-bg: var(--void);
+  --color-surface: var(--umber);
+  --color-surface-alt: var(--umber);
+  --color-text: var(--ivory);
+  --color-text-secondary: var(--titanium-light);
+  --color-text-tertiary: var(--titanium-soft);
+  --color-link: var(--titanium-soft);
+  --color-focus: var(--titanium-soft);
+  --color-rule: var(--sandstone);
+  --color-control-edge: var(--titanium);
+  --color-accent-support: var(--titanium);
+  --color-interactive-fill: var(--sandstone);
+  --color-focal: var(--ivory);
+  --color-focal-hover: var(--titanium);
+  --color-on-focal: var(--void);
 }
 
 .theme-mid {
-  --color-bg: var(--dusk);
-  --color-surface: var(--storm);
-  --color-surface-alt: var(--storm);
-  --color-text: var(--moonlight);
-  --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--frost-light);
-  --color-link: var(--frost-light);
-  --color-focus: var(--frost-light);
-  --color-rule: var(--steel);
-  --color-control-edge: var(--frost-blue);
-  --color-accent-support: var(--frost-blue);
-  --color-interactive-fill: var(--steel);
-  --color-focal: var(--moonlight);
-  --color-focal-hover: var(--frost-blue);
-  --color-on-focal: var(--storm);
+  --color-bg: var(--umber);
+  --color-surface: var(--void);
+  --color-surface-alt: var(--void);
+  --color-text: var(--ivory);
+  --color-text-secondary: var(--titanium-light);
+  --color-text-tertiary: var(--titanium-soft);
+  --color-link: var(--titanium-soft);
+  --color-focus: var(--titanium-soft);
+  --color-rule: var(--sandstone);
+  --color-control-edge: var(--titanium);
+  --color-accent-support: var(--titanium);
+  --color-interactive-fill: var(--sandstone);
+  --color-focal: var(--ivory);
+  --color-focal-hover: var(--titanium);
+  --color-on-focal: var(--void);
 }
 
 .theme-elevated {
-  --color-bg: var(--steel);
-  --color-surface: var(--storm);
-  --color-surface-alt: var(--dusk);
-  --color-text: var(--moonlight);
-  --color-text-secondary: var(--mist);
-  --color-text-tertiary: var(--mist);
-  --color-link: var(--moonlight);
-  --color-focus: var(--moonlight);
-  --color-rule: var(--dusk);
-  --color-control-edge: var(--mist);
-  --color-accent-support: var(--frost-light);
-  --color-interactive-fill: var(--storm);
-  --color-focal: var(--moonlight);
-  --color-focal-hover: var(--mist);
-  --color-on-focal: var(--storm);
+  --color-bg: var(--sandstone);
+  --color-surface: var(--void);
+  --color-surface-alt: var(--umber);
+  --color-text: var(--ivory);
+  --color-text-secondary: var(--titanium-light);
+  --color-text-tertiary: var(--titanium-light);
+  --color-link: var(--ivory);
+  --color-focus: var(--ivory);
+  --color-rule: var(--umber);
+  --color-control-edge: var(--titanium-light);
+  --color-accent-support: var(--titanium-soft);
+  --color-interactive-fill: var(--void);
+  --color-focal: var(--ivory);
+  --color-focal-hover: var(--titanium-light);
+  --color-on-focal: var(--void);
 }
 
 .theme-light {
-  --color-bg: var(--moonlight);
-  --color-surface: var(--dawn);
-  --color-surface-alt: var(--dawn);
-  --color-text: var(--storm);
-  --color-text-secondary: var(--steel);
-  --color-text-tertiary: var(--steel);
-  --color-link: var(--storm);
-  --color-focus: var(--storm);
-  --color-rule: var(--mist);
-  --color-control-edge: var(--steel);
-  --color-accent-support: var(--steel);
-  --color-interactive-fill: var(--mist);
-  --color-focal: var(--storm);
-  --color-focal-hover: var(--steel);
-  --color-on-focal: var(--moonlight);
+  --color-bg: var(--titanium-light);
+  --color-surface: var(--dune);
+  --color-surface-alt: var(--dune);
+  --color-text: var(--void);
+  --color-text-secondary: var(--sandstone);
+  --color-text-tertiary: var(--sandstone);
+  --color-link: var(--void);
+  --color-focus: var(--void);
+  --color-rule: var(--titanium);
+  --color-control-edge: var(--bronze);
+  --color-accent-support: var(--bronze);
+  --color-interactive-fill: var(--dune);
+  --color-focal: var(--void);
+  --color-focal-hover: var(--sandstone);
+  --color-on-focal: var(--ivory);
 }
 
 .theme-deep,

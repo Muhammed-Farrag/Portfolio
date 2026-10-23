@@ -67,14 +67,14 @@ export interface Frame {
 
 /** The prototype's warm-black stage colour (#110E0A). */
 export const LEGACY_BACKGROUND: Rgb = [17, 14, 10];
-/** Storm, the portfolio background. */
-export const PORTFOLIO_BACKGROUND: Rgb = [0x23, 0x35, 0x4d];
-/** Steel → Moonlight, with Steel → Frost Blue as the cool highlight on the tie. */
+/** Void, the portfolio background. */
+export const PORTFOLIO_BACKGROUND: Rgb = [0x15, 0x12, 0x0f];
+/** Bronze → Ivory, with Bronze → Desert Titanium as the metal highlight on the tie. */
 export const PORTFOLIO_PALETTE: TonePalette = {
-  low: [0x49, 0x5b, 0x7d],
-  high: [0xf0, 0xec, 0xdd],
-  accentLow: [0x49, 0x5b, 0x7d],
-  accentHigh: [0x8b, 0xa3, 0xc5],
+  low: [0x6b, 0x57, 0x47],
+  high: [0xf4, 0xee, 0xe4],
+  accentLow: [0x6b, 0x57, 0x47],
+  accentHigh: [0xbf, 0xa4, 0x8f],
 };
 
 export const DEFAULT_SETTINGS: PortraitSettings = {

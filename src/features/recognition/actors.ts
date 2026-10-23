@@ -4,7 +4,7 @@
 // Each figure is posed in its own local frame (facing right, standing at x = 0) and placed on the
 // stage by a transform: position, facing (1 right, -1 left) and scale. Units are figure units.
 
-import { NOTICE, STAND, clamp01, lerp, mix, reach, smooth, solve, walk, type Joints, type Pose, type Vec } from './figure';
+import { frontSolve, NOTICE, STAND, clamp01, lerp, mix, reach, smooth, solve, walk, type Joints, type Pose, type Vec } from './figure';
 
 export interface Place {
   x: number;
@@ -53,6 +53,9 @@ export const CEREMONY = {
   offer: 0.34,
   meet: 0.42,
   take: 0.5,
+  /** The honoree turns to face the camera, the certificate held at the chest. */
+  turnStart: 0.52,
+  turnEnd: 0.57,
   clapStart: 0.46,
   clapEnd: 0.7,
   gatherStart: 0.72,
@@ -75,7 +78,9 @@ export const CEREMONY_PLACES = {
 
 /** Where the certificate changes hands, and where the honoree shows it. */
 export const HANDOFF: Vec = { x: (CEREMONY_PLACES.recipient + CEREMONY_PLACES.official) / 2, y: 0.62 };
-const SHOW: Vec = { x: CEREMONY_PLACES.recipient + 0.17, y: 0.7 };
+const SHOW: Vec = { x: CEREMONY_PLACES.recipient + 0.17, y: 0.66 };
+/** Facing the camera, the honoree's hands hold the certificate's lower corners at the chest. */
+const CHEST_HOLD = { y: 0.6, w: 0.075 };
 const OFFICIAL_HOLD: Vec = { x: CEREMONY_PLACES.official - 0.13, y: 0.6 };
 
 /** Number of claps over the applause. */
@@ -88,8 +93,21 @@ export function clapGap(p: number, k = 0): number {
   return 0.16 * Math.abs(Math.sin(t * CLAPS * Math.PI + k * 0.7));
 }
 
+/** A clap seen at a distance: where two hands meet, and how bright the moment is (0..1). */
+export interface Clap {
+  at: Vec;
+  strength: number;
+}
+
 export interface CeremonyFrame {
   recipient: Actor;
+  /** The honoree facing the camera, from the turn on (stage coordinates; null before it). */
+  recipientFront: Joints | null;
+  /** 0 = in profile, 1 = facing the camera. */
+  turn: number;
+  /** 0..1: how much the honoree is walking. */
+  walking: number;
+  claps: Clap[];
   official: Actor;
   audience: Actor[];
   /** The certificate's grip (the middle of its lower edge), on the stage. */
@@ -129,6 +147,7 @@ export function ceremonyAt(p: number): CeremonyFrame {
 
   // The audience applauds once the certificate is handed over.
   const clapping = smooth(C.clapStart, C.clapStart + 0.03, p) * (1 - smooth(C.clapEnd - 0.03, C.clapEnd, p));
+  const claps: Clap[] = [];
   const audience = P.audience.map((x, k) => {
     const at: Place = { x, y: P.audienceY, facing: x < 0 ? 1 : -1, scale: P.audienceScale };
     // Hands raised in front of the face, so the applause reads at a distance.
@@ -136,6 +155,8 @@ export function ceremonyAt(p: number): CeremonyFrame {
     const gap = clapGap(p, k) * at.scale;
     let pose = armTo(STAND, at, 0, { x: chest.x - (at.facing * gap) / 2, y: chest.y }, clapping);
     pose = armTo(pose, at, 1, { x: chest.x + (at.facing * gap) / 2, y: chest.y }, clapping);
+    const meet = clapping * (1 - clamp01(clapGap(p, k) / 0.05));
+    if (meet > 0) claps.push({ at: chest, strength: meet });
     return { joints: solve(pose), at };
   });
 
@@ -143,11 +164,24 @@ export function ceremonyAt(p: number): CeremonyFrame {
   const official = { joints: solve(oPose), at: oAt };
   // The certificate is in the official's hand until the honoree's hand closes on it.
   const holder = p < (C.meet + C.take) / 2 ? official : recipient;
+  let certificate = hand(holder, 1);
+  // Then the honoree turns to the camera and holds it at the chest with both hands.
+  const turn = smooth(C.turnStart, C.turnEnd, p);
+  let recipientFront: Joints | null = null;
+  if (p >= C.turnStart) {
+    const x = rAt.x;
+    recipientFront = frontSolve(x, [{ x: x - CHEST_HOLD.w, y: CHEST_HOLD.y }, { x: x + CHEST_HOLD.w, y: CHEST_HOLD.y }]);
+    certificate = { x: lerp(certificate.x, x, turn), y: lerp(certificate.y, CHEST_HOLD.y, turn) };
+  }
   return {
     recipient,
+    recipientFront,
+    turn,
+    walking: s.amp,
+    claps,
     official,
     audience,
-    certificate: hand(holder, 1),
+    certificate,
     gather: smooth(C.gatherStart, C.gatherEnd, p),
     photo: smooth(C.photoStart, C.photoEnd, p),
     stage: ceremonyStageAt(p),
@@ -157,35 +191,54 @@ export function ceremonyAt(p: number): CeremonyFrame {
 // ---- Event 3: the judge ---------------------------------------------------------------------
 
 export const JUDGING = {
-  walk1End: 0.17,
-  look1End: 0.29,
-  walk2End: 0.43,
-  look2End: 0.53,
-  flash: 0.62,
-  gatherStart: 0.68,
-  gatherEnd: 0.86,
-  photoStart: 0.82,
-  photoEnd: 0.94,
+  walk1End: 0.15,
+  look1End: 0.25,
+  walk2End: 0.37,
+  /** At the second table the judge leans in over the robot, then straightens up. */
+  inspect: 0.42,
+  inspectEnd: 0.48,
+  /** A thumbs-up to the team. */
+  thumbs: 0.54,
+  look2End: 0.62,
+  flash: 0.6,
+  gatherStart: 0.66,
+  gatherEnd: 0.84,
+  photoStart: 0.8,
+  photoEnd: 0.93,
 } as const;
 
-export const JUDGING_STAGES = ['Meet the teams', 'A closer look', 'The moment', 'The photograph'] as const;
+export const JUDGING_STAGES = ['Meet the teams', 'Inspect the robot', 'Thumbs up', 'The photograph'] as const;
 
-/** Tables along the floor; a team member stands at each, typing, and the judge walks between them. */
+/**
+ * Tables along the floor, each with a small robot on it. A team member stands behind each table,
+ * facing the judge and working on the robot; the judge walks in from the left and stops at two.
+ */
 export const FLOOR = {
-  tables: [-1.05, 0.02, 1.09],
+  tables: [-1.0, 0.1, 1.2],
   tableTop: 0.45,
-  tableFrom: -0.1,
-  tableTo: 0.26,
-  typerX: -0.18,
-  typerScale: 0.86,
-  keys: -0.03,
-  start: -1.8,
-  look1: -0.5,
-  look2: 0.58,
+  tableFrom: -0.16,
+  tableTo: 0.16,
+  /** The robot's centre, from the table's x. */
+  robot: 0.02,
+  /** The team member stands just behind the far end of the table, facing left. */
+  builderX: 0.32,
+  builderScale: 0.86,
+  start: -2.1,
+  look1: -1.38,
+  look2: -0.27,
 } as const;
+
+/** Leaning in over the robot: bent at the hips, head down to look. */
+const INSPECT: Pose = { hipX: 0, spine: 0.62, head: 0.5, thigh: [0.18, 0.32], knee: [0.34, 0.3], upper: [-0.3, 0.6], elbow: [0.5, 0.4] };
+/** Upright, the front arm bent with the fist up: a thumbs-up. */
+const THUMBS: Pose = { ...STAND, head: -0.05, upper: [-0.06, 1.25], elbow: [0.18, 1.45] };
 
 export interface JudgingFrame {
   judge: Actor;
+  /** 0..1: how far the judge's thumb is up. */
+  thumb: number;
+  /** 0..1: how much the judge is walking. */
+  walking: number;
   team: Actor[];
   /** 0..1: the white-out of the camera flash. */
   flash: number;
@@ -197,8 +250,8 @@ export interface JudgingFrame {
 
 export function judgingStageAt(p: number): number {
   const J = JUDGING;
-  if (p < J.walk1End * 0.6) return 0;
-  if (p < J.flash - 0.02) return 1;
+  if (p < J.walk2End) return 0;
+  if (p < J.inspectEnd + 0.02) return 1;
   if (p < J.photoStart) return 2;
   return 3;
 }
@@ -211,23 +264,35 @@ export function judgingAt(p: number): JudgingFrame {
   const first = stroll(p, 0, J.walk1End, F.start, F.look1);
   const second = stroll(p, J.look1End, J.walk2End, F.look1, F.look2);
   const s = p < J.look1End ? first : { ...second, phi: first.phi + second.phi };
-  const look = p < J.look1End ? smooth(J.walk1End, J.walk1End + 0.03, p) * (1 - smooth(J.look1End - 0.02, J.look1End, p)) : smooth(J.walk2End, J.walk2End + 0.03, p);
-  const judge: Actor = { joints: solve({ ...mix(walk(s.phi, s.amp), NOTICE, look), hipX: 0 }), at: { x: s.x, y: 0, facing: 1, scale: 1 } };
+  const look = p < J.look1End ? smooth(J.walk1End, J.walk1End + 0.03, p) * (1 - smooth(J.look1End - 0.02, J.look1End, p)) : 0;
+  const at: Place = { x: s.x, y: 0, facing: 1, scale: 1 };
+  let pose: Pose = { ...mix(walk(s.phi, s.amp), NOTICE, look), hipX: 0 };
+  // At the second table: lean in over the robot, pointing at it, then straighten for the thumbs-up.
+  const lean = smooth(J.walk2End, J.inspect, p) * (1 - smooth(J.inspectEnd, J.inspectEnd + 0.04, p));
+  const thumb = smooth(J.inspectEnd + 0.02, J.thumbs, p);
+  if (p >= J.walk2End) {
+    pose = { ...mix(mix(walk(s.phi, 0), INSPECT, lean), THUMBS, thumb), hipX: 0 };
+    const robot = F.tables[1]! + F.robot;
+    pose = armTo(pose, at, 1, { x: robot - 0.05, y: F.tableTop + 0.08 }, lean);
+  }
+  const judge: Actor = { joints: solve(pose), at };
 
-  // Each team member types: the hands take turns on the keyboard.
+  // Each builder works on their robot: the hands take turns on it.
   const team = F.tables.map((tx, k) => {
-    const at: Place = { x: tx + F.typerX, y: 0, facing: 1, scale: F.typerScale };
+    const at: Place = { x: tx + F.builderX, y: 0, facing: -1, scale: F.builderScale };
     const beat = p * 90 + k * 1.3;
-    const key = (o: number, phase: number) => ({ x: tx + F.keys + o, y: F.tableTop + 0.012 + 0.018 * Math.max(0, Math.sin(beat + phase)) });
-    let pose: Pose = { ...STAND, spine: 0.12, head: 0.35 };
-    pose = armTo(pose, at, 0, key(-0.045, Math.PI));
-    pose = armTo(pose, at, 1, key(0, 0));
+    const work = (o: number, phase: number) => ({ x: tx + F.robot + 0.05 + o, y: F.tableTop + 0.07 + 0.02 * Math.max(0, Math.sin(beat + phase)) });
+    let pose: Pose = { ...STAND, spine: 0.14, head: 0.4 };
+    pose = armTo(pose, at, 0, work(0.03, Math.PI));
+    pose = armTo(pose, at, 1, work(0, 0));
     return { joints: solve(pose), at };
   });
 
   const flash = smooth(J.flash - 0.015, J.flash, p) * (1 - smooth(J.flash, J.flash + 0.05, p));
   return {
     judge,
+    thumb,
+    walking: s.amp,
     team,
     flash,
     gather: smooth(J.gatherStart, J.gatherEnd, p),

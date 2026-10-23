@@ -1,34 +1,34 @@
-/* Glass navigation: a floating, rounded bar of translucent Storm over a blurred page, with a
-   faint highlight on its top edge. Without backdrop-filter it falls back to near-solid Storm. */
+/* Glass navigation: a floating, rounded bar of translucent Void over a blurred page, with a
+   faint highlight on its top edge. Without backdrop-filter it falls back to near-solid Void. */
 .site-header {
-  --glass: color-mix(in srgb, var(--storm) 58%, transparent);
+  --glass: color-mix(in srgb, var(--void) 58%, transparent);
   position: sticky;
   top: var(--space-2);
   z-index: 10;
   width: min(100% - 2 * var(--space-2), calc(var(--content-max) + 2 * var(--gutter)));
   margin: var(--space-2) auto 0;
   border-radius: 16px;
-  background: linear-gradient(to bottom, rgb(240 236 221 / 0.07), rgb(240 236 221 / 0.02)), var(--glass);
+  background: linear-gradient(to bottom, rgb(244 238 228 / 0.07), rgb(244 238 228 / 0.02)), var(--glass);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid rgb(240 236 221 / 0.12);
-  box-shadow: inset 0 1px 0 rgb(240 236 221 / 0.1), 0 12px 32px -18px rgb(35 53 77 / 0.7);
+  border: 1px solid rgb(244 238 228 / 0.12);
+  box-shadow: inset 0 1px 0 rgb(244 238 228 / 0.1), 0 12px 32px -18px rgb(21 18 15 / 0.7);
 }
-/* Over a light section: Moonlight glass, Storm text. The colours glide over 0.6 s. */
+/* Over a light section: Ivory glass, Void text. The colours glide over 0.6 s. */
 .site-header { transition: background 0.6s ease, border-color 0.6s ease, color 0.6s ease; }
 .site-header[data-over='light'] {
-  --glass: color-mix(in srgb, var(--moonlight) 72%, transparent);
-  --color-text: var(--storm);
-  --color-text-secondary: var(--storm);
-  --color-control-edge: var(--steel);
-  --color-focus: var(--storm);
-  border-color: rgb(35 53 77 / 0.14);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), 0 12px 32px -20px rgb(35 53 77 / 0.5);
+  --glass: color-mix(in srgb, var(--ivory) 72%, transparent);
+  --color-text: var(--void);
+  --color-text-secondary: var(--void);
+  --color-control-edge: var(--sandstone);
+  --color-focus: var(--void);
+  border-color: rgb(21 18 15 / 0.14);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5), 0 12px 32px -20px rgb(21 18 15 / 0.5);
 }
-.site-header[data-over='light'] .site-header__nav ul::before { background: linear-gradient(to bottom, rgb(35 53 77 / 0.12), rgb(35 53 77 / 0.06)); box-shadow: none; }
+.site-header[data-over='light'] .site-header__nav ul::before { background: linear-gradient(to bottom, rgb(21 18 15 / 0.12), rgb(21 18 15 / 0.06)); box-shadow: none; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .site-header[data-over='light'] { --glass: color-mix(in srgb, var(--moonlight) 95%, transparent); }
-  .site-header { --glass: color-mix(in srgb, var(--storm) 94%, transparent); }
+  .site-header[data-over='light'] { --glass: color-mix(in srgb, var(--ivory) 95%, transparent); }
+  .site-header { --glass: color-mix(in srgb, var(--void) 94%, transparent); }
 }
 .site-header > .container { padding-inline: clamp(12px, 2vw, 24px); }
 
@@ -94,8 +94,8 @@
     width: var(--hw, 0px);
     transform: translateX(var(--hx, 0px));
     border-radius: 999px;
-    background: linear-gradient(to bottom, rgb(240 236 221 / 0.14), rgb(240 236 221 / 0.06));
-    box-shadow: inset 0 1px 0 rgb(240 236 221 / 0.18), 0 6px 18px -10px rgb(35 53 77 / 0.9);
+    background: linear-gradient(to bottom, rgb(244 238 228 / 0.14), rgb(244 238 228 / 0.06));
+    box-shadow: inset 0 1px 0 rgb(244 238 228 / 0.18), 0 6px 18px -10px rgb(21 18 15 / 0.9);
     opacity: 0;
     transition:
       transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
@@ -131,16 +131,16 @@
     position: absolute;
     inset: calc(var(--header-h) + var(--space-2)) 0 auto 0;
     border-radius: 16px;
-    background: color-mix(in srgb, var(--storm) 92%, transparent);
+    background: color-mix(in srgb, var(--void) 92%, transparent);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
-    border: 1px solid rgb(240 236 221 / 0.12);
+    border: 1px solid rgb(244 238 228 / 0.12);
     padding: var(--space-3) var(--gutter) var(--space-5);
     /* The panel is always dark glass, whatever the bar's tone. */
-    --color-text: var(--moonlight);
-    --color-text-secondary: var(--mist);
-    --color-rule: var(--steel);
-    --color-focus: var(--frost-light);
+    --color-text: var(--ivory);
+    --color-text-secondary: var(--titanium-light);
+    --color-rule: var(--sandstone);
+    --color-focus: var(--titanium-soft);
   }
   .site-header[data-open] .site-header__nav { display: block; }
   .site-header__nav ul { flex-direction: column; gap: 0; }

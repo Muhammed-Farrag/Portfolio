@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BONES, STAGE, TIMELINE, TROPHY, frameAt, stageAt } from '../../src/features/recognition/figure';
+import { BONES, PEDESTAL, STAGE, TIMELINE, TROPHY, frameAt, stageAt } from '../../src/features/recognition/figure';
 
 const progress = Array.from({ length: 201 }, (_, k) => k / 200);
 
@@ -21,25 +21,49 @@ describe('the Moment of Victory figure', () => {
     expect(xs.every((x, i) => i === 0 || x >= xs[i - 1]!)).toBe(true);
   });
 
-  it('the trophy waits on the ground until the hand reaches it, then travels with the hand', () => {
-    expect(frameAt(0.1).trophy).toEqual({ x: STAGE.trophyX, y: 0 });
+  it('the trophy waits on its pedestal until the hand reaches it, then travels with the hand', () => {
+    expect(frameAt(0.1).trophy.x).toBeCloseTo(STAGE.trophyX, 9);
+    expect(frameAt(0.1).trophy.y).toBeCloseTo(PEDESTAL.h, 9);
     const bent = frameAt(TIMELINE.bend + 0.01);
     const grip = { x: bent.trophy.x + TROPHY.grip.x, y: bent.trophy.y + TROPHY.grip.y };
     expect(Math.hypot(bent.joints.hand[1].x - grip.x, bent.joints.hand[1].y - grip.y), 'hand on the grip').toBeLessThan(0.01);
-    for (const p of [TIMELINE.grasp, TIMELINE.lift, TIMELINE.raise, 0.75]) {
+    for (const p of [TIMELINE.grasp, TIMELINE.lift]) {
       const f = frameAt(p);
       expect(f.trophy.x + TROPHY.grip.x).toBeCloseTo(f.joints.hand[1].x, 6);
       expect(f.trophy.y + TROPHY.grip.y).toBeCloseTo(f.joints.hand[1].y, 6);
     }
+    // Facing the camera, it is held in both hands: the grip sits between them.
+    for (const p of [TIMELINE.turnEnd, TIMELINE.raise, TIMELINE.chest, 0.75]) {
+      const f = frameAt(p);
+      const [l, r] = f.front!.hand;
+      expect(f.trophy.x + TROPHY.grip.x).toBeCloseTo((l.x + r.x) / 2, 6);
+      expect(f.trophy.y + TROPHY.grip.y).toBeCloseTo((l.y + r.y) / 2, 6);
+    }
   });
 
-  it('bends down to pick it up and raises it above the head', () => {
+  it('bends down to pick it up, turns to face the camera, raises it overhead and brings it to the chest', () => {
     const standing = frameAt(TIMELINE.walkEnd).joints;
     const bent = frameAt(TIMELINE.bend).joints;
-    const raised = frameAt(TIMELINE.raise).joints;
-    expect(bent.hip.y).toBeLessThan(standing.hip.y - 0.1);
-    expect(bent.head.y).toBeLessThan(standing.head.y - 0.3);
-    expect(raised.hand[1].y, 'trophy hand above the head').toBeGreaterThan(raised.head.y + 0.15);
+    expect(bent.hip.y, "knees soften").toBeLessThan(standing.hip.y);
+    expect(bent.head.y).toBeLessThan(standing.head.y - 0.2);
+    expect(frameAt(TIMELINE.turnStart - 0.001).turn).toBe(0);
+    expect(frameAt(TIMELINE.turnStart - 0.001).front).toBeNull();
+    expect(frameAt(TIMELINE.turnEnd).turn).toBe(1);
+    const raised = frameAt(TIMELINE.raise).front!;
+    for (const k of [0, 1] as const) expect(raised.hand[k].y, 'both hands above the head').toBeGreaterThan(raised.head.y + 0.1);
+    expect(raised.hand[0].x).toBeLessThan(raised.hand[1].x);
+    const chest = frameAt(TIMELINE.chest).front!;
+    expect(chest.hand[0].y).toBeLessThan(chest.shoulder.y);
+    expect(chest.hand[0].y).toBeGreaterThan(chest.hip.y);
+  });
+
+  it('facing the camera, it still stands on the ground, feet apart under the hips', () => {
+    for (const p of [TIMELINE.turnStart, TIMELINE.raise, 0.75]) {
+      const j = frameAt(p).front!;
+      expect(Math.min(j.ankle[0].y, j.ankle[1].y)).toBeCloseTo(BONES.ankle, 6);
+      expect(j.ankle[0].x).toBeLessThan(j.hip.x);
+      expect(j.ankle[1].x).toBeGreaterThan(j.hip.x);
+    }
   });
 
   it('holds the trophy up until the dots gather, then hands over to the photograph, in order', () => {

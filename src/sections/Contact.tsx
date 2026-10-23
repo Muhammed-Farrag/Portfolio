@@ -144,7 +144,7 @@ export function Contact() {
   return (
     <section id="contact" className="contact theme-elevated" aria-labelledby="contact-title" data-beat="Contact" data-beat-min="5000" data-beat-effect="rays">
       <div className="container contact__grid">
-        {/* The Hero's photograph again, in a Storm and Steel duotone, cut to his silhouette. */}
+        {/* The Hero's photograph again, in a Void and Sandstone duotone, cut to his silhouette. */}
         <div className="contact__portrait" style={{ '--photo': `url(${photoUrl})` } as CSSProperties} aria-hidden="true">
           <img src={photoUrl} alt="" width={738} height={738} loading="lazy" decoding="async" />
         </div>

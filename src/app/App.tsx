@@ -31,7 +31,7 @@ export function App() {
       <main id="main" tabIndex={-1}>
         <Hero />
         <Events s={byId('events')} />
-        <Section {...experience} beat="Work experience" effect="clouds" backdrop="clouds" lead={<p className="section__lead">{experience.summary}</p>}>
+        <Section {...experience} beat="Work experience" effect="clouds" backdrop="nebula" lead={<p className="section__lead">{experience.summary}</p>}>
           <Roles roles={work} />
         </Section>
         <Section {...growth} beat="Internships & education" effect="wipe" wide lead={<p className="section__lead">{growth.summary}</p>}>

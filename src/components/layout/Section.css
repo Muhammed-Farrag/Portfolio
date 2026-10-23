@@ -5,9 +5,9 @@
 .section[data-blend] {
   background-image: linear-gradient(to bottom, var(--blend-from), var(--color-bg) clamp(120px, 14vw, 220px));
 }
-.section[data-blend='deep'] { --blend-from: var(--storm); }
-.section[data-blend='mid'] { --blend-from: var(--dusk); }
-.section[data-blend='elevated'] { --blend-from: var(--storm); }
+.section[data-blend='deep'] { --blend-from: var(--void); }
+.section[data-blend='mid'] { --blend-from: var(--umber); }
+.section[data-blend='elevated'] { --blend-from: var(--void); }
 
 .section__header {
   grid-column: 1 / -1;

@@ -15,7 +15,7 @@ interface Props {
   beat?: string;
   effect?: Effect;
   /** A still background shape behind the section (src/styles/backdrops.css). */
-  backdrop?: 'clouds' | 'water' | 'rays';
+  backdrop?: 'nebula' | 'orbit' | 'galaxy';
   /** The body spans the full width under the header, for content laid out in its own columns. */
   wide?: boolean;
   children?: ReactNode;

@@ -4,6 +4,7 @@ import {
   CEREMONY_PLACES,
   CLAPS,
   HANDOFF,
+  FLOOR,
   JUDGING,
   ceremonyAt,
   ceremonyStageAt,
@@ -37,14 +38,26 @@ describe('Event 2: the certificate', () => {
     expect(dist(hand(meet.recipient, 1), HANDOFF), 'honoree').toBeLessThan(0.01);
   });
 
-  it('the certificate is always in a hand: the official’s, then the honoree’s', () => {
-    for (const p of progress) {
+  it('the certificate is always in a hand: the official’s, then the honoree’s, then both at the chest', () => {
+    for (const p of progress.filter((q) => q < CEREMONY.turnStart)) {
       const f = ceremonyAt(p);
       const holder = dist(f.certificate, hand(f.official, 1)) < 1e-9 || dist(f.certificate, hand(f.recipient, 1)) < 1e-9;
       expect(holder, `p=${p}`).toBe(true);
     }
     expect(dist(ceremonyAt(0.1).certificate, hand(ceremonyAt(0.1).official, 1))).toBeLessThan(1e-9);
-    expect(dist(ceremonyAt(0.7).certificate, hand(ceremonyAt(0.7).recipient, 1))).toBeLessThan(1e-9);
+    expect(dist(ceremonyAt(0.5).certificate, hand(ceremonyAt(0.5).recipient, 1))).toBeLessThan(1e-9);
+    for (const p of progress.filter((q) => q >= CEREMONY.turnEnd)) {
+      const f = ceremonyAt(p);
+      const [l, r] = f.recipientFront!.hand;
+      expect(f.turn).toBe(1);
+      expect(dist(f.certificate, { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2 }), `p=${p}`).toBeLessThan(0.01);
+    }
+  });
+
+  it('the applause shows a clap whenever an audience member’s hands meet', () => {
+    const span = CEREMONY.clapEnd - CEREMONY.clapStart;
+    expect(ceremonyAt(CEREMONY.clapStart + (span * 3) / CLAPS).claps.length).toBeGreaterThan(0);
+    expect(ceremonyAt(0.1).claps).toEqual([]);
   });
 
   it('the audience claps: their hands meet on every beat, and part between', () => {
@@ -80,6 +93,18 @@ describe('Event 3: the judge', () => {
     const still = (a: number, b: number) => expect(judgingAt(a).judge.at.x).toBeCloseTo(judgingAt(b).judge.at.x, 6);
     still(JUDGING.walk1End, JUDGING.look1End);
     still(JUDGING.walk2End, JUDGING.look2End);
+  });
+
+  it('leans in over the robot at the second table, then gives a thumbs-up', () => {
+    const standing = judgingAt(JUDGING.walk2End).judge;
+    const leaning = judgingAt(JUDGING.inspect + 0.02).judge;
+    expect(toStage(leaning.joints.head, leaning.at).y).toBeLessThan(toStage(standing.joints.head, standing.at).y - 0.1);
+    const robot = { x: FLOOR.tables[1]! + FLOOR.robot, y: FLOOR.tableTop + 0.06 };
+    expect(dist(hand(leaning, 1), robot), 'pointing at the robot').toBeLessThan(0.08);
+    const up = judgingAt(JUDGING.thumbs);
+    expect(up.thumb).toBe(1);
+    expect(up.judge.joints.hand[1].y, 'fist above the elbow').toBeGreaterThan(up.judge.joints.elbow[1].y);
+    expect(judgingAt(JUDGING.walk2End).thumb).toBe(0);
   });
 
   it('flashes once, then gathers into the clipping, then hands over to it', () => {

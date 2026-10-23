@@ -64,7 +64,7 @@ function Case({ study, index, visual, flip = false }: { study: CaseStudy; index:
 /** Projects: three case studies, each with its own interactive visual. */
 export function Projects({ s }: { s: SectionDef }) {
   return (
-    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="water" aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="orbit" aria-labelledby={`${s.id}-title`}>
       <div className="container">
         <header className="work__header">
           <p className="eyebrow">{s.eyebrow}</p>

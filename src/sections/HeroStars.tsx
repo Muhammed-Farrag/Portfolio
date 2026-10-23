@@ -14,7 +14,7 @@ const REACH = 150;
 const LINK = 90;
 
 /**
- * The Hero's night sky: a field of twinkling stars on Storm. Moving the pointer over the hero
+ * The Hero's night sky: a field of twinkling stars on Void. Moving the pointer over the hero
  * wakes the nearby stars, which brighten, grow and join with faint lines. The loop runs only while
  * the hero is on screen, and draws one still frame when motion is paused.
  */
@@ -54,7 +54,7 @@ export function HeroStars() {
       // into the next scene). A pure function of the scroll position.
       const warp = paused ? 0 : Math.min(1, Math.max(0, window.scrollY / (h * 0.7)));
       if (warp > 0.01) {
-        ctx.strokeStyle = '#f0ecdd';
+        ctx.strokeStyle = '#f4eee4';
         ctx.lineCap = 'round';
         for (const s of stars) {
           const k = warp * warp * 0.9 * (0.5 + s.speed / 3);
@@ -74,7 +74,7 @@ export function HeroStars() {
         const wake = d < REACH ? (1 - d / REACH) * pointer.energy : 0;
         if (wake > 0.25) lit.push([s.x, s.y, wake]);
         ctx.globalAlpha = Math.min(1, 0.25 + twinkle * 0.55 + wake * 0.6);
-        ctx.fillStyle = wake > 0.2 ? '#f0ecdd' : '#b3c4dc';
+        ctx.fillStyle = wake > 0.2 ? '#f4eee4' : '#d2bba6';
         const r = s.r * (1 + wake * 1.4);
         ctx.beginPath();
         ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
@@ -87,7 +87,7 @@ export function HeroStars() {
         }
       }
       // Constellation lines between the woken stars.
-      ctx.strokeStyle = '#b3c4dc';
+      ctx.strokeStyle = '#d2bba6';
       ctx.lineWidth = 0.7;
       for (let i = 0; i < lit.length; i++) {
         for (let j = i + 1; j < lit.length; j++) {

@@ -13,15 +13,16 @@ a glass navbar.
 | Section | What it shows |
 |---|---|
 | **Hero** | The particle portrait over a field of stars that link up near the pointer. Hovering, tapping or focusing the portrait reveals the photograph. |
-| **Important Events** | Three scroll-driven scenes drawn as halftone dots, whose dots gather into the real photograph as it lands as a polaroid print: the Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). Still sun rays behind the finale. |
-| **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), over still clouds. |
+| **Important Events** | Three scroll-driven scenes drawn as halftone dots, whose dots gather into the real photograph as it lands as a polaroid print: the Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). A still galaxy behind the finale. |
+| **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), over a still nebula. |
 | **Internships & Education** | Two columns: STC and ITI; GCI World 2026 (University of Tokyo), DEPI and the B.Sc. in AI Science. |
-| **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link, over still water. |
+| **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link, over a still starfield and a planet's rim. |
 | **Certificates** | 28 certificates in two drifting rows; each opens in full. |
 | **Contact** | Email, LinkedIn, GitHub and a message form. |
 
-Palette: Storm `#23354D`, Dusk `#30425E`, Steel `#495B7D` and Moonlight `#F0ECDD`, with Mist,
-Frost and Dawn tones (`src/styles/tokens.css`). Every text and background pair is checked
+Palette: a Desert Titanium night sky. Void `#15120F`, Umber `#221D18`, Sandstone `#3A3129`,
+Desert Titanium `#BFA48F` and Ivory `#F4EEE4`, with Titanium Light, Dune and Bronze tones and two
+nebula tints used only in the still space backdrops (`src/styles/tokens.css`). Every text and background pair is checked
 against WCAG contrast by a unit test.
 
 ## Getting started

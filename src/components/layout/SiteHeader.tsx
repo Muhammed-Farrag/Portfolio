@@ -28,8 +28,8 @@ export function SiteHeader() {
     };
   }, [open, close]);
 
-  // The glass takes the tone of the section underneath: light glass with Storm text over a light
-  // section, so the links stay readable (a dark tint over Moonlight would turn grey).
+  // The glass takes the tone of the section underneath: light glass with Void text over a light
+  // section, so the links stay readable (a dark tint over Ivory would turn grey).
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const header = headerRef.current!;

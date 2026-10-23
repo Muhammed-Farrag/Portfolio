@@ -1,6 +1,6 @@
 # Design Specification
 
-**Revision 3 (14 Oct 2026), pending the owner's approval.** It replaces the Dark Botanical palette (Revision 2) with the owner's Moonlight & Oxford palette and updates the colour roles of every scene and the Particle Portrait tone to match. The architecture, scene structure, typography, React Bits plan, recognition asset system, factual-content safeguards and the Particle Portrait engine are unchanged from Revision 2 (approved 14 Oct 2026).
+**Revision 5 (21 Oct 2026), owner-specified.** The owner replaced Moonlight & Storm with a **Desert Titanium night sky**: warm-black space grounds, Desert Titanium as the metal accent and Ivory text, with still space backdrops (a nebula, a starfield over a planet's rim, a galaxy) in place of clouds, water and sun rays. §2 is current. Older sections (§3, §5) still name the previous colours; read them through the mapping in §2.6. The architecture, typography and scene structure are unchanged.
 
 **Internal codename:** THE ARCHITECT. The codename never appears in public copy, metadata, URLs or alt text. The public title is **Applied AI Engineer** unless the owner verifies a different one.
 
@@ -11,7 +11,7 @@
 - All content is HTML text. WebGL, motion and interactions are progressive enhancements.
 - Motion communicates data becoming form, flow through a system, or order in time. Nothing else moves.
 - Native scroll. No cursor followers outside a scoped project demo, no autoplay audio, and the camera is never used.
-- **Only the five owner-specified colours and their blends.** No botanical greens, plums or roses, and no gold, amber, yellow, crimson or cyan anywhere in the public site. A unit test rejects any saturated colour in `tokens.css` outside the cool-blue hue band (205–235°).
+- **Only the owner-specified palette and its blends.** Warm neutrals and the titanium-copper family for everything; one dust violet and one copper tint, in still backdrops only. A unit test rejects any saturated colour in `tokens.css` outside the titanium-copper band (12–40°) or the dust-violet band (255–280°), and any nebula tint used as a text, link, focus or control colour.
 
 ## 2. Color
 
@@ -19,75 +19,55 @@
 
 | Name | Hex | Role |
 |---|---|---|
-| Oxford Blue | `#02122F` | Primary deep background; the portrait's clear colour; text on light fills |
-| Storm | `#23354D` | Secondary dark surface: cards, case panels, recognition chapters |
-| Steel | `#495B7D` | Hairlines, hover and selected fills (with Moonlight text), the portrait's shadow tone |
-| Frost Blue | `#8BA3C5` | Tertiary text and mono labels, control outlines, markers, technical accents, the portrait's cool highlight, the primary button's hover fill |
-| Moonlight | `#F0ECDD` | Primary text and contrast colour; the primary button fill; the portrait's highlights |
+| Void | `#15120F` | Deep space: the Deep ground, the portrait's clear colour, text on light grounds |
+| Sandstone | `#3A3129` | The Elevated ground, hairlines on dark, secondary text on light |
+| Desert Titanium | `#BFA48F` | The metal accent: labels, outlines, the primary button's hover fill, props in the event scenes, the portrait's highlight |
+| Ivory | `#F4EEE4` | Primary text; the primary button fill; the portrait's highlights; the main figures in the event scenes |
 
 ### 2.2 Derived supporting tones
 
-Each is a blend of two brand colours, so it introduces no new hue.
-
 | Token | Hex | Derived from | Use |
 |---|---|---|---|
-| Mist | `#C9D3E2` | Frost Blue toward Moonlight | Secondary text (summaries, navigation) |
-| Frost Light | `#B3C4DC` | Frost Blue, lightened | Link text, focus ring, live diagram path, recognition thread |
-| Midnight | `#11223D` | Between Oxford Blue and Storm | Alternate section surface (Under the hood), footer, placeholders |
+| Titanium Light | `#E8DCCB` | Titanium toward Ivory | The Light ground; secondary text on dark |
+| Titanium Soft | `#D2BBA6` | Titanium, lightened | Tertiary text, links and focus on dark |
+| Umber | `#221D18` | Void with Sandstone | The Mid ground; panels |
+| Dune | `#DCCDB9` | Titanium Light with Titanium | Panels on light sections |
+| Bronze | `#6B5747` | Titanium, darkened | Outlines and accents on light; the portrait's shadow tone |
+| Copper nebula | `#8C5E4A` | — | Backdrops only |
+| Dust violet | `#4A3A5C` | — | Backdrops only |
 
 ### 2.3 Contrast (WCAG 2.2, computed)
 
-| Foreground | on Oxford | on Storm | on Midnight | on Steel | Allowed as |
-|---|---|---|---|---|---|
-| Moonlight `#F0ECDD` | 15.70 | 10.51 | 13.44 | 5.77 | All text, including on Steel fills |
-| Mist `#C9D3E2` | 12.30 | 8.23 | 10.53 | 4.52 | All text on dark surfaces |
-| Frost Light `#B3C4DC` | 10.48 | 7.02 | 8.97 | 3.85 | Links, focus ring (3:1 on every surface, including Steel) |
-| Frost Blue `#8BA3C5` | 7.21 | 4.82 | 6.17 | 2.65 | Small mono labels and captions on dark surfaces, control outlines; **never on Steel** |
-| Steel `#495B7D` | 2.72 | 1.82 | 2.33 | — | Hairlines and fills only, **never text** |
-| Storm, Midnight | ≤ 1.49 | — | — | — | Surfaces only |
+| Foreground | on Void | on Umber | on Sandstone | Allowed as |
+|---|---|---|---|---|
+| Ivory | 16.17 | 14.48 | 11.02 | All text |
+| Titanium Light | 13.80 | 12.36 | 9.41 | All text on dark |
+| Titanium Soft | 10.13 | 9.07 | 6.90 | Links, focus ring, labels |
+| Desert Titanium | 7.93 | 7.10 | 5.40 | Labels, outlines, accents |
+| Bronze | 2.74 | 2.45 | 1.86 | Never text on dark |
 
-Light fills: Oxford Blue text on Moonlight is 15.70:1 and on Frost Blue is 7.21:1 (the primary button at rest and hovered).
+On the Light ground (Titanium Light / Dune panels): Void 13.80 / 11.98, Sandstone 9.41 / 8.16, Bronze 5.04 / 4.38 (outlines only).
 
 ### 2.4 Semantic tokens
 
-```css
---color-bg: #02122F;              --color-surface: #23354D;        --color-surface-alt: #11223D;
---color-text: #F0ECDD;            --color-text-secondary: #C9D3E2; --color-text-tertiary: #8BA3C5;
---color-link: #B3C4DC;            --color-focus: #B3C4DC;          --color-rule: #495B7D;
---color-control-edge: #8BA3C5;    --color-accent-support: #8BA3C5;
---color-interactive-fill: #495B7D;
---color-focal: #F0ECDD;           --color-focal-hover: #8BA3C5;    --color-on-focal: #02122F;
-```
+The roles are unchanged (`--color-bg`, `--color-surface`, `--color-text`, `--color-link`, `--color-focal` and the rest); `tokens.css` maps them to the palette above. A unit test parses it and fails if any allowed text/background pair drops below its WCAG threshold, if a brand value changes, or if the portrait's colours drift from the tokens.
 
-A unit test parses `tokens.css` and fails if any text/background pair in the allowed list drops below its WCAG threshold, if a brand value changes, or if the portrait's colours drift from the tokens.
+### 2.5 Section themes
 
-### 2.5 Section themes (approved 14 Oct 2026)
+| Theme | Ground | Panels | Text / secondary / labels | Links and focus | Primary button |
+|---|---|---|---|---|---|
+| `.theme-deep` | Void | Umber | Ivory / Titanium Light / Titanium Soft | Titanium Soft | Ivory, Void text; Desert Titanium on hover |
+| `.theme-mid` | Umber | Void | Ivory / Titanium Light / Titanium Soft | Titanium Soft | Ivory, Void text |
+| `.theme-elevated` | Sandstone | Void, Umber | Ivory / Titanium Light / Titanium Light | Ivory | Ivory, Void text |
+| `.theme-light` | Titanium Light | Dune | Void / Sandstone / Sandstone | Void | Void, Ivory text; Sandstone on hover |
 
-Four classes in `tokens.css` redefine every semantic role, so components never pick colours themselves. The header and footer are always Deep.
+**Backdrops** (`src/styles/backdrops.css`, still SVGs that never move): `nebula` behind Work (dust-violet clouds lit with copper, a distant wisp), `orbit` behind Projects (a starfield tile over a planet's titanium-lit rim), `galaxy` behind the end of the Events (a titanium core and dotted spiral arms, where the prints land).
 
-| Theme | Ground | Panels | Text / secondary / labels | Links and focus | Outlines | Primary button |
-|---|---|---|---|---|---|---|
-| `.theme-deep` | Oxford Blue | Storm, Midnight | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
-| `.theme-mid` | Midnight | Storm, Oxford Blue | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
-| `.theme-elevated` | Storm | Oxford Blue, Midnight | Moonlight / Mist / Frost Blue | Frost Light | Frost Blue | Moonlight, Oxford Blue text |
-| `.theme-light` | Moonlight | Dawn `#E2E2DA` (Moonlight + 14% Frost Blue) | Oxford Blue (15.70) / Storm (10.51) / Steel (5.77; 5.24 on Dawn) | Storm | Steel | Oxford Blue, Moonlight text; Storm on hover |
+### 2.6 Reading older sections
 
-On light sections Frost Blue is decorative only (2.18:1), and hover fills are Mist with Oxford Blue text (12.30:1).
+Sections written for earlier revisions map as: Oxford Blue / Storm → Void, Midnight / Dusk → Umber, Steel → Sandstone, Frost Blue → Desert Titanium, Frost Light → Titanium Soft, Mist → Titanium Light, Moonlight → Ivory, Dawn → Dune.
 
-| Section | Theme | Edge with the section above |
-|---|---|---|
-| 01 Hero | Deep | — |
-| 02 Approach | Mid | Gradient from Oxford Blue |
-| 03 Work | Light | Clean edge |
-| 04 Under the hood | Elevated | Clean edge |
-| 05 Recognition | Deep | Gradient from Storm |
-| 06 Journey | Light | Clean edge |
-| 07 Contact | Elevated | Clean edge |
-| Footer | Deep | Steel hairline |
-
-Particles only ever appear on dark themes; light sections are for reading.
-
-### 2.6 Pause motion
+### 2.7 Pause motion
 
 The Hero's ambient particle motion runs indefinitely, so WCAG 2.2.2 requires a way to stop it. A "Pause motion" button on the portrait (bottom right on desktop; a 44 px icon button top right on small screens) toggles a site-wide preference. It starts from `prefers-reduced-motion`, is remembered once chosen, and every particle scene obeys it: paused means a still frame, no entrance and no scroll-driven effect.
 

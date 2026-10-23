@@ -62,7 +62,7 @@
   opacity: clamp(0, calc(1 - var(--gather, 0) * 3), 1);
 }
 
-/* The print: a Moonlight polaroid with the caption in its bottom strip. It settles from a slight
+/* The print: a Ivory polaroid with the caption in its bottom strip. It settles from a slight
    tilt as it lands, and the picture develops from dark monochrome to full colour. */
 .recog__photo {
   position: absolute;
@@ -74,7 +74,7 @@
   width: max-content;
   margin: 0;
   padding: var(--edge) var(--edge) var(--strip);
-  background: var(--moonlight);
+  background: var(--ivory);
   border-radius: 3px;
   box-shadow:
     0 1px 2px rgb(0 0 0 / 0.25),
@@ -99,7 +99,7 @@
   height: var(--strip);
   display: grid;
   place-items: center;
-  color: var(--storm);
+  color: var(--void);
   font-size: 12px;
   letter-spacing: 0.04em;
   text-align: center;

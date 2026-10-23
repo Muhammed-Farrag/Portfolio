@@ -1,5 +1,5 @@
-/* Still background shapes behind a section (data-backdrop on the section): clouds behind Work,
-   rain and water behind Projects, sun rays at the end of the Events. They never move. */
+/* Still space behind a section (data-backdrop on the section): a nebula behind Work, stars over a
+   planet's rim behind Projects, a galaxy at the end of the Events. They never move. */
 [data-backdrop] { position: relative; isolation: isolate; }
 [data-backdrop]::before {
   content: '';
@@ -9,19 +9,19 @@
   pointer-events: none;
   background-repeat: no-repeat;
 }
-[data-backdrop='clouds']::before {
-  background-image: url('../assets/backdrops/cloud-puff.svg'), url('../assets/backdrops/cloud-puff.svg'), url('../assets/backdrops/clouds.svg');
+[data-backdrop='nebula']::before {
+  background-image: url('../assets/backdrops/nebula-wisp.svg'), url('../assets/backdrops/nebula-wisp.svg'), url('../assets/backdrops/nebula.svg');
   background-position: right 6% top 14%, left 4% top 46%, center bottom;
   background-size: clamp(160px, 22vw, 320px) auto, clamp(120px, 14vw, 220px) auto, max(100%, 960px) auto;
 }
-[data-backdrop='water']::before {
-  background-image: url('../assets/backdrops/water.svg'), url('../assets/backdrops/rain.svg');
+[data-backdrop='orbit']::before {
+  background-image: url('../assets/backdrops/horizon.svg'), url('../assets/backdrops/starfield.svg');
   background-position: center bottom, 0 0;
   background-size: max(100%, 960px) auto, 240px 240px;
   background-repeat: no-repeat, repeat;
 }
-[data-backdrop='rays']::before {
-  background-image: url('../assets/backdrops/rays.svg');
+[data-backdrop='galaxy']::before {
+  background-image: url('../assets/backdrops/galaxy.svg');
   background-position: center bottom;
   background-size: max(100%, 1100px) auto;
 }

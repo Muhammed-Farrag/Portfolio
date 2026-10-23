@@ -1,6 +1,6 @@
 /* Projects (Deep, over still water). Each case pairs its facts with its own interactive visual:
    a gesture console, an attribution map and a solar system. The panels use
-   the theme's surface tokens, so they step forward from the Storm ground. */
+   the theme's surface tokens, so they step forward from the Void ground. */
 .work__header {
   display: grid;
   gap: var(--space-3);
@@ -99,7 +99,7 @@
 .helios {
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -30px rgb(35 53 77 / 0.55), 0 0 0 1px rgb(35 53 77 / 0.06);
+  box-shadow: 0 30px 60px -30px rgb(21 18 15 / 0.55), 0 0 0 1px rgb(21 18 15 / 0.06);
 }
 
 /* HELIOS: gesture console */
@@ -110,8 +110,8 @@
   overflow: hidden;
   cursor: crosshair;
   background:
-    radial-gradient(120% 90% at 50% 110%, var(--storm), transparent 60%),
-    linear-gradient(var(--storm), var(--dusk));
+    radial-gradient(120% 90% at 50% 110%, var(--void), transparent 60%),
+    linear-gradient(var(--void), var(--umber));
   user-select: none;
 }
 .helios__view::before {
@@ -120,8 +120,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, rgb(139 163 197 / 0.09) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(139 163 197 / 0.09) 1px, transparent 1px);
+    linear-gradient(to right, rgb(191 164 143 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(191 164 143 / 0.09) 1px, transparent 1px);
   background-size: 8% 12.8%;
 }
 .helios__horizon {
@@ -130,16 +130,16 @@
   right: 0;
   top: 72%;
   height: 1px;
-  background: linear-gradient(to right, transparent, var(--steel), transparent);
+  background: linear-gradient(to right, transparent, var(--sandstone), transparent);
 }
 .helios__view[data-flash='hit']::after,
 .helios__view[data-flash='miss']::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at var(--fx, 50%) var(--fy, 50%), rgb(240 236 221 / 0.22), transparent 55%);
+  background: radial-gradient(circle at var(--fx, 50%) var(--fy, 50%), rgb(244 238 228 / 0.22), transparent 55%);
 }
-.helios__view[data-flash='miss']::after { background: rgb(139 163 197 / 0.08); }
+.helios__view[data-flash='miss']::after { background: rgb(191 164 143 / 0.08); }
 
 .helios__sun {
   position: absolute;
@@ -148,7 +148,7 @@
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--moonlight) 0 18%, rgb(240 236 221 / 0.35) 19% 30%, transparent 31%);
+  background: radial-gradient(circle, var(--ivory) 0 18%, rgb(244 238 228 / 0.35) 19% 30%, transparent 31%);
 }
 .helios__sun i {
   /* A ring of particles: the portrait's language */
@@ -157,11 +157,11 @@
   top: 50%;
   width: 3px;
   height: 3px;
-  background: var(--frost-light);
+  background: var(--titanium-soft);
   margin: -1.5px 0 0 -1.5px;
   transform: rotate(calc(var(--k) * 15deg)) translateY(calc(var(--size) * -0.46));
 }
-.helios__sun i:nth-child(odd) { background: var(--moonlight); }
+.helios__sun i:nth-child(odd) { background: var(--ivory); }
 :root[data-motion='playing'] .helios__sun { transition: left 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), top 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); animation: sun-spin 14s linear infinite; }
 @keyframes sun-spin { to { rotate: 360deg; } }
 
@@ -170,7 +170,7 @@
   width: 46px;
   aspect-ratio: 1;
   translate: -50% -50%;
-  border: 1px solid var(--moonlight);
+  border: 1px solid var(--ivory);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -178,11 +178,11 @@
 .helios__reticle::after {
   content: '';
   position: absolute;
-  background: var(--moonlight);
+  background: var(--ivory);
 }
 .helios__reticle::before { left: 50%; top: -10px; bottom: -10px; width: 1px; }
 .helios__reticle::after { top: 50%; left: -10px; right: -10px; height: 1px; }
-.helios__reticle[data-locked] { border-color: var(--frost-light); box-shadow: 0 0 0 6px rgb(179 196 220 / 0.12); }
+.helios__reticle[data-locked] { border-color: var(--titanium-soft); box-shadow: 0 0 0 6px rgb(210 187 166 / 0.12); }
 @media (hover: none) { .helios__view { cursor: default; } }
 
 .helios__hud {
@@ -194,7 +194,7 @@
   justify-content: space-between;
   color: var(--color-text-tertiary);
 }
-.helios__hud [data-hot] { color: var(--moonlight); }
+.helios__hud [data-hot] { color: var(--ivory); }
 
 .helios__gauge {
   position: relative;
@@ -205,14 +205,14 @@
   border-top: 1px solid var(--color-rule);
 }
 .helios__gauge i { height: 6px; background: var(--color-surface); }
-.helios__gauge i[data-full] { background: var(--frost-light); }
+.helios__gauge i[data-full] { background: var(--titanium-soft); }
 .helios__reload {
   position: absolute;
   left: var(--space-4);
   right: var(--space-4);
   bottom: 4px;
   height: 2px;
-  background: var(--moonlight);
+  background: var(--ivory);
   transform-origin: left;
   transform: scaleX(0);
 }
@@ -270,8 +270,8 @@
 }
 .nova__map { position: relative; aspect-ratio: 5 / 4; }
 .nova__wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.nova__wires line { stroke: var(--steel); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 4; }
-.nova__wires line[data-mine] { stroke: var(--storm); stroke-dasharray: none; stroke-width: 1.5; }
+.nova__wires line { stroke: var(--sandstone); stroke-width: 1; vector-effect: non-scaling-stroke; stroke-dasharray: 3 4; }
+.nova__wires line[data-mine] { stroke: var(--void); stroke-dasharray: none; stroke-width: 1.5; }
 .nova__wires line[data-active] { stroke-width: 2.5; }
 
 .nova__hub {
@@ -284,20 +284,20 @@
   width: clamp(92px, 22%, 132px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--storm);
-  color: var(--moonlight);
+  background: var(--void);
+  color: var(--ivory);
   text-align: center;
-  box-shadow: 0 0 0 8px rgb(35 53 77 / 0.08), 0 0 0 16px rgb(35 53 77 / 0.04);
+  box-shadow: 0 0 0 8px rgb(21 18 15 / 0.08), 0 0 0 16px rgb(21 18 15 / 0.04);
 }
-.nova__hub .mono { color: var(--moonlight); }
-.nova__rover { font: 400 var(--text-xs) / 1 var(--font-mono); color: var(--frost-light); margin-top: -1.6em; }
+.nova__hub .mono { color: var(--ivory); }
+.nova__rover { font: 400 var(--text-xs) / 1 var(--font-mono); color: var(--titanium-soft); margin-top: -1.6em; }
 
 .nova__modules { list-style: none; margin: 0; padding: 0; }
 .nova__modules li { position: absolute; translate: -50% -50%; }
 .nova__module {
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid var(--steel);
+  border: 1px solid var(--sandstone);
   border-radius: 999px;
   background: var(--color-bg);
   color: var(--color-text);
@@ -306,7 +306,7 @@
   cursor: pointer;
   transition: background 0.3s, color 0.3s, transform 0.3s;
 }
-.nova__module[data-mine] { background: var(--storm); border-color: var(--storm); color: var(--moonlight); }
+.nova__module[data-mine] { background: var(--void); border-color: var(--void); color: var(--ivory); }
 .nova__module[aria-pressed='true'] { transform: scale(1.06); box-shadow: 0 0 0 3px var(--color-bg), 0 0 0 5px var(--color-text-secondary); }
 /* The team's modules step back with colour, not opacity, so their labels keep AA contrast. */
 .nova[data-mine-only] .nova__module:not([data-mine]):not([aria-pressed='true']) {
@@ -335,14 +335,14 @@
   border-radius: 10px;
 }
 .lumina__stage { width: 100%; height: auto; display: block; touch-action: pan-y; cursor: ns-resize; }
-.lumina__orbit { fill: none; stroke: var(--steel); stroke-width: 1; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
-.lumina__sun { fill: var(--moonlight); }
-.lumina__planet[data-tone='mist'] { fill: var(--mist); }
-.lumina__planet[data-tone='moonlight'] { fill: var(--moonlight); }
-.lumina__planet[data-tone='frost'] { fill: var(--frost-light); }
-.lumina__planet[data-tone='steel'] { fill: var(--steel); stroke: var(--frost-light); stroke-width: 1.5; }
+.lumina__orbit { fill: none; stroke: var(--sandstone); stroke-width: 1; stroke-dasharray: 2 5; vector-effect: non-scaling-stroke; }
+.lumina__sun { fill: var(--ivory); }
+.lumina__planet[data-tone='mist'] { fill: var(--titanium-light); }
+.lumina__planet[data-tone='moonlight'] { fill: var(--ivory); }
+.lumina__planet[data-tone='frost'] { fill: var(--titanium-soft); }
+.lumina__planet[data-tone='steel'] { fill: var(--sandstone); stroke: var(--titanium-soft); stroke-width: 1.5; }
 .lumina__footer { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
 .lumina__control { display: inline-flex; align-items: center; gap: var(--space-3); min-height: 44px; }
 .lumina__control .mono { color: var(--color-text-tertiary); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; }
-.lumina__control input { width: 160px; accent-color: var(--moonlight); }
+.lumina__control input { width: 160px; accent-color: var(--ivory); }
 .lumina__note { flex: 1 1 220px; color: var(--color-text-secondary); font-size: var(--text-sm); }

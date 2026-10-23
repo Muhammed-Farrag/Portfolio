@@ -8,7 +8,7 @@
 // figures), blue = props. They are painted with additive blending, so they never overwrite each
 // other, and a cell takes the tone of its strongest channel, foreground first.
 
-import { BONES, mulberry32, type Joints, type Vec } from './figure';
+import { BONES, hips, mulberry32, shoulders, type Joints, type Vec } from './figure';
 
 export const TONE = { back: 0, front: 1, prop: 2 } as const;
 export type Tone = (typeof TONE)[keyof typeof TONE];
@@ -133,7 +133,7 @@ const along = (from: Vec, to: Vec, d: number): Vec => {
  * and hands. Back limbs go in `back`, the rest in `front`; a background figure passes the same
  * ink for both.
  */
-export function paintPerson(pen: Pen, j: Joints, front: string, back: string) {
+export function paintPerson(pen: Pen, j: Joints, front: string, back: string, thumb = 0) {
   const { ctx } = pen;
   const leg = (k: 0 | 1) => {
     capsule(pen, j.hip, j.knee[k], 0.06, 0.044);
@@ -180,6 +180,41 @@ export function paintPerson(pen: Pen, j: Joints, front: string, back: string) {
   const nose = { x: j.head.x + fx * BONES.headR * 0.98, y: j.head.y + fy * BONES.headR * 0.98 - uy * 0.008 };
   capsule(pen, j.head, nose, 0.012, 0.009);
   arm(1);
+  // A thumb standing up from the front fist.
+  if (thumb > 0) capsule(pen, { x: j.hand[1].x, y: j.hand[1].y + 0.012 }, { x: j.hand[1].x - 0.004, y: j.hand[1].y + 0.012 + 0.055 * thumb }, 0.015, 0.012);
+}
+
+/**
+ * One person facing the camera (see frontSolve): legs a little apart, a torso broad at the
+ * shoulders, the neck, an oval head, and both arms with their hands.
+ */
+export function paintPersonFront(pen: Pen, j: Joints, ink: string) {
+  const { ctx } = pen;
+  ctx.fillStyle = ink;
+  const hp = hips(j);
+  const sh = shoulders(j);
+  for (const k of [0, 1] as const) {
+    capsule(pen, hp[k], j.knee[k], 0.058, 0.044);
+    capsule(pen, j.knee[k], j.ankle[k], 0.043, 0.03);
+    capsule(pen, j.ankle[k], j.toe[k], 0.03, 0.024);
+  }
+  // Pelvis, a torso widening to the chest, and the line of the shoulders.
+  capsule(pen, hp[0], hp[1], 0.066, 0.066);
+  const chest = lerpV(j.hip, j.shoulder, 0.6);
+  capsule(pen, j.hip, chest, 0.085, 0.105);
+  capsule(pen, chest, j.shoulder, 0.105, 0.09);
+  capsule(pen, sh[0], sh[1], 0.05, 0.05);
+  capsule(pen, j.shoulder, j.neck, 0.036, 0.034);
+  const H = pen.map(j.head);
+  ctx.beginPath();
+  ctx.ellipse(H.x, H.y, BONES.headR * 0.92 * pen.s, BONES.headR * 1.14 * pen.s, 0, 0, Math.PI * 2);
+  ctx.fill();
+  for (const k of [0, 1] as const) {
+    capsule(pen, sh[k], j.elbow[k], 0.04, 0.031);
+    capsule(pen, j.elbow[k], j.hand[k], 0.03, 0.024);
+    const fist = along(j.elbow[k], j.hand[k], Math.hypot(j.hand[k].x - j.elbow[k].x, j.hand[k].y - j.elbow[k].y) + 0.012);
+    capsule(pen, j.hand[k], fist, 0.026, 0.022);
+  }
 }
 
 /** The trophy, origin at the centre of its base: a cup with two handles, a stem and a plinth. */
@@ -245,20 +280,40 @@ export function paintCertificate(pen: Pen, grip: Vec, w: number, h: number) {
   ctx.restore();
 }
 
-/** A table with an open laptop, at stage x = `x`. */
-export function paintDesk(pen: Pen, x: number, top: number, from: number, to: number) {
-  const { ctx, map } = pen;
-  const rect = (x0: number, y0: number, x1: number, y1: number) => {
-    const a = map({ x: x0, y: y1 });
-    const b = map({ x: x1, y: y0 });
-    ctx.fillRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
-  };
-  rect(x + from, top - 0.026, x + to, top); // top
-  rect(x + from + 0.02, 0, x + from + 0.042, top - 0.026); // legs
-  rect(x + to - 0.042, 0, x + to - 0.02, top - 0.026);
-  rect(x - 0.07, top, x + 0.09, top + 0.012); // laptop base
-  // The screen leans back from the hinge.
-  capsule(pen, { x: x + 0.09, y: top + 0.006 }, { x: x + 0.118, y: top + 0.13 }, 0.009, 0.008);
+const box = (pen: Pen, x0: number, y0: number, x1: number, y1: number) => {
+  const a = pen.map({ x: x0, y: y1 });
+  const b = pen.map({ x: x1, y: y0 });
+  pen.ctx.fillRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+};
+
+/** A table at stage x = `x`: a top on two legs. */
+export function paintTable(pen: Pen, x: number, top: number, from: number, to: number) {
+  box(pen, x + from, top - 0.026, x + to, top);
+  box(pen, x + from + 0.02, 0, x + from + 0.042, top - 0.026);
+  box(pen, x + to - 0.042, 0, x + to - 0.02, top - 0.026);
+}
+
+/** A small competition robot standing on a surface at height `top`: wheels, a body and a sensor mast. */
+export function paintRobot(pen: Pen, x: number, top: number) {
+  const { ctx, map, s } = pen;
+  for (const dx of [-0.042, 0.042]) {
+    const w = map({ x: x + dx, y: top + 0.022 });
+    ctx.beginPath();
+    ctx.arc(w.x, w.y, 0.022 * s, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  box(pen, x - 0.06, top + 0.03, x + 0.06, top + 0.072);
+  capsule(pen, { x: x + 0.028, y: top + 0.072 }, { x: x + 0.028, y: top + 0.112 }, 0.007, 0.006);
+  const eye = map({ x: x + 0.028, y: top + 0.118 });
+  ctx.beginPath();
+  ctx.arc(eye.x, eye.y, 0.014 * s, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/** The pedestal the trophy waits on, centred on x. */
+export function paintPedestal(pen: Pen, x: number, w: number, h: number) {
+  box(pen, x - w / 2, 0, x + w / 2, h - 0.014);
+  box(pen, x - w / 2 - 0.012, h - 0.014, x + w / 2 + 0.012, h);
 }
 
 // Gathering into the photograph ----------------------------------------------------------------

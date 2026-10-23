@@ -37,21 +37,21 @@ const hex = ([r, g, b]: Rgb) => '#' + [r, g, b].map((v) => v.toString(16).padSta
 describe('design tokens', () => {
   it('match the owner-specified brand palette exactly', () => {
     expect({
-      moonlight: resolve('moonlight'), frost: resolve('frost-blue'), steel: resolve('steel'),
-      storm: resolve('storm'),
-    }).toEqual({ moonlight: '#f0ecdd', frost: '#8ba3c5', steel: '#495b7d', storm: '#23354d' });
+      ivory: resolve('ivory'), titanium: resolve('titanium'), sandstone: resolve('sandstone'),
+      void: resolve('void'),
+    }).toEqual({ ivory: '#f4eee4', titanium: '#bfa48f', sandstone: '#3a3129', void: '#15120f' });
   });
 
-  it('Oxford Blue and Midnight are gone (Revision 4)', () => {
-    expect(css.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/#02122f|#11223d|oxford|midnight/i);
+  it('the Moonlight & Storm blues are gone (Revision 5)', () => {
+    expect(css.replace(/\/\*[\s\S]*?\*\//g, '')).not.toMatch(/#02122f|#11223d|#23354d|#8ba3c5|oxford|midnight|moonlight|storm|frost/i);
   });
 
-  it('use Storm as the background, Dusk as the surface and Moonlight as text', () => {
-    expect([resolve('color-bg'), resolve('color-surface'), resolve('color-text')]).toEqual(['#23354d', '#30425e', '#f0ecdd']);
+  it('use Void as the background, Umber as the surface and Ivory as text', () => {
+    expect([resolve('color-bg'), resolve('color-surface'), resolve('color-text')]).toEqual(['#15120f', '#221d18', '#f4eee4']);
   });
 
-  it('the four grounds: Storm, Dusk, Steel and Moonlight', () => {
-    expect(THEMES.map((t) => resolve('color-bg', t))).toEqual(['#23354d', '#30425e', '#495b7d', '#f0ecdd']);
+  it('the four grounds: Void, Umber, Sandstone and Titanium Light', () => {
+    expect(THEMES.map((t) => resolve('color-bg', t))).toEqual(['#15120f', '#221d18', '#3a3129', '#e8dccb']);
   });
 
   it('the root roles are the Deep theme', () => {
@@ -63,9 +63,17 @@ describe('design tokens', () => {
     for (const theme of THEMES) expect([...themeBlock(theme).keys()].sort(), theme).toEqual(roles);
   });
 
-  it('the light theme is genuinely light: Moonlight ground and Storm text', () => {
-    expect([resolve('color-bg', 'light'), resolve('color-text', 'light')]).toEqual(['#f0ecdd', '#23354d']);
-    expect([resolve('color-surface', 'light'), resolve('color-surface-alt', 'light')]).toEqual(['#e2e2da', '#e2e2da']);
+  it('the light theme is genuinely light: Titanium Light ground and Void text', () => {
+    expect([resolve('color-bg', 'light'), resolve('color-text', 'light')]).toEqual(['#e8dccb', '#15120f']);
+    expect([resolve('color-surface', 'light'), resolve('color-surface-alt', 'light')]).toEqual(['#dccdb9', '#dccdb9']);
+  });
+
+  it('the nebula tints are never a text, link, focus or control colour', () => {
+    for (const theme of THEMES) {
+      for (const name of themeBlock(theme).keys()) {
+        expect([resolve('copper-nebula'), resolve('dust-violet')], `${theme} --${name}`).not.toContain(resolve(name, theme));
+      }
+    }
   });
 
   const surfaces = ['color-bg', 'color-surface', 'color-surface-alt'];
@@ -103,7 +111,7 @@ describe('design tokens', () => {
     });
   }
 
-  it('contains only near-neutral or cool blue colours (no botanical, gold, amber, crimson or cyan)', () => {
+  it('contains only warm neutrals, the titanium-copper family and the one dust violet', () => {
     for (const value of css.match(/#[0-9a-f]{6}\b/gi) ?? []) {
       const [r, g, b] = [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16)) as [number, number, number];
       const max = Math.max(r, g, b);
@@ -111,7 +119,7 @@ describe('design tokens', () => {
       if (d < 24 || d / max <= 0.2) continue; // near-neutral
       let hue = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
       hue = (hue * 60 + 360) % 360;
-      expect(hue >= 205 && hue <= 235, `${value} hue ${hue.toFixed(0)}`).toBe(true);
+      expect((hue >= 12 && hue <= 40) || (hue >= 255 && hue <= 280), `${value} hue ${hue.toFixed(0)}`).toBe(true);
     }
   });
 });
@@ -126,14 +134,14 @@ describe('index.html', () => {
 });
 
 describe('Particle Portrait colours', () => {
-  it('clear to Storm', () => {
+  it('clear to Void', () => {
     expect(hex(PORTFOLIO_BACKGROUND)).toBe(resolve('color-bg'));
   });
 
-  it('ramp from Steel to Moonlight, with a Steel to Frost Blue highlight', () => {
+  it('ramp from Bronze to Ivory, with a Bronze to Desert Titanium highlight', () => {
     expect({
       low: hex(PORTFOLIO_PALETTE.low), high: hex(PORTFOLIO_PALETTE.high),
       accentLow: hex(PORTFOLIO_PALETTE.accentLow), accentHigh: hex(PORTFOLIO_PALETTE.accentHigh),
-    }).toEqual({ low: resolve('steel'), high: resolve('moonlight'), accentLow: resolve('steel'), accentHigh: resolve('frost-blue') });
+    }).toEqual({ low: resolve('bronze'), high: resolve('ivory'), accentLow: resolve('bronze'), accentHigh: resolve('titanium') });
   });
 });

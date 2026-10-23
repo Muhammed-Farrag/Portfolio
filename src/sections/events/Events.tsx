@@ -219,7 +219,7 @@ function EventTrack({ e, index, live, head }: { e: EventDef; index: number; live
 export function Events({ s }: { s: SectionDef }) {
   const live = !useMotionPaused();
   return (
-    <section id={s.id} className={`section recog theme-${s.theme}`} data-blend={s.blendFrom} data-beat="Important events" data-beat-scrub="" data-beat-min="27000" data-beat-effect="warp" data-backdrop="rays" data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section recog theme-${s.theme}`} data-blend={s.blendFrom} data-beat="Important events" data-beat-scrub="" data-beat-min="27000" data-beat-effect="warp" data-backdrop="galaxy" data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
       {events.map((e, i) => (
         <EventTrack
           key={e.id}

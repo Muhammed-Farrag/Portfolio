@@ -1,4 +1,4 @@
-/* Contact (Elevated, Steel). The closing pairs the photograph, in a Storm and Steel duotone cut
+/* Contact (Elevated, Sandstone). The closing pairs the photograph, in a Void and Sandstone duotone cut
    to his silhouette, with the largest type on the page, the links and the message form. */
 .contact {
   position: relative;
@@ -12,14 +12,14 @@
   align-items: start;
 }
 
-/* Duotone: the grey photograph multiplied onto a Moonlight-to-Steel gradient, its blacks lifted
-   to Storm, all masked by the cut-out's own alpha. */
+/* Duotone: the grey photograph multiplied onto a Ivory-to-Sandstone gradient, its blacks lifted
+   to Void, all masked by the cut-out's own alpha. */
 .contact__portrait {
   position: relative;
   width: min(100%, 420px);
   aspect-ratio: 1;
   margin-inline: auto;
-  background: linear-gradient(170deg, var(--moonlight), var(--mist) 45%, var(--steel) 85%);
+  background: linear-gradient(170deg, var(--ivory), var(--titanium-light) 45%, var(--sandstone) 85%);
   -webkit-mask: var(--photo) center / contain no-repeat, linear-gradient(#000 60%, transparent 98%);
   -webkit-mask-composite: source-in;
   mask: var(--photo) center / contain no-repeat, linear-gradient(#000 60%, transparent 98%);
@@ -36,7 +36,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--storm);
+  background: var(--void);
   mix-blend-mode: lighten;
 }
 
@@ -90,15 +90,15 @@
   .contact__note { grid-column: 2; }
 }
 
-/* The message form: Storm fields on the Steel ground. */
+/* The message form: Void fields on the Sandstone ground. */
 .form {
   display: grid;
   gap: var(--space-4);
   margin-top: var(--space-5);
   padding: clamp(20px, 3vw, 32px);
   border-radius: 18px;
-  background: color-mix(in srgb, var(--storm) 55%, transparent);
-  border: 1px solid rgb(240 236 221 / 0.12);
+  background: color-mix(in srgb, var(--void) 55%, transparent);
+  border: 1px solid rgb(244 238 228 / 0.12);
 }
 .form__title { font: 700 var(--text-lg) / 1.2 var(--font-body); }
 .form__row { display: grid; gap: var(--space-4); }
@@ -110,26 +110,26 @@
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
-  border: 1px solid var(--mist);
+  border: 1px solid var(--titanium-light);
   border-radius: 10px;
-  background: var(--storm);
-  color: var(--moonlight);
+  background: var(--void);
+  color: var(--ivory);
   font: 400 var(--text-base) / 1.5 var(--font-body);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 .form__field textarea { resize: vertical; min-height: 140px; }
-.form__field :is(input, textarea):focus-visible { outline: none; border-color: var(--moonlight); box-shadow: 0 0 0 3px rgb(240 236 221 / 0.35); }
-.form__field [aria-invalid='true'] { border-color: var(--moonlight); border-width: 2px; }
-.form__error { font-size: var(--text-sm); font-weight: 600; color: var(--moonlight); }
+.form__field :is(input, textarea):focus-visible { outline: none; border-color: var(--ivory); box-shadow: 0 0 0 3px rgb(244 238 228 / 0.35); }
+.form__field [aria-invalid='true'] { border-color: var(--ivory); border-width: 2px; }
+.form__error { font-size: var(--text-sm); font-weight: 600; color: var(--ivory); }
 .form__error::before { content: '! '; }
 .form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 .form__actions .button[disabled] { opacity: 0.7; cursor: progress; }
-.form__status { flex: 1 1 240px; color: var(--mist); font-size: var(--text-sm); }
+.form__status { flex: 1 1 240px; color: var(--titanium-light); font-size: var(--text-sm); }
 .form__status:empty { display: none; }
 .form__choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* Development only: try both deliveries. */
-.form__dev { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; padding: var(--space-3); border: 1px dashed var(--mist); border-radius: 10px; font-size: var(--text-sm); }
-.form__dev legend { padding-inline: 6px; font-size: var(--text-xs); color: var(--mist); }
+.form__dev { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; padding: var(--space-3); border: 1px dashed var(--titanium-light); border-radius: 10px; font-size: var(--text-sm); }
+.form__dev legend { padding-inline: 6px; font-size: var(--text-xs); color: var(--titanium-light); }
 .form__dev label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
-.form__dev span { flex-basis: 100%; color: var(--mist); }
+.form__dev span { flex-basis: 100%; color: var(--titanium-light); }
