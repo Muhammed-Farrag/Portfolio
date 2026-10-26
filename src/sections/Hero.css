@@ -31,7 +31,15 @@
   -webkit-text-stroke: max(1.5px, 0.022em) var(--color-text);
   paint-order: stroke fill;
 }
-.hero__role { font-size: var(--text-sm); }
+/* The role stands under the name over the photograph: larger, bolder and in Parchment, with a faint
+   shadow so it reads against the trees. */
+.hero__role {
+  font-size: clamp(1rem, 0.8rem + 0.6vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-text);
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--p-deep) 70%, transparent);
+}
 .hero__headline {
   font: 600 clamp(1.05rem, 0.85rem + 0.6vw, 1.5rem) / var(--leading-snug) var(--font-display);
   max-width: 24ch;
