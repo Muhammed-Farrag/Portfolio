@@ -1,17 +1,41 @@
-/* Work experience (Elevated, over the clouds) and Internships & Education (Light). */
+/* Work experience (Elevated), over its star field. The Education & Internships timeline is in Timeline.css. */
 
+/* The roles: stacked on small screens, side by side from 900 px. */
 .roles { display: grid; gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
 .role {
+  position: relative;
   display: grid;
   gap: var(--space-2);
+  align-content: start;
   padding: clamp(20px, 3vw, 32px);
   border-radius: 18px;
-  /* Void glass over the Sandstone ground and its clouds: text sits on a darker ground than the section. */
+  /* Deep glass over the Raised ground and its stars: text sits on a darker ground than the section. */
   background: color-mix(in srgb, var(--p-deep) 62%, transparent);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border: 1px solid color-mix(in srgb, var(--p-paper) 12%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--p-paper) 8%, transparent), 0 24px 48px -32px color-mix(in srgb, var(--p-deep) 90%, transparent);
+}
+@media (min-width: 900px) {
+  .roles { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+}
+/* Hovering a card brings it towards the viewer: 40% larger, above its neighbours, with a deeper
+   shadow and a near-solid ground so the cards behind do not show through. The outer cards grow
+   from their outer edge so they stay on screen. Only where a pointer can hover. */
+@media (min-width: 900px) and (hover: hover) {
+  .role { transform-origin: center; }
+  .role:first-child { transform-origin: left center; }
+  .role:last-child { transform-origin: right center; }
+  .role:hover {
+    z-index: 2;
+    scale: 1.4;
+    background: color-mix(in srgb, var(--p-deep) 96%, transparent);
+    border-color: color-mix(in srgb, var(--p-paper) 28%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--p-paper) 12%, transparent), 0 40px 80px -30px color-mix(in srgb, var(--p-deep) 95%, transparent);
+  }
+}
+@media (min-width: 900px) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .role { transition: scale 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s, border-color 0.3s, box-shadow 0.45s; }
 }
 .role__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--p-softer); }
 .role__kind { padding: 5px 10px; border: 1px solid color-mix(in srgb, var(--p-paper) 30%, transparent); border-radius: 999px; color: var(--p-paper); }
@@ -23,23 +47,3 @@
 .role__stats div { display: flex; flex-direction: column-reverse; }
 .role__stats dt { font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--p-softer); }
 .role__stats dd { margin: 0; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); line-height: 1; color: var(--p-paper); }
-
-/* Internships & Education: two columns, each a dated list on a rail. */
-.entries__list { display: grid; gap: var(--space-6); margin: var(--space-5) 0 0; padding: 0 0 0 var(--space-5); list-style: none; border-left: 2px solid var(--color-rule); }
-.entry { position: relative; display: grid; gap: var(--space-1); }
-.entry::before {
-  content: '';
-  position: absolute;
-  left: calc(-1 * var(--space-5) - 7px);
-  top: 0.3em;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-bg);
-  border: 2px solid var(--color-text);
-}
-.entry__when { font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); }
-.entry__title { font: 700 var(--text-lg) / 1.25 var(--font-body); }
-.entry__org { color: var(--color-text-secondary); font-weight: 500; }
-.entry__text { color: var(--color-text-secondary); max-width: 46ch; }
-.entry__link { justify-self: start; margin-top: var(--space-1); font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }

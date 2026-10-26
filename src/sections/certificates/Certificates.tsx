@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { certificates, monthYear, type Certificate } from '../../content/certificates';
 import type { SectionDef } from '../../content/site';
+import { Starfield } from '../../components/Starfield';
 import { useMotionPaused } from '../../features/motion/motion';
+import { CertificateDialog } from './CertificateDialog';
 import './Certificates.css';
 
 const ROWS = [certificates.filter((_, i) => i % 2 === 0), certificates.filter((_, i) => i % 2 === 1)];
@@ -31,20 +33,11 @@ function Card({ c, tilt, onOpen, copy }: { c: Certificate; tilt: number; onOpen:
  */
 export function Certificates({ s }: { s: SectionDef }) {
   const paused = useMotionPaused();
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState<Certificate | null>(null);
-  const index = open ? certificates.indexOf(open) : -1;
-
-  useEffect(() => {
-    const d = dialogRef.current!;
-    if (open && !d.open) d.showModal();
-    if (!open && d.open) d.close();
-  }, [open]);
-
-  const step = (by: number) => setOpen(certificates[(index + by + certificates.length) % certificates.length]!);
 
   return (
-    <section id={s.id} className={`section certs theme-${s.theme}`} data-beat="Certificates" data-beat-min="9000" data-beat-effect="cards" data-motion-state={paused ? 'paused' : 'playing'} aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section certs has-stars theme-${s.theme}`} data-motion-state={paused ? 'paused' : 'playing'} aria-labelledby={`${s.id}-title`}>
+      <Starfield tone="light" />
       <div className="container certs__header">
         <p className="eyebrow">{s.eyebrow}</p>
         <h2 id={`${s.id}-title`} className="display section__title">
@@ -55,7 +48,7 @@ export function Certificates({ s }: { s: SectionDef }) {
         </p>
       </div>
 
-      <div className="certs__rows" data-cinema-skip="">
+      <div className="certs__rows">
         {ROWS.map((row, r) => (
           <div key={r} className="certs__row" data-direction={r ? 'right' : 'left'} style={{ '--count': row.length } as CSSProperties}>
             <ul className="certs__track" aria-label={r ? 'Certificates, second row' : 'Certificates, first row'}>
@@ -69,35 +62,7 @@ export function Certificates({ s }: { s: SectionDef }) {
         ))}
       </div>
 
-      <dialog ref={dialogRef} className="certs__dialog theme-deep" aria-labelledby="cert-dialog-title" onClose={() => setOpen(null)} onClick={(e) => e.target === e.currentTarget && setOpen(null)}>
-        {open && (
-          <figure className="certs__figure">
-            <img src={open.full} alt={`Certificate: ${open.title}, ${open.issuer}, ${monthYear(open.date)}.`} width={open.width} height={open.height} />
-            <figcaption>
-              <span className="cert__sticker mono" data-topic={open.topic}>
-                {open.topic}
-              </span>
-              <h3 id="cert-dialog-title" className="certs__dialog-title">
-                {open.title}
-              </h3>
-              <p className="mono certs__dialog-meta">
-                {open.issuer} · {open.platform} · {monthYear(open.date)} · {index + 1} / {certificates.length}
-              </p>
-            </figcaption>
-            <div className="certs__nav">
-              <button type="button" className="button" onClick={() => step(-1)}>
-                <span aria-hidden="true">←</span> Previous
-              </button>
-              <button type="button" className="button" onClick={() => step(1)}>
-                Next <span aria-hidden="true">→</span>
-              </button>
-              <button type="button" className="button certs__close" onClick={() => setOpen(null)} autoFocus>
-                Close
-              </button>
-            </div>
-          </figure>
-        )}
-      </dialog>
+      <CertificateDialog list={certificates} open={open} onOpen={setOpen} />
     </section>
   );
 }

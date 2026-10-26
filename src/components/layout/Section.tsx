@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SectionTheme } from '../../content/site';
-import type { Effect } from '../../features/cinema/Cinema';
+import { Starfield } from '../Starfield';
 import './Section.css';
 
 interface Props {
@@ -11,21 +11,17 @@ interface Props {
   blendFrom?: SectionTheme | undefined;
   /** Shown under the title, in the header column. */
   lead?: ReactNode;
-  /** Name of the scene in the opening sequence, and the transition that brings it on (src/features/cinema). */
-  beat?: string;
-  effect?: Effect;
-  /** A still background shape behind the section (src/styles/backdrops.css). */
-  backdrop?: 'nebula' | 'orbit' | 'galaxy';
   /** The body spans the full width under the header, for content laid out in its own columns. */
   wide?: boolean;
   children?: ReactNode;
 }
 
-/** Shared section frame: anchor target, heading structure and the 12/8/4 column grid. */
-export function Section({ id, eyebrow, title, theme, blendFrom, lead, beat, effect, backdrop, wide, children }: Props) {
+/** Shared section frame: anchor target, heading structure, the 12/8/4 column grid and the star field behind. */
+export function Section({ id, eyebrow, title, theme, blendFrom, lead, wide, children }: Props) {
   const headingId = `${id}-title`;
   return (
-    <section id={id} className={`section theme-${theme}${wide ? ' section--wide' : ''}`} data-blend={blendFrom} data-beat={beat} data-beat-effect={effect} data-backdrop={backdrop} aria-labelledby={headingId}>
+    <section id={id} className={`section has-stars theme-${theme}${wide ? ' section--wide' : ''}`} data-blend={blendFrom} aria-labelledby={headingId}>
+      <Starfield tone={theme === 'light' ? 'light' : 'dark'} />
       <div className="container grid">
         <header className="section__header">
           <p className="eyebrow">{eyebrow}</p>

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130">
-  <!-- A small, distant nebula: a copper-lit wisp of dust with a few bright stars. -->
-  <defs>
-    <radialGradient id="w"><stop offset="0" stop-color="#8C5E4A" stop-opacity="0.4"/><stop offset="0.5" stop-color="#4A3A5C" stop-opacity="0.3"/><stop offset="1" stop-color="#4A3A5C" stop-opacity="0"/></radialGradient>
-  </defs>
-  <ellipse cx="160" cy="66" rx="150" ry="52" fill="url(#w)" transform="rotate(-12 160 66)"/>
-  <circle cx="132" cy="58" r="1.6" fill="#F4EEE4" fill-opacity="0.8"/><circle cx="196" cy="74" r="1.1" fill="#E8DCCB" fill-opacity="0.6"/><circle cx="88" cy="84" r="0.9" fill="#BFA48F" fill-opacity="0.5"/>
-</svg>

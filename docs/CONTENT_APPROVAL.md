@@ -23,7 +23,7 @@ Status values: `verified` (a second source or the code supports it), `cv-reporte
 | DEPI Generative AI Professional Trainee, Jun–Dec 2025 | cv-reported | CV | |
 | STC, Jul–Aug 2024 | pending | CV "Data Science Intern" vs README "AI & Data Analytics Intern" | The CV title is the default |
 | ITI Software Engineer Intern, Jul–Aug 2024 | verified | CV, README | |
-| GCI World 2026, University of Tokyo | cv-reported | CV | The certificate is pending, so present it as participation |
+| GCI World 2026, University of Tokyo | verified | Certificate (issued 31 Aug 2026) | Completed the April 2026 course of the Matsuo-Iwasawa Laboratory and passed its final assessment |
 | IEEE AIU AI Committee Member | pending | profile README only | Optional |
 
 ## Beyond the Code

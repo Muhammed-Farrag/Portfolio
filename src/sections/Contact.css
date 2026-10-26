@@ -1,9 +1,9 @@
-/* Contact (Elevated, the Raised ground). The closing: the largest type on the page, the links and the
-   message form, in one column. (The photograph lives only in the Hero since 25 Oct 2026.) */
+/* Contact (Elevated, the Raised ground, over its star field). The closing: the words across the
+   full width, then on wide screens the links on the left and the message form on the right;
+   stacked on smaller screens. */
 .contact {
-  position: relative;
   overflow: hidden;
-  padding-top: var(--space-section);
+  padding-block: var(--space-section);
 }
 
 .contact__grid {
@@ -12,21 +12,21 @@
   align-items: start;
 }
 
-.contact__body {
+.contact__header {
   display: grid;
   gap: var(--space-5);
-  padding-bottom: var(--space-section);
+  margin-bottom: clamp(32px, 5vw, 64px);
 }
 .contact__title {
   font-size: clamp(2.4rem, 1rem + 4.6vw, 5.25rem);
-  max-width: 13ch;
+  max-width: 22ch;
 }
 .contact__title em { font-style: normal; color: var(--color-link); }
-.contact__lead { font-size: var(--text-lg); color: var(--color-text-secondary); max-width: 40ch; }
+.contact__lead { font-size: var(--text-lg); color: var(--color-text-secondary); max-width: 60ch; }
 
 .contact__links {
   list-style: none;
-  margin: var(--space-4) 0 0;
+  margin: 0;
   padding: 0;
   border-top: 1px solid var(--color-rule);
 }
@@ -44,7 +44,7 @@
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  font: 700 clamp(1.05rem, 0.8rem + 1.1vw, 1.6rem) / 1.15 var(--font-display);
+  font: 700 clamp(1rem, 0.8rem + 0.7vw, 1.3rem) / 1.2 var(--font-display);
   overflow-wrap: anywhere;
   font-stretch: var(--display-stretch);
   color: var(--color-text);
@@ -56,9 +56,26 @@
 .contact__note { color: var(--color-text-secondary); font-size: var(--text-sm); }
 
 @media (min-width: 900px) {
-  .contact__body { max-width: 880px; }
-  .contact__links li { grid-template-columns: 16ch minmax(0, 1fr); align-items: baseline; column-gap: var(--space-5); }
+  .contact__links li { grid-template-columns: 10ch minmax(0, 1fr); align-items: baseline; column-gap: var(--space-5); }
   .contact__note { grid-column: 2; }
+}
+
+/* Wide screens: the words and links on the left, the form on the right, staying in view. */
+@media (min-width: 1024px) {
+  .contact__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(32px, 5vw, 80px); align-items: stretch; }
+  .contact .form { margin-top: 0; }
+  /* Beside the form, the links are a panel like it and exactly as tall: the rows spread evenly down
+     it, each label above its address, which gets the full width. */
+  .contact__links {
+    display: grid;
+    align-content: space-evenly;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid color-mix(in srgb, var(--p-paper) 12%, transparent);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--p-deep) 55%, transparent);
+  }
+  .contact__links li { grid-template-columns: minmax(0, 1fr); }
+  .contact__links li:last-child { border-bottom: 0; }
 }
 
 /* The message form: Void fields on the Sandstone ground. */
@@ -100,7 +117,3 @@
 .form__choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* Development only: try both deliveries. */
-.form__dev { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; padding: var(--space-3); border: 1px dashed var(--p-softer); border-radius: 10px; font-size: var(--text-sm); }
-.form__dev legend { padding-inline: 6px; font-size: var(--text-xs); color: var(--p-softer); }
-.form__dev label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
-.form__dev span { flex-basis: 100%; color: var(--p-softer); }

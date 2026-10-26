@@ -4,7 +4,7 @@ html {
   color-scheme: dark;
   background: var(--color-bg);
   -webkit-text-size-adjust: 100%;
-  scroll-padding-top: var(--header-h);
+  scroll-padding-top: calc(var(--header-h) + var(--frame) + var(--space-3));
 }
 
 @media (prefers-reduced-motion: no-preference) {

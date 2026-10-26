@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useMotionPaused } from '../features/motion/motion';
-import { onPaletteChange, slot } from '../features/palette/palette';
+import { slot } from '../features/palette/palette';
+import './Starfield.css';
 
 interface Star {
   x: number;
@@ -15,11 +16,12 @@ const REACH = 150;
 const LINK = 90;
 
 /**
- * The Hero's night sky: a field of twinkling stars on the Deep ground, in the palette's colours. Moving the pointer over the hero
- * wakes the nearby stars, which brighten, grow and join with faint lines. The loop runs only while
- * the hero is on screen, and draws one still frame when motion is paused.
+ * A field of twinkling stars behind a section (place it first inside a positioned parent). Moving
+ * the pointer over the section wakes the nearby stars, which brighten, grow and join with faint
+ * lines. `tone` picks the ink: light stars on dark grounds, deep green stars on light grounds.
+ * The loop runs only while the section is on screen, and draws one still frame when motion is paused.
  */
-export function HeroStars() {
+export function Starfield({ tone = 'dark' }: { tone?: 'dark' | 'light' }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const paused = useMotionPaused();
 
@@ -33,11 +35,11 @@ export function HeroStars() {
     let h = 0;
     let dpr = 1;
     let frame = 0;
-    let visible = true;
+    let visible = false;
     const pointer = { x: -1e4, y: -1e4, energy: 0 };
-    // Woken stars and warp streaks take the paper colour; resting stars and lines the soft one.
-    let bright = slot('paper');
-    let soft = slot('soft');
+    // Woken stars take the stronger ink; resting stars and the lines the softer one.
+    const bright = slot(tone === 'dark' ? 'paper' : 'raised');
+    const soft = slot(tone === 'dark' ? 'soft' : 'edge');
 
     const seed = () => {
       const count = Math.round((w * h) / 4200);
@@ -54,24 +56,6 @@ export function HeroStars() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       const lit: [number, number, number][] = [];
-      // Warp: as the hero scrolls away, every star streaks out from the centre (the transition
-      // into the next scene). A pure function of the scroll position.
-      const warp = paused ? 0 : Math.min(1, Math.max(0, window.scrollY / (h * 0.7)));
-      if (warp > 0.01) {
-        ctx.strokeStyle = bright;
-        ctx.lineCap = 'round';
-        for (const s of stars) {
-          const k = warp * warp * 0.9 * (0.5 + s.speed / 3);
-          ctx.globalAlpha = Math.min(1, 0.35 + warp) * (1 - warp * 0.35);
-          ctx.lineWidth = s.r * 1.2;
-          ctx.beginPath();
-          ctx.moveTo(s.x, s.y);
-          ctx.lineTo(s.x + (s.x - w / 2) * k, s.y + (s.y - h / 2) * k);
-          ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-        return;
-      }
       for (const s of stars) {
         const twinkle = paused ? 0.7 : 0.55 + 0.45 * Math.sin(s.phase + t * 0.001 * s.speed);
         const d = Math.hypot(s.x - pointer.x, s.y - pointer.y);
@@ -152,22 +136,16 @@ export function HeroStars() {
     io.observe(host);
     host.addEventListener('pointermove', onMove);
     host.addEventListener('pointerleave', onLeave);
-    const stopPalette = onPaletteChange(() => {
-      bright = slot('paper');
-      soft = slot('soft');
-      if (paused) draw(0);
-    });
     resize();
     start();
     return () => {
-      stopPalette();
       ro.disconnect();
       io.disconnect();
       host.removeEventListener('pointermove', onMove);
       host.removeEventListener('pointerleave', onLeave);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [paused]);
+  }, [paused, tone]);
 
-  return <canvas ref={ref} className="hero__stars" aria-hidden="true" />;
+  return <canvas ref={ref} className="starfield" aria-hidden="true" />;
 }

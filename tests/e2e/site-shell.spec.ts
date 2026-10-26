@@ -4,7 +4,7 @@ import { existsSync, readdirSync } from 'node:fs';
 import { expect, test } from './fixtures';
 import { expectNoHorizontalOverflow, watch } from './helpers';
 
-const SECTIONS = ['top', 'events', 'experience', 'growth', 'internships', 'education', 'projects', 'certificates', 'contact'];
+const SECTIONS = ['top', 'events', 'experience', 'growth', 'projects', 'certificates', 'contact'];
 const isMobile = (name: string) => name.includes('mobile');
 
 test.describe('site shell', () => {
@@ -32,9 +32,6 @@ test.describe('site shell', () => {
 
   test('the skip link moves focus to the main content', async ({ page }) => {
     await page.goto('/');
-    // Under software WebGL the portrait's start-up is a busy moment for the main thread; the
-    // first keypress is sent after it so the test checks focus order, not start-up timing.
-    await expect(page.locator('.hero__portrait')).not.toHaveAttribute('data-mode', 'loading', { timeout: 15_000 });
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to content' });
     await expect(skip).toBeFocused();
@@ -53,13 +50,6 @@ test.describe('site shell', () => {
       );
       expect(nameFits, `name fits its column at ${width}px`).toBe(true);
     }
-  });
-
-  test('reserves a square for the portrait so the layout cannot shift', async ({ page }) => {
-    await page.goto('/');
-    const box = await page.locator('.hero__stage').boundingBox();
-    expect(box).not.toBeNull();
-    expect(Math.abs(box!.width - box!.height)).toBeLessThanOrEqual(1);
   });
 
   test('has no serious or critical accessibility violations', async ({ page }) => {
@@ -83,7 +73,7 @@ test.describe('navigation', () => {
   test('every navigation link reaches its section', async ({ page }, info) => {
     await page.goto('/');
     const nav = page.getByRole('navigation', { name: 'Primary' });
-    for (const [label, id] of [['Events', 'events'], ['Experience', 'experience'], ['Internships', 'internships'], ['Education', 'education'], ['Projects', 'projects'], ['Certificates', 'certificates'], ['Contact', 'contact']]) {
+    for (const [label, id] of [['Events', 'events'], ['Experience', 'experience'], ['Education', 'growth'], ['Projects', 'projects'], ['Certificates', 'certificates'], ['Contact', 'contact']]) {
       if (isMobile(info.project.name)) await page.getByRole('button', { name: 'Menu' }).click();
       await nav.getByRole('link', { name: label, exact: true }).click();
       await expect(page).toHaveURL(new RegExp(`#${id}$`));
@@ -127,14 +117,15 @@ test.describe('navigation', () => {
   });
 });
 
+// Jade Pavilion (tokens.css): Deep #121c17, Mid #1c2a23, Raised #2f4438, the light ground #dde6d8.
 const THEME_GROUNDS: [string, string][] = [
-  ['top', 'rgb(21, 18, 15)'], // Deep: Void
-  ['events', 'rgb(34, 29, 24)'], // Mid: Umber
-  ['experience', 'rgb(58, 49, 41)'], // Elevated: Sandstone
-  ['growth', 'rgb(232, 220, 203)'], // Light: Titanium Light
-  ['projects', 'rgb(21, 18, 15)'], // Deep
-  ['certificates', 'rgb(232, 220, 203)'], // Light
-  ['contact', 'rgb(58, 49, 41)'], // Elevated
+  ['top', 'rgb(18, 28, 23)'], // Deep
+  ['events', 'rgb(28, 42, 35)'], // Mid
+  ['experience', 'rgb(47, 68, 56)'], // Elevated
+  ['growth', 'rgb(221, 230, 216)'], // Light
+  ['projects', 'rgb(18, 28, 23)'], // Deep
+  ['certificates', 'rgb(221, 230, 216)'], // Light
+  ['contact', 'rgb(47, 68, 56)'], // Elevated
 ];
 
 test.describe('section themes', () => {
@@ -143,13 +134,13 @@ test.describe('section themes', () => {
     for (const [id, ground] of THEME_GROUNDS) {
       expect(await page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundColor), id).toBe(ground);
     }
-    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(21, 18, 15)');
+    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(18, 28, 23)');
   });
 
   test('dark sections that meet blend with a gradient; light sections keep a clean edge', async ({ page }) => {
     await page.goto('/');
     const image = (id: string) => page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundImage);
-    expect(await image('events')).toContain('rgb(21, 18, 15)'); // from the Deep hero
+    expect(await image('events')).toContain('rgb(18, 28, 23)'); // from the Deep hero
     for (const id of ['experience', 'growth', 'projects', 'certificates', 'contact']) expect(await image(id), id).toBe('none');
   });
 
@@ -169,7 +160,7 @@ test.describe('section themes', () => {
       for (const section of document.querySelectorAll<HTMLElement>('main > section')) {
         const ground = getComputedStyle(section).backgroundColor;
         for (const el of section.querySelectorAll<HTMLElement>('h1, h2, h3, p, li, a')) {
-          if (el.closest('[data-pending], .hero__portrait, .button--primary')) continue;
+          if (el.closest('.button--primary')) continue;
           // Dark instruments inside a light section carry their own theme and ground.
           const panel = el.closest<HTMLElement>('[class*="theme-"]');
           const own = panel && panel !== section ? getComputedStyle(panel).backgroundColor : ground;
@@ -186,16 +177,16 @@ test.describe('section themes', () => {
     await page.goto('/');
     const header = page.getByRole('banner');
     await expect(header).toHaveAttribute('data-over', 'dark');
-    // Put the top of the light Internships & Education section just under the bar.
+    // Put the top of the light Education & Internships section just under the bar.
     await page.evaluate(() => window.scrollTo({ top: document.getElementById('growth')!.getBoundingClientRect().top + scrollY + 20, behavior: 'instant' }));
     await expect(header).toHaveAttribute('data-over', 'light');
     if (!info.project.name.includes('mobile')) {
       const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Projects', exact: true });
-      await expect.poll(() => link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(21, 18, 15)'); // Void on light glass
+      await expect.poll(() => link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(18, 28, 23)'); // Deep on light glass
     } else {
       await page.getByRole('button', { name: 'Menu' }).click();
       const link = page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Projects', exact: true });
-      expect(await link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(232, 220, 203)'); // Titanium Light on the dark menu panel
+      expect(await link.evaluate((e) => getComputedStyle(e).color)).toBe('rgb(221, 230, 216)'); // the light tone on the dark menu panel
     }
   });
 
@@ -205,8 +196,8 @@ test.describe('section themes', () => {
       const cs = getComputedStyle(e);
       return ['--color-focus', '--color-control-edge', '--color-focal', '--color-on-focal'].map((v) => cs.getPropertyValue(v).trim());
     });
-    // Void focus ring, Bronze outlines, Void primary fill with Ivory text.
-    expect(vars).toEqual(['#15120f', '#6b5747', '#15120f', '#f4eee4']);
+    // Deep focus ring, darkened-jade outlines, Deep primary fill with Parchment text.
+    expect(vars).toEqual(['#121c17', '#4f6b5a', '#121c17', '#f3efe2']);
   });
 });
 
@@ -221,7 +212,6 @@ test.describe('production build', () => {
     const w = watch(page);
     await page.goto('http://127.0.0.1:4312/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.locator('[data-pending]')).toHaveCount(0);
     await expect(page.locator('.contact__photo'), 'no empty photo slot').toHaveCount(0);
     await expect(page.getByText('In progress')).toHaveCount(0);
     expect(w.errors).toEqual([]);

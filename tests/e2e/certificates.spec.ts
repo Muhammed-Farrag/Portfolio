@@ -38,3 +38,43 @@ test('with reduced motion the rows stand still and scroll sideways', async ({ br
   await expect(page.locator('.certs__row').first()).toHaveCSS('overflow-x', 'auto');
   await context.close();
 });
+
+test('an internship or education entry opens its own certificates in the lightbox', async ({ page }) => {
+  await page.goto('/#growth');
+  const iti = page.getByRole('list', { name: /Certificates for Software Engineer Intern/ });
+  await expect(iti.getByRole('button')).toHaveCount(2);
+  await iti.getByRole('button').first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { level: 3 })).toHaveText(/Object-Oriented Programming/);
+  await expect(dialog).toContainText('1 / 2');
+  await dialog.getByRole('button', { name: 'Next' }).click();
+  await expect(dialog.getByRole('heading', { level: 3 })).toHaveText(/JDBC/);
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  // One certificate: no Previous or Next.
+  await page.getByRole('list', { name: /Certificates for GCI World 2026/ }).getByRole('button').click();
+  await expect(page.getByRole('dialog').getByRole('heading', { level: 3 })).toHaveText(/GCI World 2026/);
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Next' })).toHaveCount(0);
+});
+
+test('education and internships share one timeline, oldest first; on desktop the cards alternate around the line', async ({ page }, info) => {
+  await page.goto('/#growth');
+  const items = page.locator('.timeline__item');
+  await expect(items).toHaveCount(5);
+  await expect(items.locator('.timeline__title')).toHaveText([
+    'B.Sc. in Artificial Intelligence Science',
+    'Data Science Intern',
+    'Software Engineer Intern',
+    'Generative AI Professional Trainee',
+    'GCI World 2026',
+  ]);
+  await expect(items.first().locator('.timeline__tag')).toHaveText('Education');
+  await expect(items.nth(1).locator('.timeline__tag')).toHaveText('Internship');
+  if (info.project.name.includes('mobile')) return;
+  const line = (await items.first().locator('.timeline__line').boundingBox())!;
+  for (let i = 0; i < 5; i++) {
+    const card = (await items.nth(i).locator('.timeline__card').boundingBox())!;
+    if (i % 2) expect(card.y, `card ${i} below the line`).toBeGreaterThan(line.y);
+    else expect(card.y + card.height, `card ${i} above the line`).toBeLessThan(line.y);
+  }
+});

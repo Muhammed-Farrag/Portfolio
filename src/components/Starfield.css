@@ -1,0 +1,11 @@
+/* The star field fills its section behind the content (src/components/Starfield.tsx). The section
+   is the positioning parent; everything after the canvas paints above it. */
+.has-stars { position: relative; isolation: isolate; }
+.starfield {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

@@ -1,8 +1,6 @@
 /**
- * Work experience, internships and education (revision of 16 Oct 2026), kept apart so each reads
- * as its own kind. Facts follow docs/CONTENT_APPROVAL.md. Anything the owner has not confirmed
- * carries a `draft` note: development builds show it as a Draft mark, production renders the
- * entry as written. tests/unit/drafts.test.ts lists every draft so none is forgotten.
+ * Work experience, education and internships (revision of 26 Oct 2026), kept apart so each reads
+ * as its own kind. Facts follow docs/CONTENT_APPROVAL.md.
  */
 
 export interface Link {
@@ -19,7 +17,6 @@ export interface Role {
   text: string;
   /** Big figures shown on the card, e.g. 12+ clients. */
   stats?: { value: string; label: string }[];
-  draft?: string;
 }
 
 export interface Entry {
@@ -27,9 +24,12 @@ export interface Entry {
   org: string;
   title: string;
   when: string;
+  /** When it started (YYYY-MM): the order on the timeline. */
+  start: string;
   text: string;
   link?: Link;
-  draft?: string;
+  /** Certificates that belong to this entry: ids from certificates.data.json (scripts/certificates.py). */
+  certificates?: string[];
 }
 
 export const work: Role[] = [
@@ -40,7 +40,6 @@ export const work: Role[] = [
     when: 'Jul–Aug 2026',
     kind: 'Company',
     text: 'AI operations across CRM fixes and a supply-chain data and scraping pipeline.',
-    draft: 'Title wording and description: the CV and README describe different work.',
   },
   {
     id: 'tjm',
@@ -49,7 +48,6 @@ export const work: Role[] = [
     when: 'Oct–Dec 2025',
     kind: 'Company',
     text: 'Built and shipped features on the team’s software products.',
-    draft: 'Title (CV: Software Developer, README: Software Engineer) and description.',
   },
   {
     id: 'freelance',
@@ -62,7 +60,6 @@ export const work: Role[] = [
       { value: '12+', label: 'clients' },
       { value: '~1', label: 'year' },
     ],
-    draft: 'Dates and description. The 12+ clients and about one year are confirmed.',
   },
 ];
 
@@ -72,17 +69,19 @@ export const internships: Entry[] = [
     org: 'STC',
     title: 'Data Science Intern',
     when: 'Jul–Aug 2024',
+    start: '2024-07',
     text: 'Data science internship; the project is on GitHub.',
     link: { href: 'https://github.com/Muhammed-Farrag/STC-TV', label: 'STC-TV project' },
-    draft: 'Title (CV: Data Science Intern, README: AI & Data Analytics Intern) and description.',
+    certificates: ['stc'],
   },
   {
     id: 'iti',
     org: 'ITI',
     title: 'Software Engineer Intern',
     when: 'Jul–Aug 2024',
-    text: 'A summer software engineering internship.',
-    draft: 'The project link and a line on what the project does.',
+    start: '2024-07',
+    text: 'A summer software engineering internship, with its Mahara-Tech courses in C++ and Java database programming.',
+    certificates: ['mastering-object-oriented-programming-oop-using-c', 'jdbc'],
   },
 ];
 
@@ -91,23 +90,34 @@ export const education: Entry[] = [
     id: 'gci',
     org: 'University of Tokyo · Japan',
     title: 'GCI World 2026',
-    when: '2026',
-    text: 'Participant in the GCI World 2026 programme.',
-    draft: 'Programme dates and what it covered.',
+    when: '2026 · April cohort',
+    start: '2026-04',
+    text: 'The data science course of the Matsuo-Iwasawa Laboratory, Graduate School of Engineering. Completed with its final assessment passed.',
+    certificates: ['gci-world-2026'],
   },
   {
     id: 'depi',
     org: 'Digital Egypt Pioneers Initiative (MCIT)',
     title: 'Generative AI Professional Trainee',
     when: 'Jun–Dec 2025',
+    start: '2025-06',
     text: 'The Generative AI professional track. In April 2026 DEPI named me a Top Digital Pioneer.',
-    link: { href: '#depi-pioneer-photo', label: 'See the honour' },
+    link: { href: '#events', label: 'See the honour' },
   },
   {
     id: 'bsc',
     org: 'Alamein International University',
     title: 'B.Sc. in Artificial Intelligence Science',
     when: '2022–2026',
+    start: '2022-09',
     text: 'The degree that runs underneath everything else on this page.',
   },
 ];
+
+export type LearningKind = 'Education' | 'Internship';
+
+/** Education and internships on one timeline, oldest first (same month: the listed order). */
+export const learning: (Entry & { kind: LearningKind })[] = [
+  ...education.map((e) => ({ ...e, kind: 'Education' as const })),
+  ...internships.map((e) => ({ ...e, kind: 'Internship' as const })),
+].sort((a, b) => a.start.localeCompare(b.start));

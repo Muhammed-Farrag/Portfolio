@@ -1,4 +1,5 @@
 import { profile } from '../../content/site';
+import { Starfield } from '../Starfield';
 import './SiteFooter.css';
 
 const LINKS = [
@@ -9,7 +10,8 @@ const LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="site-footer theme-deep">
+    <footer className="site-footer has-stars theme-deep">
+      <Starfield />
       <div className="container site-footer__inner">
         <div className="site-footer__name">
           <span className="site-footer__mark mono" aria-hidden="true">
@@ -33,7 +35,7 @@ export function SiteFooter() {
         <a className="site-footer__top" href="#top">
           Back to top <span aria-hidden="true">↑</span>
         </a>
-        <p className="site-footer__small mono">© 2026 {profile.name} · Portrait renderer: an original WebGL study, inspired by EddyOS</p>
+        <p className="site-footer__small mono">© 2026 {profile.name}</p>
       </div>
     </footer>
   );

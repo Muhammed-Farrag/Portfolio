@@ -1,0 +1,18 @@
+/* The page frame (PageFrame.tsx): a 14 px forest mat around the viewport, its inner corners rounded
+   and edged with a faint parchment line. A fixed overlay that never takes clicks. */
+.page-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+}
+.page-frame::before {
+  content: '';
+  position: absolute;
+  inset: var(--frame);
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 40px var(--p-deep),
+    inset 0 0 0 1px color-mix(in srgb, var(--p-paper) 14%, transparent);
+}

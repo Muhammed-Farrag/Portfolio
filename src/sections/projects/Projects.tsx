@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { Pending } from '../../components/Pending';
+import { Starfield } from '../../components/Starfield';
 import type { SectionDef } from '../../content/site';
 import { helios, lumina, novaCare, type CaseStudy } from '../../content/projects';
 import { HeliosConsole } from './HeliosConsole';
@@ -40,7 +40,7 @@ function Case({ study, index, visual, flip = false }: { study: CaseStudy; index:
             ))}
           </dl>
         )}
-        <ul className="case__stack" aria-label="Built with" data-cinema-skip="">
+        <ul className="case__stack" aria-label="Built with">
           {study.stack.map((s) => (
             <li key={s}>{s}</li>
           ))}
@@ -52,9 +52,8 @@ function Case({ study, index, visual, flip = false }: { study: CaseStudy; index:
             </External>
           ))}
         </p>
-        {study.draft && <Pending label="Draft">{study.draft}</Pending>}
       </div>
-      <div className="case__visual" data-reveal="" data-cinema-skip="" style={{ '--reveal-order': 1 } as CSSProperties}>
+      <div className="case__visual" data-reveal="" style={{ '--reveal-order': 1 } as CSSProperties}>
         {visual}
       </div>
     </article>
@@ -64,7 +63,8 @@ function Case({ study, index, visual, flip = false }: { study: CaseStudy; index:
 /** Projects: three case studies, each with its own interactive visual. */
 export function Projects({ s }: { s: SectionDef }) {
   return (
-    <section id={s.id} className={`section work theme-${s.theme}`} data-beat="Projects" data-beat-effect="ripple" data-backdrop="orbit" aria-labelledby={`${s.id}-title`}>
+    <section id={s.id} className={`section work has-stars theme-${s.theme}`} aria-labelledby={`${s.id}-title`}>
+      <Starfield />
       <div className="container">
         <header className="work__header">
           <p className="eyebrow">{s.eyebrow}</p>

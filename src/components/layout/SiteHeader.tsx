@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type FocusEvent, type SyntheticEvent } from 'react';
 import { nav, profile } from '../../content/site';
-import { PaletteSwitcher } from './PaletteSwitcher';
 import './SiteHeader.css';
 
 const DESKTOP = '(min-width: 900px)';
@@ -97,7 +96,6 @@ export function SiteHeader() {
             </li>
           </ul>
         </nav>
-        <PaletteSwitcher />
       </div>
     </header>
   );

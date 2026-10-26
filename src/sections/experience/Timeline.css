@@ -1,0 +1,157 @@
+/* Education & Internships (Light): one timeline, oldest first (Experience.tsx, Timeline).
+   Smaller screens: the line runs down the left, a node per entry, the cards stacked beside it.
+   Desktop (≥1024 px): the line runs across the middle; each entry is a column whose card stands
+   above or below the line in turn (a subgrid shares the three rows across the columns), joined
+   to its node by a short stem, with the year on the other side of the line. */
+.timeline {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: var(--space-4);
+}
+/* The line: each entry draws its own segment, so it runs unbroken through the list. */
+.timeline__item::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 0;
+  bottom: calc(-1 * var(--space-5));
+  width: 2px;
+  background: var(--color-rule);
+}
+.timeline__item:last-child::before { bottom: 0; }
+.timeline__line { display: none; }
+.timeline__node {
+  position: relative;
+  grid-column: 1;
+  justify-self: center;
+  margin-top: 22px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--color-text);
+  background: var(--color-bg);
+}
+/* Education: a filled node; Internship: a ring. */
+.timeline__item[data-kind='Education'] .timeline__node { background: var(--color-text); }
+.timeline__year { display: none; }
+
+.timeline__card {
+  grid-column: 2;
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-5);
+  border-radius: 16px;
+  background: var(--p-panel);
+  border: 1px solid color-mix(in srgb, var(--p-deep) 10%, transparent);
+  box-shadow: 0 18px 32px -26px color-mix(in srgb, var(--p-deep) 55%, transparent);
+  transition: translate 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s;
+}
+.timeline__card:hover { translate: 0 -4px; box-shadow: 0 26px 40px -26px color-mix(in srgb, var(--p-deep) 65%, transparent); }
+.timeline__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--color-text-secondary); }
+.timeline__tag { padding: 4px 9px; border-radius: 999px; border: 1px solid var(--color-control-edge); color: var(--color-text); }
+.timeline__item[data-kind='Education'] .timeline__tag { background: var(--color-text); border-color: var(--color-text); color: var(--color-bg); }
+.timeline__title { font: 700 var(--text-lg) / 1.25 var(--font-body); }
+.timeline__org { color: var(--color-text-secondary); font-weight: 500; }
+.timeline__text { color: var(--color-text-secondary); }
+.timeline__link { justify-self: start; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+
+/* An entry's certificates: small thumbnails that open the lightbox (CertificateDialog). */
+.timeline__certs { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: var(--space-1) 0 0; padding: 0; list-style: none; }
+.timeline__cert {
+  display: grid;
+  gap: 4px;
+  width: 124px;
+  padding: 5px 5px 6px;
+  border: 1px solid color-mix(in srgb, var(--p-deep) 12%, transparent);
+  border-radius: 10px;
+  background: var(--p-softer);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: zoom-in;
+  transition: translate 0.3s, box-shadow 0.3s;
+}
+.timeline__cert:hover,
+.timeline__cert:focus-visible { translate: 0 -3px; box-shadow: 0 14px 22px -16px color-mix(in srgb, var(--p-deep) 70%, transparent); }
+.timeline__cert:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.timeline__cert img { width: 100%; height: auto; border-radius: 5px; display: block; }
+.timeline__cert-label { padding-inline: 2px; font-size: 11px; letter-spacing: 0.04em; color: var(--color-text-secondary); }
+
+@media (min-width: 1024px) {
+  .timeline {
+    grid-template-columns: repeat(var(--count, 5), minmax(0, 1fr));
+    grid-template-rows: auto 64px auto;
+    column-gap: 0;
+    row-gap: 0;
+  }
+  .timeline__item {
+    grid-row: 1 / 4;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: subgrid;
+    column-gap: 0;
+  }
+  /* The line across the middle row: one segment per entry, from the first node to an arrow after the last. */
+  .timeline__item::before { display: none; }
+  .timeline__line {
+    display: block;
+    position: relative;
+    grid-row: 2;
+    grid-column: 1;
+    align-self: center;
+    height: 2px;
+    background: var(--color-rule);
+  }
+  .timeline__item:first-child .timeline__line { margin-left: 50%; }
+  .timeline__item:last-child .timeline__line { margin-right: -6px; }
+  .timeline__item:last-child .timeline__line::after {
+    content: '';
+    position: absolute;
+    right: -10px;
+    top: -6px;
+    border: 7px solid transparent;
+    border-left: 10px solid var(--color-rule);
+    border-right-width: 0;
+  }
+  .timeline__node { grid-row: 2; grid-column: 1; align-self: center; margin: 0; z-index: 1; }
+  /* The stem from the node to its card. */
+  .timeline__node::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 25px;
+    translate: -50% 0;
+    background: var(--color-rule);
+  }
+  .timeline__item[data-side='up'] .timeline__node::after { bottom: 100%; }
+  .timeline__item[data-side='down'] .timeline__node::after { top: 100%; }
+  .timeline__year {
+    display: block;
+    grid-row: 2;
+    grid-column: 1;
+    justify-self: center;
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-text-secondary);
+  }
+  .timeline__item[data-side='up'] .timeline__year { align-self: end; }
+  .timeline__item[data-side='down'] .timeline__year { align-self: start; }
+
+  /* Cards are wider than their column (neighbours stand on the other side of the line), centred
+     on the node; the first and last keep inside the section. */
+  .timeline__card { grid-column: 1; justify-self: center; width: min(170%, 400px); }
+  .timeline__item[data-side='up'] .timeline__card { grid-row: 1; align-self: end; margin-bottom: 0; }
+  .timeline__item[data-side='down'] .timeline__card { grid-row: 3; align-self: start; }
+  .timeline__item:first-child .timeline__card { justify-self: start; }
+  .timeline__item:last-child .timeline__card { justify-self: end; }
+  .timeline__text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+}

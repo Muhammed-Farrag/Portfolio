@@ -1,227 +1,113 @@
-/* Hero: the name and the Particle Portrait share one composition. The portrait is drawn on the
-   transparent story canvas, so it has no frame; a mask dissolves its lower edge into the page.
-   Mobile and tablet: the portrait comes first and dissolves into the name below it.
-   Desktop (≥1024px): the type overlaps one column into the portrait's empty margin, and the
-   portrait bleeds to the edge of the page and stands on the base of the hero. */
+/* Hero (v3): a still photograph, him centred on a tree-lined avenue, with his name split around him.
+   It starts at the very top of the page, under the floating header (pulled up by the header's height
+   and gap), so no strip of ground shows above it.
+   Desktop: the photograph fills the screen; MUHAMMED, the role and his profiles stand on the left,
+   FARRAG and the headline on the right, each over a soft forest scrim, and the photograph fades into
+   the Deep ground at its foot. Phones: a crop centred on him, the name over its lower edge, the
+   headline and profiles below. */
 .hero {
-  --portrait-size: min(100vw, 58svh);
   position: relative;
-  padding-block: var(--space-2) var(--space-section);
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: calc(-1 * (var(--header-h) + var(--frame) + var(--space-1)));
 }
 
-/* The particle layer covers the whole hero, so the portrait can burst across the scene on exit.
-   It fades in once live; scroll-linked dimming (--dim, set by HeroPortrait) has no transition. */
-.hero { isolation: isolate; overflow: hidden; }
-.hero__layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-}
-.hero[data-mode='live'] .hero__layer { opacity: 1; }
-.hero[data-mode='static'] .hero__layer { display: none; }
-@media (prefers-reduced-motion: no-preference) {
-  .hero__layer { transition: opacity 0.9s ease-out; }
-}
-.hero__canvas { display: block; width: 100%; height: 100%; opacity: var(--dim, 1); }
-.hero__layout { position: relative; z-index: 2; }
-
-/* The star field fills the hero behind the portrait and the type. */
-.hero__stars {
-  position: absolute;
-  inset: 0;
+.hero__photo,
+.hero__photo img {
+  display: block;
   width: 100%;
+}
+.hero__photo img {
   height: 100%;
-  pointer-events: none;
+  object-fit: cover;
+  object-position: 50% 40%;
 }
 
-.hero__stage:focus-visible { outline-offset: -12px; border-radius: 12px; }
-
-.hero__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.hero__text {
-  position: relative;
-  z-index: 1;
-  container-type: inline-size;
-  display: grid;
-  gap: var(--space-4);
-  align-content: center;
-  /* Starts inside the portrait's fully transparent band. */
-  margin-top: calc(var(--portrait-size) * -0.1);
-}
-
-.hero__name {
-  /* "MUHAMMED" is about 7.7em wide at 125% width, so the name is sized to its column. */
-  font-size: var(--text-display);
-  font-size: min(7rem, 12.4cqi);
-  color: var(--color-text);
-}
+.hero__name { color: var(--color-text); }
 .hero__name span { display: block; }
 /* The owner's reference: the first name in outline, the last name solid. */
-.hero__name-outline {
+.hero__first {
   color: transparent;
   -webkit-text-stroke: max(1.5px, 0.022em) var(--color-text);
   paint-order: stroke fill;
 }
-
+.hero__role { font-size: var(--text-sm); }
 .hero__headline {
-  font: 600 var(--text-xl) / var(--leading-snug) var(--font-display);
-  max-width: 22ch;
+  font: 600 clamp(1.05rem, 0.85rem + 0.6vw, 1.5rem) / var(--leading-snug) var(--font-display);
+  max-width: 24ch;
 }
 
-.hero__focus {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  font: 500 var(--text-xs) / 1.4 var(--font-mono);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
+/* GitHub and LinkedIn: round glass buttons with the marks. */
+.hero__social { display: flex; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.hero__social a {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid color-mix(in srgb, var(--p-paper) 35%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--p-deep) 45%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--p-paper);
+  transition: background 0.3s, border-color 0.3s, translate 0.3s;
 }
-.hero__focus li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.hero__focus li::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  background: var(--color-accent-support);
-}
+.hero__social a:hover { background: var(--p-paper); border-color: var(--p-paper); color: var(--p-deep); translate: 0 -2px; }
+.hero__social svg { width: 22px; height: 22px; }
 
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
-}
-
-/* Portrait */
-.hero__portrait {
-  order: -1;
-  position: relative;
-  margin-inline: calc(-1 * var(--gutter));
-}
-
-/* Soft edges. The still frame (no WebGL) is masked. The live particles are drawn on the story
-   canvas below this slot, so the slot instead covers its edges with an overlay that fades to the
-   section's own ground; it clears as the transition begins (--free, set by HeroPortrait). */
-.hero__stage {
-  --fade-start: 52%;
-  --fade-end: 90%;
-}
-.hero__portrait[data-mode='static'] .hero__stage {
-  --fade-bottom: linear-gradient(to bottom, transparent, #000 5%, #000 var(--fade-start), transparent var(--fade-end));
-  --fade-sides: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
-  -webkit-mask-image: var(--fade-bottom), var(--fade-sides);
-  -webkit-mask-composite: source-in;
-  mask-image: var(--fade-bottom), var(--fade-sides);
-  mask-composite: intersect;
-}
-.hero__portrait[data-mode='live'] .hero__stage::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(to bottom, var(--color-bg), transparent 5%, transparent var(--fade-start), var(--color-bg) var(--fade-end)),
-    linear-gradient(to right, var(--color-bg), transparent 9%, transparent 91%, var(--color-bg));
-  opacity: calc(1 - var(--free, 0));
-}
-
-/* The stage is the portrait's slot: the shared story canvas (HeroApproachStory) draws the
-   particles over it, and pointer movement over it pushes them. The still frame (no WebGL) is
-   shown inside it with the mask above. */
-.hero__stage {
-  position: relative;
-  width: var(--portrait-size);
-  aspect-ratio: 1;
-  margin-inline: auto;
-}
-
-.hero__fallback {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: calc(1 - var(--photo-fade, 0));
-}
-
-/* The real photograph, the Summer Palace view and all, in the same frame as the particles. It develops
-   through a soft-edged circle that widens from the pointer; HeroPortrait drives --photo-r,
-   --photo-o and --photo-fade. The slot's edge overlay or mask applies to it too. */
-.hero__photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  pointer-events: none;
-  opacity: var(--photo-o, 0);
-  -webkit-mask-image: radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%));
-  mask-image: radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%));
-}
-
-@media (min-width: 768px) {
-  .hero__text { gap: var(--space-5); }
-}
-
-@media (min-width: 1024px) {
-  .hero {
-    --portrait-size: min(
-      100%,
-      calc(100svh - var(--header-h) - var(--space-4))
-    );
-    padding-block: var(--space-4) var(--space-section);
+/* Phones and tablets: the crop, then the name over its lower edge, then the role, headline and profiles. */
+@media (max-width: 899.98px) {
+  .hero__photo { position: relative; aspect-ratio: 9 / 10; max-height: 82svh; }
+  .hero__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--p-deep) 45%, transparent), transparent 22%, transparent 55%, var(--p-deep));
   }
-
   .hero__layout {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--space-5);
-    min-height: calc(100svh - var(--header-h) - var(--space-4));
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+    margin-top: calc(-1 * clamp(104px, 28vw, 196px));
+    padding: 0 var(--gutter) var(--space-8);
   }
+  /* MUHAMMED is about 8.1em wide at this width: it fits the screen with the gutters. */
+  .hero__name { font-size: min(5rem, 9.6vw); }
+  .hero__last { text-align: right; }
+  .hero__social { margin-top: var(--space-2); }
+}
 
-  .hero__text {
-    grid-area: 1 / 1 / 2 / span 7;
-    align-self: start;
-    margin-top: 0;
-    padding-block: clamp(48px, 11svh, 120px) var(--space-8);
+/* Desktop: the photograph fills the screen and the name stands on both sides of him. */
+@media (min-width: 900px) {
+  .hero { height: max(600px, 100svh); }
+  .hero__photo { position: absolute; inset: 0; height: 100%; }
+  .hero__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, color-mix(in srgb, var(--p-deep) 80%, transparent), transparent 38%, transparent 62%, color-mix(in srgb, var(--p-deep) 80%, transparent)),
+      linear-gradient(to bottom, color-mix(in srgb, var(--p-deep) 55%, transparent), transparent 18%, transparent 72%, var(--p-deep));
   }
-
-  .hero__portrait {
-    order: 0;
-    grid-area: 1 / 6 / 2 / -1;
-    align-self: end;
-    container-type: inline-size;
-    margin-inline: 0 calc(-1 * var(--gutter));
+  .hero__layout {
+    position: relative;
+    height: 100%;
+    display: grid;
+    /* His face sits at about 41-51% of the width; the first name keeps to the left of it. */
+    grid-template-columns: minmax(0, 40fr) minmax(0, 14fr) minmax(0, 46fr);
+    grid-template-rows: 1fr auto auto auto 1.1fr;
+    column-gap: var(--space-4);
+    row-gap: var(--space-4);
+    padding: calc(var(--header-h) + var(--frame) + var(--space-7)) var(--gutter) var(--space-8);
   }
-
-
-  .hero__stage {
-    --fade-start: 64%;
-    --fade-end: 98%;
-    width: min(100cqi, calc(100svh - var(--header-h) - var(--space-4)));
-    margin-inline: auto 0;
-  }
-
-  /* Beside the name, the photograph's left edge melts into the night instead of ending in a line. */
-  .hero__photo {
-    -webkit-mask-image:
-      radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%)),
-      linear-gradient(to right, transparent, #000 24%);
-    -webkit-mask-composite: source-in;
-    mask-image:
-      radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%)),
-      linear-gradient(to right, transparent, #000 24%);
-    mask-composite: intersect;
-  }
+  /* The heading's two words go to the outer columns; display: contents lets them join the grid.
+     MUHAMMED is about 8.1em wide, so 4vw keeps it clear of his face at any width. */
+  .hero__name { display: contents; }
+  .hero__name span { font: 800 min(7rem, 4vw) / var(--leading-tight) var(--font-display); font-stretch: var(--display-stretch); text-transform: uppercase; }
+  .hero__first { grid-area: 2 / 1; align-self: end; }
+  /* FARRAG and the headline under it stand a little in from the right edge. */
+  .hero__last { grid-area: 2 / 3; align-self: end; justify-self: end; text-align: right; margin-right: clamp(16px, 3.5vw, 64px); }
+  .hero__role { grid-area: 3 / 1; }
+  .hero__headline { grid-area: 3 / 3 / 5; justify-self: end; text-align: right; margin-right: clamp(16px, 3.5vw, 64px); }
+  .hero__social { grid-area: 4 / 1; }
 }

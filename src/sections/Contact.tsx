@@ -1,7 +1,7 @@
 import { useId, useState, type FormEvent } from 'react';
-import { SHOW_PENDING } from '../components/Pending';
+import { Starfield } from '../components/Starfield';
 import { profile } from '../content/site';
-import { CONTACT_ENV, mailtoHref, plainText, postToService, resolveMode, validate, webmailLinks, type ContactMode, type Errors, type Message } from '../features/contact/send';
+import { CONTACT_ENV, mailtoHref, plainText, postToService, resolveMode, validate, webmailLinks, type Errors, type Message } from '../features/contact/send';
 import './Contact.css';
 
 const LINKS = [
@@ -20,9 +20,8 @@ function ContactForm() {
   const [values, setValues] = useState<Message>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
-  // In development the owner can try both deliveries; the site itself uses VITE_CONTACT_MODE.
-  const [devMode, setDevMode] = useState<ContactMode>(resolveMode(CONTACT_ENV.mode, CONTACT_ENV.endpoint));
-  const mode = SHOW_PENDING ? (devMode === 'service' && !CONTACT_ENV.endpoint ? 'mailto' : devMode) : resolveMode(CONTACT_ENV.mode, CONTACT_ENV.endpoint);
+  // How the message is delivered: VITE_CONTACT_MODE, falling back to the email app without an endpoint.
+  const mode = resolveMode(CONTACT_ENV.mode, CONTACT_ENV.endpoint);
 
   const field = (name: keyof Message) => ({
     id: `${id}-${name}`,
@@ -71,18 +70,6 @@ function ContactForm() {
       <h3 id={`${id}-title`} className="form__title">
         Send a message
       </h3>
-      {SHOW_PENDING && (
-        <fieldset className="form__dev" data-pending="">
-          <legend className="mono">Delivery · development only</legend>
-          {(['mailto', 'service'] as const).map((m) => (
-            <label key={m}>
-              <input type="radio" name="delivery" value={m} checked={devMode === m} onChange={() => setDevMode(m)} />
-              {m === 'mailto' ? 'Email app (mailto)' : 'Form service'}
-            </label>
-          ))}
-          {devMode === 'service' && !CONTACT_ENV.endpoint && <span>No VITE_FORM_ENDPOINT set, so this falls back to the email app.</span>}
-        </fieldset>
-      )}
       <div className="form__row">
         <div className="form__field">
           <label htmlFor={`${id}-name`}>Name</label>
@@ -141,9 +128,10 @@ function ContactForm() {
 
 export function Contact() {
   return (
-    <section id="contact" className="contact theme-elevated" aria-labelledby="contact-title" data-beat="Contact" data-beat-min="5000" data-beat-effect="rays">
-      <div className="container contact__grid">
-        <div className="contact__body">
+    <section id="contact" className="contact has-stars theme-elevated" aria-labelledby="contact-title">
+      <Starfield />
+      <div className="container">
+        <header className="contact__header">
           <p className="eyebrow" data-reveal="">
             Contact
           </p>
@@ -153,6 +141,8 @@ export function Contact() {
           <p className="contact__lead" data-reveal="">
             LLM systems, intelligent automation and computer vision, engineered to run in the real world.
           </p>
+        </header>
+        <div className="contact__grid">
           <ul className="contact__links" data-reveal="">
             {LINKS.map((l) => (
               <li key={l.label}>

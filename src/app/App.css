@@ -12,8 +12,3 @@
 .skip-link:focus { top: var(--space-2); }
 
 main:focus { outline: none; }
-
-/* Internships & Education: two clearly separate columns (src/sections/experience). */
-.growth { display: grid; gap: var(--space-7); }
-.entries__title { font: 800 var(--text-xl) / 1.1 var(--font-display); font-stretch: var(--display-stretch); text-transform: uppercase; padding-bottom: var(--space-3); border-bottom: 2px solid var(--color-text); }
-@media (min-width: 768px) { .growth { grid-template-columns: 1fr 1fr; column-gap: clamp(32px, 6vw, 96px); } }

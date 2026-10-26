@@ -1,12 +1,14 @@
-/* Glass navigation: a floating, rounded bar of translucent Void over a blurred page, with a
-   faint highlight on its top edge. Without backdrop-filter it falls back to near-solid Void. */
+/* Glass navigation: a floating, rounded bar of translucent Deep over a blurred page, with a
+   faint highlight on its top edge. Without backdrop-filter it falls back to near-solid Deep.
+   It stays 4 px inside the page frame's mat (--frame, PageFrame.css), at the top and the sides. */
 .site-header {
   --glass: color-mix(in srgb, var(--p-deep) 58%, transparent);
+  --header-gap: calc(var(--frame) + var(--space-1));
   position: sticky;
-  top: var(--space-2);
+  top: var(--header-gap);
   z-index: 10;
-  width: min(100% - 2 * var(--space-2), calc(var(--content-max) + 2 * var(--gutter)));
-  margin: var(--space-2) auto 0;
+  width: min(100% - 2 * var(--header-gap), calc(var(--content-max) + 2 * var(--gutter)));
+  margin: var(--header-gap) auto 0;
   border-radius: 16px;
   background: linear-gradient(to bottom, color-mix(in srgb, var(--p-paper) 7%, transparent), color-mix(in srgb, var(--p-paper) 2%, transparent)), var(--glass);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
@@ -14,7 +16,7 @@
   border: 1px solid color-mix(in srgb, var(--p-paper) 12%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--p-paper) 10%, transparent), 0 12px 32px -18px color-mix(in srgb, var(--p-deep) 70%, transparent);
 }
-/* Over a light section: Ivory glass, Void text. The colours glide over 0.6 s. */
+/* Over a light section: Parchment glass, Deep text. The colours glide over 0.6 s. */
 .site-header { transition: background 0.6s ease, border-color 0.6s ease, color 0.6s ease; }
 .site-header[data-over='light'] {
   --glass: color-mix(in srgb, var(--p-paper) 72%, transparent);
@@ -32,7 +34,7 @@
 }
 .site-header > .container { padding-inline: clamp(12px, 2vw, 24px); }
 
-/* Brand on the left; the menu button (narrow screens), navigation and palette on the right. */
+/* Brand on the left; the menu button (narrow screens) and the navigation on the right. */
 .site-header__bar {
   height: var(--header-h);
   display: flex;

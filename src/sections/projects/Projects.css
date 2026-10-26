@@ -1,10 +1,10 @@
-/* Projects (Deep, over still water). Each case pairs its facts with its own interactive visual:
+/* Projects (Deep, over its star field). Each case pairs its facts with its own interactive visual:
    a gesture console, an attribution map and a solar system. The panels use
    the theme's surface tokens, so they step forward from the Void ground. */
 .work__header {
   display: grid;
   gap: var(--space-3);
-  margin-bottom: clamp(48px, 7vw, 112px);
+  margin-bottom: clamp(32px, 5vw, 64px);
 }
 .work__title { max-width: 16ch; }
 .work__lead { max-width: 52ch; }

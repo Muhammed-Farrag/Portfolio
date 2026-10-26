@@ -15,6 +15,17 @@
 
 ## 2. Color
 
+### 2.0 Revision 7 (26 Oct 2026): Jade Pavilion only
+
+v3 keeps one palette, Jade Pavilion, measured from the Summer Palace photograph, and drops the
+switcher, the space backdrops, the opening film and the particle hero. The nine slots in
+`tokens.css`: Deep `#121C17`, Mid `#1C2A23`, Raised `#2F4438`, Jade `#8FB09B`, Soft `#B3CBB9`, the
+light ground `#DDE6D8`, Parchment `#F3EFE2`, Panel `#CFDCCE`, Edge `#4F6B5A`. The section themes
+(§2.5) map them to roles as before; the unit test checks every pair. The hue-band rule in §1 now
+allows near-neutrals and the jade-green band (120–170°). Every section after the hero sits over a
+star field (light stars on dark grounds, deep green on light). §2.1 to §2.2a and §3 describe the
+earlier revisions.
+
 ### 2.1 Brand palette (owner-specified)
 
 | Name | Hex | Role |

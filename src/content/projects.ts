@@ -22,8 +22,6 @@ export interface CaseStudy {
   intro: string;
   facts: CaseFact[];
   links: CaseLink[];
-  /** Draft content the owner will confirm or edit; shown as a Draft mark in development only. */
-  draft?: string;
 }
 
 export const helios: CaseStudy = {
@@ -60,7 +58,6 @@ export const lumina: CaseStudy = {
   intro: 'A holographic platform you steer with your hands, built with MediaPipe, Three.js and React. Its module so far is a solar system.',
   facts: [],
   links: [{ label: 'Repository', href: 'https://github.com/Muhammed-Farrag/Lumina' }],
-  draft: 'What the solar system lets you do with your hands, and a live demo link if there is one.',
 };
 
 /** NovaCare modules. `mine` follows the CV; the team's modules are not attributed to named people yet. */

@@ -1,41 +1,60 @@
-import { expect, test } from './fixtures';
+import { expect, test, type Page } from './fixtures';
 
-// Each scene is its own test: the page behind them (the hero's particle field) renders in software
-// WebGL here, and on the 3x phone viewport one pass through a scene can take most of a minute.
-for (const scene of ['victory', 'ceremony', 'judging']) {
-  test(`the ${scene} story scrubs, reverses, and skips to its photograph`, async ({ page }) => {
-    test.setTimeout(120_000);
-    const errors: string[] = [];
-    page.on('pageerror', (error) => errors.push(error.message));
-    await page.goto('/#events');
-    const track = page.locator(`[data-event="${scene}"]`);
-    const scrub = async (p: number) => {
-      await track.evaluate((el, progress) => {
-        window.scrollTo(0, window.scrollY + el.getBoundingClientRect().top + (el.clientHeight - innerHeight) * progress);
-      }, p);
-      await expect.poll(async () => Number(await track.evaluate((el) => el.style.getPropertyValue('--p')))).toBeCloseTo(p, 2);
-    };
-    await scrub(0.65);
-    await expect(track.locator('canvas')).toBeVisible();
-    await expect(track.locator('h3')).toBeVisible();
-    await scrub(0.2);
-    await track.getByRole('link', { name: 'Skip to the photograph' }).click();
-    await expect.poll(async () => Number(await track.evaluate((el) => el.style.getPropertyValue('--photo')))).toBe(1);
-    await expect(track.locator('img')).toBeVisible();
-    expect(errors).toEqual([]);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  });
-}
+// Important Events: a slideshow of three moments on one stage. Each scene plays by itself for 5 s,
+// lands on its photograph, rests 4 s and moves on, until the visitor takes over with the tabs,
+// the ‹ › buttons or a swipe.
+const section = (page: Page) => page.locator('#events');
+const photo = (page: Page) => section(page).evaluate((el) => Number((el as HTMLElement).style.getPropertyValue('--photo')));
+const selected = (page: Page) => page.getByRole('tab', { selected: true });
+const toStage = (page: Page) => page.locator('.recog__stage').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
 
-test('reduced motion presents the three photographs without scroll tracks', async ({ page }) => {
+test('the first moment plays when the stage is on screen, lands on its photograph and moves on by itself', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto('/');
+  await toStage(page);
+  await expect(selected(page)).toContainText('Best Creativity Trophy');
+  await expect(page.locator('.recog__canvas')).toBeVisible();
+  await expect.poll(() => photo(page), { timeout: 9_000 }).toBe(1);
+  await expect(page.locator('.recog__photo img')).toHaveAttribute('alt', /RoboRAVE/);
+  // 4 s on the photograph, then the next moment, without any input.
+  await expect(selected(page)).toContainText('Top Digital Pioneer', { timeout: 9_000 });
+  expect(errors).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('the tabs, the buttons and a swipe change the moment, and each plays from the start', async ({ page }) => {
+  await page.goto('/');
+  await toStage(page);
+  await page.getByRole('button', { name: 'Next moment' }).click();
+  await expect(selected(page)).toContainText('Top Digital Pioneer');
+  await expect.poll(() => photo(page)).toBeLessThan(1);
+  await page.getByRole('tab', { name: /Official Judge/ }).click();
+  await expect(selected(page)).toContainText('Official Judge');
+  await page.getByRole('button', { name: 'Previous moment' }).click();
+  await expect(selected(page)).toContainText('Top Digital Pioneer');
+  // A swipe to the left on the stage moves to the next moment.
+  const box = (await page.locator('.recog__stage').boundingBox())!;
+  const y = box.y + box.height * 0.3;
+  await page.mouse.move(box.x + box.width * 0.6, y);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.3, y, { steps: 5 });
+  await page.mouse.up();
+  await expect(selected(page)).toContainText('Official Judge');
+  // Arrow keys move between the tabs.
+  await selected(page).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(selected(page)).toContainText('Best Creativity Trophy');
+  await expect(selected(page)).toBeFocused();
+});
+
+test('reduced motion shows the photographs and words without scenes; the buttons still work', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#events');
-  await expect(page.locator('.recog')).toHaveAttribute('data-mode', 'static');
-  await expect(page.locator('.recog canvas')).toHaveCount(0);
-  await expect(page.locator('.recog__scroll')).toHaveCount(0);
-  await expect(page.locator('.recog__photo img')).toHaveCount(3);
-  for (const image of await page.locator('.recog__photo img').all()) {
-    await image.scrollIntoViewIfNeeded();
-    await expect(image).toBeVisible();
-  }
+  await expect(section(page)).toHaveAttribute('data-mode', 'static');
+  await expect(page.locator('.recog__canvas'), 'no scene; the star field still draws one still frame').toHaveCount(0);
+  await expect(page.locator('.recog__photo img')).toBeVisible();
+  await page.getByRole('button', { name: 'Next moment' }).click();
+  await expect(selected(page)).toContainText('Top Digital Pioneer');
+  await expect(page.locator('.recog__photo img')).toHaveAttribute('alt', /Digital Egypt Pioneers/);
 });

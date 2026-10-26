@@ -1,23 +1,20 @@
-/* Design tokens, Revision 6 (25 Oct 2026): visitor-selectable palettes (docs/DESIGN_SPEC.md §2-4).
-   Every colour in the site comes from eleven palette slots (--p-*). The default is the owner's
-   Desert Titanium night sky (Revision 5, 21 Oct 2026); the others, taken from the Summer Palace
-   photograph in the Hero, redefine only the slots under :root[data-palette]. The section themes
-   below map the slots to roles. The two nebula slots are for still backdrops only, never for text
-   or controls. tests/unit/tokens.test.ts checks every allowed text/background pair, in every
-   palette, against WCAG. The switcher's list lives in src/features/palette/palette.ts. */
+/* Design tokens, Revision 7 (26 Oct 2026): one palette, Jade Pavilion, measured from the Summer
+   Palace photograph: trees #506053 and jade roofs #5e655f deepened into the grounds, a parchment
+   paper (docs/DESIGN_SPEC.md §2-4). Every colour in the site is one of the nine slots below
+   (--p-*); the section themes map them to roles. Canvases read the slots through
+   src/features/palette/palette.ts. tests/unit/tokens.test.ts checks every allowed
+   text/background pair against WCAG. */
 :root {
-  /* Palette slots: Desert Titanium (the default). */
-  --p-deep: #15120f; /* Void: the Deep ground */
-  --p-mid: #221d18; /* Umber, Void with 30% Sandstone: the Mid ground */
-  --p-raised: #3a3129; /* Sandstone: the Elevated ground, secondary text on light */
-  --p-accent: #bfa48f; /* Desert Titanium: the metal accent */
-  --p-soft: #d2bba6; /* Titanium Soft, lightened: tertiary text and links on dark */
-  --p-softer: #e8dccb; /* Titanium Light, toward Ivory: the Light ground, secondary text on dark */
-  --p-paper: #f4eee4; /* Ivory: text on dark */
-  --p-panel: #dccdb9; /* Dune, Titanium Light with 12% Titanium: panels on light sections */
-  --p-edge: #6b5747; /* Bronze, Titanium darkened: edges and accents on light sections */
-  --p-nebula: #8c5e4a; /* Copper nebula: backdrops only */
-  --p-nebula-2: #4a3a5c; /* Dust violet: backdrops only */
+  /* Palette slots: Jade Pavilion. */
+  --p-deep: #121c17; /* Forest: the Deep ground */
+  --p-mid: #1c2a23; /* The Mid ground */
+  --p-raised: #2f4438; /* The Elevated ground, secondary text on light */
+  --p-accent: #8fb09b; /* Jade: the accent */
+  --p-soft: #b3cbb9; /* Jade, lightened: tertiary text and links on dark */
+  --p-softer: #dde6d8; /* The Light ground, secondary text on dark */
+  --p-paper: #f3efe2; /* Parchment: text on dark */
+  --p-panel: #cfdcce; /* Panels on light sections */
+  --p-edge: #4f6b5a; /* Jade, darkened: edges and accents on light sections */
 
   /* Semantic roles. These are the Deep theme; .theme-* below redefine them per section. */
   --color-bg: var(--p-deep);
@@ -64,73 +61,15 @@
   --space-7: 48px;
   --space-8: 64px;
   --space-9: 96px;
-  --space-section: clamp(72px, 9vw, 144px);
-  --gutter: clamp(16px, 4vw, 48px);
+  --space-section: clamp(40px, 5vw, 80px); /* above and below each section (v3: halved, 27 Oct 2026) */
+  /* The page frame's mat covers --frame of each edge, so the gutter starts inside it. */
+  --gutter: calc(clamp(16px, 4vw, 48px) + var(--frame));
   --content-max: 1320px;
   --measure: 65ch;
   --header-h: 64px;
+  --frame: 14px; /* the page frame's mat (PageFrame.css); the header and hero sit inside it */
   --radius: 2px;
   --grid-columns: 4;
-}
-
-/* Palettes from the Summer Palace photograph (25 Oct 2026). Colours measured in the photo: trees
-   #506053, jade roofs #5e655f, temple red, roof-tile ochre #7a664a, sandstone wall #cfbdae,
-   lake #6a7d81, mountains #9ab2c4, sky #aab6c2. Each mirrors the default's light and dark steps. */
-:root[data-palette='jade'] {
-  /* Jade Pavilion: forest ground, jade-roof green, parchment */
-  --p-deep: #121c17;
-  --p-mid: #1c2a23;
-  --p-raised: #2f4438;
-  --p-accent: #8fb09b;
-  --p-soft: #b3cbb9;
-  --p-softer: #dde6d8;
-  --p-paper: #f3efe2;
-  --p-panel: #cfdcce;
-  --p-edge: #4f6b5a;
-  --p-nebula: #6b8a5a;
-  --p-nebula-2: #3c4a5c;
-}
-:root[data-palette='misty'] {
-  /* Misty Ridge: mountain blue-grey, hazy sky, cloud white */
-  --p-deep: #161d25;
-  --p-mid: #212b36;
-  --p-raised: #36475a;
-  --p-accent: #9fb1c3;
-  --p-soft: #bccad6;
-  --p-softer: #e1e7ec;
-  --p-paper: #f2f4f5;
-  --p-panel: #d2dbe3;
-  --p-edge: #566a7e;
-  --p-nebula: #6a7f99;
-  --p-nebula-2: #4a3f5e;
-}
-:root[data-palette='imperial'] {
-  /* Imperial Wall: dark umber, temple red, roof-tile ochre, sandstone wall */
-  --p-deep: #1f1512;
-  --p-mid: #2e1f1a;
-  --p-raised: #5a2a22;
-  --p-accent: #d0976a;
-  --p-soft: #e0c1a5;
-  --p-softer: #efe0cf;
-  --p-paper: #f8f0e6;
-  --p-panel: #e5d0bb;
-  --p-edge: #8a4a35;
-  --p-nebula: #9a4a35;
-  --p-nebula-2: #4a2f3c;
-}
-:root[data-palette='lake'] {
-  /* Summer Lake: deep lake teal, grey-green water, mist */
-  --p-deep: #111d1f;
-  --p-mid: #1b2b2d;
-  --p-raised: #2e4547;
-  --p-accent: #8eaca8;
-  --p-soft: #b5ccc8;
-  --p-softer: #dde7e4;
-  --p-paper: #f1f3ee;
-  --p-panel: #cddcd8;
-  --p-edge: #4e6b69;
-  --p-nebula: #4f7f7a;
-  --p-nebula-2: #3a4a64;
 }
 
 /* Section themes (docs/DESIGN_SPEC.md §2.5). Each redefines every semantic role, so anything

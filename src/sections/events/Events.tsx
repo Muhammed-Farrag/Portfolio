@@ -1,36 +1,28 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Pending } from '../../components/Pending';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
+import { Starfield } from '../../components/Starfield';
 import { events, type EventDef } from '../../content/events';
 import type { SectionDef } from '../../content/site';
 import { useMotionPaused } from '../../features/motion/motion';
-import { CEREMONY_STAGES, JUDGING_STAGES } from '../../features/recognition/actors';
-import { STAGES } from '../../features/recognition/figure';
-import { mixSlots, onPaletteChange, slot, slotAlpha } from '../../features/palette/palette';
+import { mixSlots, slot, slotAlpha } from '../../features/palette/palette';
 import { ceremonyScene, judgingScene, setSceneColors, victoryScene, type Density, type Scene } from '../../features/recognition/scenes';
 import './Events.css';
 
-const SCENES: Record<EventDef['scene'], { create: () => Scene; stages: readonly string[] }> = {
-  victory: { create: victoryScene, stages: STAGES },
-  ceremony: { create: ceremonyScene, stages: CEREMONY_STAGES },
-  judging: { create: judgingScene, stages: JUDGING_STAGES },
+const SCENES: Record<EventDef['scene'], () => Scene> = {
+  victory: victoryScene,
+  ceremony: ceremonyScene,
+  judging: judgingScene,
 };
 
-/** The scenes' dots in the visitor's palette: back tones a dimmed accent, front paper, props accent. */
+/** Each story plays on its own, start to photograph, in this long. */
+const PLAY_MS = 5000;
+/** Then it rests on the photograph this long before the slideshow moves on (until the visitor takes over). */
+const REST_MS = 4000;
+/** A horizontal drag longer than this on the stage swipes to the next or previous moment. */
+const SWIPE_PX = 50;
+
+/** The scenes' dots in the palette: back tones a dimmed accent, front paper, props accent. */
 const syncSceneColors = () =>
   setSceneColors({ tones: [mixSlots('accent', 'deep', 0.82), slot('paper'), slot('accent')], flash: slot('paper'), flashEdge: slotAlpha('paper', 0.6) });
-
-/** How quickly the drawn scene catches up with the scroll position, ms: wheel steps glide instead of jumping. */
-const EASE_MS = 120;
-/** A jump larger than this (the skip link, a keyboard End) is shown at once rather than fast-forwarded. */
-const SNAP = 0.3;
-
-/** Scroll progress through the track: 0 when it reaches the top of the viewport, 1 at its end. */
-function trackProgress(track: HTMLElement): number {
-  const box = track.getBoundingClientRect();
-  const span = box.height - window.innerHeight;
-  if (span <= 0) return 1;
-  return Math.min(1, Math.max(0, -box.top / span));
-}
 
 const densities = new Map<string, Promise<Density>>();
 /** A photograph's density map, read from its small greyscale mask (loaded once per page). */
@@ -56,199 +48,258 @@ function loadDensity(src: string): Promise<Density> {
   return d;
 }
 
-/** One event: a tall track that scrolls past a sticky stage, where the scene plays and the photograph lands. */
-function EventTrack({ e, index, live, head }: { e: EventDef; index: number; live: boolean; head: ReactNode }) {
-  const trackRef = useRef<HTMLDivElement>(null);
+const wrap = (i: number) => (i + events.length) % events.length;
+
+/**
+ * Important Events: a slideshow of three moments on one stage. The active moment's halftone scene
+ * plays by itself for PLAY_MS once the stage is half on screen, its dots gather into the sharp
+ * photograph, and a blurred enlargement of that photograph fills the stage behind. After REST_MS
+ * it moves on to the next moment, until the visitor takes over with the tabs, the ‹ › buttons or a
+ * swipe. Paused or reduced motion: no scenes and no advancing, just the photographs and the words.
+ */
+export function Events({ s }: { s: SectionDef }) {
+  const live = !useMotionPaused();
+  const id = useId();
+  const [active, setActive] = useState(0);
+  const [run, setRun] = useState(0);
+  const rootRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const photoRef = useRef<HTMLElement>(null);
-  const [near, setNear] = useState(false);
-  const [stage, setStage] = useState(0);
-  const { create, stages } = SCENES[e.scene];
-  const endId = `${e.id}-photo`;
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  /** Set once the visitor uses a tab, a button or a swipe: the slideshow stops moving on by itself. */
+  const steered = useRef(false);
+  const control = useRef<{ start: (i: number) => void }>({ start: () => {} });
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const e = events[active]!;
 
-  // The canvas exists only while the scene is near the viewport.
-  useEffect(() => {
-    if (!live) return;
-    const io = new IntersectionObserver(([en]) => setNear(!!en?.isIntersecting), { rootMargin: '50% 0px' });
-    io.observe(trackRef.current!);
-    return () => io.disconnect();
-  }, [live]);
+  const goTo = (i: number, byVisitor: boolean) => {
+    if (byVisitor) steered.current = true;
+    setActive(wrap(i));
+    setRun((n) => n + 1);
+  };
 
+  // The stage's animation: one canvas, one scene per moment (made once), driven by p in 0..1.
   useEffect(() => {
-    const track = trackRef.current!;
+    const root = rootRef.current!;
+    const stage = stageRef.current!;
     const canvas = canvasRef.current;
-    const photo = photoRef.current!;
-    if (!live || !near || !canvas) return;
+    if (!live || !canvas) {
+      root.style.setProperty('--photo', '1');
+      root.style.setProperty('--p', '1');
+      return;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const scene = create();
+    const scenes = events.map((ev) => SCENES[ev.scene]());
     let disposed = false;
+    let index = 0;
+    let p = 0;
+    let startedAt = 0;
     let frame = 0;
-    let shown = -1;
-    let last = 0;
-    let stageNow = -1;
+    let timer = 0;
+    let visible = false;
+    let begun = false;
     const view = { w: 0, h: 0, dpr: 1, cx: 0, ground: 0, photo: { x: 0, y: 0, w: 0, h: 0 } };
 
-    const paint = (p: number) => {
-      const f = scene.frame(p);
-      track.style.setProperty('--p', p.toFixed(4));
-      track.style.setProperty('--photo', f.photo.toFixed(3));
-      track.style.setProperty('--gather', f.gather.toFixed(3));
-      // Whichever of the head and the award is out of sight must not take taps meant for the other.
-      track.toggleAttribute('data-landed', f.photo > 0.5);
-      if (f.stage !== stageNow) {
-        stageNow = f.stage;
-        track.dataset.stage = String(f.stage);
-        setStage(f.stage);
-      }
-      scene.draw(ctx, p, view);
-    };
-    // The drawn progress eases toward the scroll position, and the loop stops once it has settled.
-    const tick = (now: number) => {
-      frame = 0;
-      const target = trackProgress(track);
-      if (shown < 0 || Math.abs(target - shown) > SNAP) shown = target;
-      else shown += (target - shown) * (1 - Math.exp(-Math.min(64, now - last) / EASE_MS));
-      if (Math.abs(target - shown) < 0.0004) shown = target;
-      last = now;
-      paint(shown);
-      if (shown !== target) frame = requestAnimationFrame(tick);
-    };
-    const schedule = () => {
-      if (frame) return;
-      last = performance.now();
-      frame = requestAnimationFrame(tick);
-    };
-    const resize = () => {
+    const measure = () => {
+      const photo = photoRef.current!;
       const box = canvas.getBoundingClientRect();
-      // The dots land on the print's picture as it rests, without the tilt it lands with.
+      // The dots land on the photograph as it rests, without the scale it lands with.
       photo.style.transform = 'none';
       const pb = photo.querySelector('img')!.getBoundingClientRect();
       photo.style.transform = '';
-      // The stage centre and ground line come from CSS, so the scene and the print share one layout.
-      const style = getComputedStyle(track);
       view.dpr = Math.min(window.devicePixelRatio || 1, 2);
       view.w = box.width;
       view.h = box.height;
-      view.cx = Number(style.getPropertyValue('--cx').trim() || 0.5) * box.width;
-      view.ground = Number(style.getPropertyValue('--ground').trim() || 0.8) * box.height;
       view.photo = { x: pb.left - box.left, y: pb.top - box.top, w: pb.width, h: pb.height };
+      // The figures act where the photograph lands: centred on it, standing on its lower edge.
+      view.cx = view.photo.x + view.photo.w / 2;
+      view.ground = Math.min(view.h - 24, view.photo.y + view.photo.h * 0.92);
       canvas.width = Math.round(view.w * view.dpr);
       canvas.height = Math.round(view.h * view.dpr);
-      paint(shown < 0 ? (shown = trackProgress(track)) : shown);
     };
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    window.addEventListener('scroll', schedule, { passive: true });
-    syncSceneColors();
-    const stopPalette = onPaletteChange(() => {
-      syncSceneColors();
-      paint(shown);
-    });
-    resize();
-    loadDensity(e.photo.mask).then(
-      (d) => {
-        if (disposed) return;
-        scene.setTarget(d);
-        paint(shown);
+    const paint = () => {
+      const scene = scenes[index]!;
+      const f = scene.frame(p);
+      root.style.setProperty('--p', p.toFixed(4));
+      root.style.setProperty('--photo', f.photo.toFixed(3));
+      root.style.setProperty('--gather', f.gather.toFixed(3));
+      scene.draw(ctx, p, view);
+    };
+    const rest = () => {
+      clearTimeout(timer);
+      if (!steered.current && visible) timer = window.setTimeout(() => goTo(index + 1, false), REST_MS);
+    };
+    const tick = (now: number) => {
+      frame = 0;
+      if (!startedAt) startedAt = now - p * PLAY_MS;
+      p = Math.min(1, (now - startedAt) / PLAY_MS);
+      paint();
+      if (p < 1) frame = requestAnimationFrame(tick);
+      else rest();
+    };
+    const resume = () => {
+      if (frame || !begun) return;
+      startedAt = 0;
+      if (p < 1) frame = requestAnimationFrame(tick);
+      else rest();
+    };
+    const pause = () => {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      clearTimeout(timer);
+    };
+    control.current.start = (i: number) => {
+      pause();
+      index = i;
+      p = 0;
+      measure();
+      paint();
+      if (visible) {
+        begun = true;
+        resume();
+      }
+    };
+
+    // The slideshow starts the first time half of the stage is on screen, and waits while it is off screen.
+    const io = new IntersectionObserver(
+      ([en]) => {
+        visible = !!en?.isIntersecting;
+        if (!visible) return pause();
+        if (!begun) {
+          begun = true;
+          control.current.start(index);
+        } else resume();
       },
-      () => {}, // Without the mask the dots fill the picture evenly.
+      { threshold: 0.5 },
+    );
+    io.observe(stage);
+    const ro = new ResizeObserver(() => {
+      measure();
+      paint();
+    });
+    ro.observe(canvas);
+    syncSceneColors();
+    measure();
+    paint();
+    events.forEach((ev, k) =>
+      loadDensity(ev.photo.mask).then(
+        (d) => {
+          if (disposed) return;
+          scenes[k]!.setTarget(d);
+          if (k === index) paint();
+        },
+        () => {}, // Without the mask the dots fill the picture evenly.
+      ),
     );
     return () => {
       disposed = true;
-      stopPalette();
+      pause();
+      io.disconnect();
       ro.disconnect();
-      window.removeEventListener('scroll', schedule);
-      if (frame) cancelAnimationFrame(frame);
+      control.current.start = () => {};
     };
-  }, [live, near, create, e.photo.mask]);
+  }, [live]);
 
-  const aspect = e.photo.width / e.photo.height;
-  const last = stage === stages.length - 1;
+  // A new moment (from a tab, a button, a swipe or the slideshow itself) plays from the start once
+  // its photograph is in the page.
+  useEffect(() => {
+    if (run) control.current.start(active);
+  }, [active, run]);
+
+  const onTabKey = (ev: KeyboardEvent) => {
+    const by = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+    if (!by) return;
+    ev.preventDefault();
+    const next = wrap(active + by);
+    goTo(next, true);
+    tabsRef.current[next]?.focus();
+  };
+  const onDown = (ev: PointerEvent) => {
+    if ((ev.target as Element).closest('button, a')) return;
+    swipe.current = { x: ev.clientX, y: ev.clientY };
+  };
+  const onUp = (ev: PointerEvent) => {
+    const start = swipe.current;
+    swipe.current = null;
+    if (!start) return;
+    const dx = ev.clientX - start.x;
+    if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(ev.clientY - start.y)) goTo(active + (dx < 0 ? 1 : -1), true);
+  };
+
   return (
-    <div className="recog__track" ref={trackRef} data-event={e.scene} style={{ '--photo': live ? 0 : 1, '--aspect': aspect, '--native-h': e.photo.height } as CSSProperties}>
-      <div className="recog__sticky">
-        <div className="container recog__head">
-          {head}
-          {live && (
-            <a className="recog__skip" href={`#${endId}`}>
-              Skip to the photograph <span aria-hidden="true">↓</span>
-            </a>
-          )}
+    <section ref={rootRef} id={s.id} className={`section recog has-stars theme-${s.theme}`} data-blend={s.blendFrom} data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
+      <Starfield />
+      <div className="container">
+        <header className="recog__header">
+          <p className="eyebrow">{s.eyebrow}</p>
+          <h2 id={`${s.id}-title`} className="display section__title">
+            {s.title}
+          </h2>
+        </header>
+
+        <div className="recog__tabs" role="tablist" aria-label="Moments" onKeyDown={onTabKey}>
+          {events.map((ev, k) => (
+            <button
+              key={ev.id}
+              ref={(el) => void (tabsRef.current[k] = el)}
+              id={`${id}-tab-${k}`}
+              type="button"
+              role="tab"
+              className="recog__tab"
+              aria-selected={k === active}
+              aria-controls={`${id}-stage`}
+              tabIndex={k === active ? 0 : -1}
+              onClick={() => goTo(k, true)}
+            >
+              <span className="recog__tab-number mono">{String(k + 1).padStart(2, '0')}</span>
+              <span className="recog__tab-title">{ev.title}</span>
+              <span className="recog__tab-progress" aria-hidden="true" />
+            </button>
+          ))}
         </div>
 
-        {live && near && <canvas ref={canvasRef} className="recog__canvas" aria-hidden="true" />}
-        {live && (
-          <p className="recog__symbolic mono" aria-hidden="true">
-            Symbolic animation
-          </p>
-        )}
+        <div
+          ref={stageRef}
+          id={`${id}-stage`}
+          className="recog__stage"
+          role="tabpanel"
+          aria-labelledby={`${id}-tab-${active}`}
+          data-event={e.scene}
+          style={{ '--aspect': e.photo.width / e.photo.height, '--native-h': e.photo.height } as CSSProperties}
+          onPointerDown={onDown}
+          onPointerUp={onUp}
+          onPointerCancel={() => (swipe.current = null)}
+        >
+          <img className="recog__backdrop" src={e.photo.src} alt="" aria-hidden="true" draggable={false} />
+          {live && <canvas ref={canvasRef} className="recog__canvas" aria-hidden="true" />}
 
-        <figure className="recog__photo" ref={photoRef}>
-          <img src={e.photo.src} alt={e.photo.alt} width={e.photo.width} height={e.photo.height} loading="lazy" decoding="async" />
-          <figcaption className="mono">{e.photo.caption}</figcaption>
-        </figure>
-
-        <div className="recog__award">
-          <p className="mono recog__team">
-            <span className="recog__count">
-              {String(index + 1).padStart(2, '0')} / {String(events.length).padStart(2, '0')}
-            </span>{' '}
-            {e.role}
-          </p>
-          <h3 className="recog__title display">{e.title}</h3>
-          <p className="recog__event">{e.event}</p>
-          {e.draft && <Pending label="Draft">{e.draft}</Pending>}
-        </div>
-
-        {live && (
-          <ol className="recog__stages mono" aria-hidden="true">
-            {stages.map((label, k) => (
-              <li key={label} data-state={k < stage ? 'done' : k === stage ? 'active' : undefined}>
-                {label}
-              </li>
-            ))}
-          </ol>
-        )}
-        {live && (
-          <div className="recog__scroll mono" aria-hidden="true">
-            <span>
-              {last ? 'Keep scrolling for the next moment' : 'Scroll to explore this moment'} <span className="recog__hint">↓</span>
-            </span>
-            <span className="recog__progress">
-              <span />
-            </span>
+          <div className="recog__award" key={`award-${active}`}>
+            <p className="mono recog__team">
+              <span className="recog__count">
+                {String(active + 1).padStart(2, '0')} / {String(events.length).padStart(2, '0')}
+              </span>{' '}
+              {e.role}
+            </p>
+            <h3 className="recog__title display">{e.title}</h3>
+            <p className="recog__event">{e.event}</p>
           </div>
-        )}
-      </div>
-      <span id={endId} className="recog__end" />
-    </div>
-  );
-}
 
-/** Important Events: three moments, each a symbolic halftone scene whose dots gather into the real photograph. */
-export function Events({ s }: { s: SectionDef }) {
-  const live = !useMotionPaused();
-  return (
-    <section id={s.id} className={`section recog theme-${s.theme}`} data-blend={s.blendFrom} data-beat="Important events" data-beat-scrub="" data-beat-min="27000" data-beat-effect="warp" data-backdrop="galaxy" data-mode={live ? 'live' : 'static'} aria-labelledby={`${s.id}-title`}>
-      {events.map((e, i) => (
-        <EventTrack
-          key={e.id}
-          e={e}
-          index={i}
-          live={live}
-          head={
-            i === 0 ? (
-              <>
-                <p className="eyebrow">{s.eyebrow}</p>
-                <h2 id={`${s.id}-title`} className="display section__title">
-                  {s.title}
-                </h2>
-              </>
-            ) : null
-          }
-        />
-      ))}
+          <figure className="recog__photo" ref={photoRef}>
+            {/* Not draggable: a native image drag would cancel the swipe. */}
+            <img src={e.photo.src} alt={e.photo.alt} width={e.photo.width} height={e.photo.height} decoding="async" draggable={false} />
+            <figcaption className="mono">{e.photo.caption}</figcaption>
+          </figure>
+
+          <button type="button" className="recog__nav recog__nav--prev" aria-label="Previous moment" onClick={() => goTo(active - 1, true)}>
+            <span aria-hidden="true">‹</span>
+          </button>
+          <button type="button" className="recog__nav recog__nav--next" aria-label="Next moment" onClick={() => goTo(active + 1, true)}>
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

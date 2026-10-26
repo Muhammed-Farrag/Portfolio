@@ -1,30 +1,48 @@
-import { useRef } from 'react';
+import heroPortrait from '../assets/hero/avenue-portrait-900.webp';
+import hero1200 from '../assets/hero/avenue-1200.webp';
+import hero2400 from '../assets/hero/avenue-2400.webp';
+import { GitHubIcon, LinkedInIcon } from '../components/SocialIcons';
 import { profile } from '../content/site';
 import './Hero.css';
-import { HeroPortrait } from './HeroPortrait';
-import { HeroStars } from './HeroStars';
 
 /**
- * The opening scene: the night sky, his portrait, name and title. Painting order: the star field,
- * then the transparent particle canvas (one WebGL context), then the text and the portrait slot.
+ * The opening scene: a still photograph of him on a tree-lined avenue, centred, with his name split
+ * around him: the first name, the role and his profiles on the left, the last name and the headline
+ * on the right. On phones a crop centred on him sits above the name and the headline.
  */
 export function Hero() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   return (
-    <section id="top" className="hero theme-deep" aria-labelledby="hero-name" data-beat="Arrival" data-beat-min="6500">
-      <HeroStars />
-      <div className="hero__layer" aria-hidden="true">
-        <canvas ref={canvasRef} className="hero__canvas" />
-      </div>
-      <div className="container hero__layout">
-        <div className="hero__text">
-          <p className="eyebrow">{profile.title}</p>
-          <h1 id="hero-name" className="display hero__name">
-            <span className="hero__name-outline">Muhammed</span> <span>Farrag</span>
-          </h1>
-          <p className="hero__headline">{profile.headline}</p>
-        </div>
-        <HeroPortrait canvasRef={canvasRef} />
+    <section id="top" className="hero theme-deep" aria-labelledby="hero-name">
+      <picture className="hero__photo">
+        <source media="(max-width: 899.98px)" srcSet={heroPortrait} width={900} height={1000} />
+        <img
+          src={hero2400}
+          srcSet={`${hero1200} 1200w, ${hero2400} 2400w`}
+          sizes="100vw"
+          width={2400}
+          height={1107}
+          alt="Muhammed Farrag smiling on a tree-lined avenue, in a black T-shirt."
+          decoding="async"
+        />
+      </picture>
+      <div className="hero__layout">
+        <h1 id="hero-name" className="display hero__name">
+          <span className="hero__first">Muhammed</span> <span className="hero__last">Farrag</span>
+        </h1>
+        <p className="eyebrow hero__role">{profile.title}</p>
+        <p className="hero__headline">{profile.headline}</p>
+        <ul className="hero__social" aria-label="Profiles">
+          <li>
+            <a href={profile.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub (opens in a new tab)">
+              <GitHubIcon />
+            </a>
+          </li>
+          <li>
+            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn (opens in a new tab)">
+              <LinkedInIcon />
+            </a>
+          </li>
+        </ul>
       </div>
     </section>
   );

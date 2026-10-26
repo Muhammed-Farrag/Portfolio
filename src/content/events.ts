@@ -14,8 +14,6 @@ export interface EventDef {
   event: string;
   /** `mask`: where the scene's dots gather in the photograph (scripts/recognition-silhouettes.py). */
   photo: { src: string; mask: string; alt: string; width: number; height: number; caption: string };
-  /** Draft content the owner will confirm or edit; shown as a Draft mark in development only. */
-  draft?: string;
 }
 
 export const events: EventDef[] = [
@@ -63,6 +61,5 @@ export const events: EventDef[] = [
       height: 405,
       caption: 'Al-Ahram · 7 September 2026 · issue 51044',
     },
-    draft: 'Confirm the Al-Ahram clipping (Japan, cybersecurity) belongs with this event, and the judging details.',
   },
 ];

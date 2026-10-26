@@ -34,3 +34,23 @@ test('a complete message offers every way to send it, with or without a mail app
   await expect(form.getByRole('link', { name: /Outlook\.com/ })).toHaveAttribute('href', /^https:\/\/outlook\.live\.com\/mail\/0\/deeplink\/compose\?to=/);
   await expect(form.getByRole('button', { name: 'Copy the message' })).toBeVisible();
 });
+
+test('the words span the width; the links sit on the left and the form on the right on wide screens; stacked on phones', async ({ page }, info) => {
+  await page.goto('/#contact');
+  const details = (await page.locator('.contact__links').boundingBox())!;
+  const form = (await page.locator('.contact .form').boundingBox())!;
+  if (info.project.name.includes('mobile')) expect(form.y).toBeGreaterThan(details.y + details.height - 1);
+  else expect(form.x).toBeGreaterThan(details.x + details.width - 1);
+});
+
+test('on wide screens the links panel is exactly as tall as the form', async ({ page }, info) => {
+  test.skip(info.project.name.includes('mobile'), 'side by side on wide screens only');
+  await page.goto('/#contact');
+  // The links rise in with the scroll reveal (0.8 s): measure once they have settled.
+  const gap = async () => {
+    const links = (await page.locator('.contact__links').boundingBox())!;
+    const form = (await page.locator('.contact .form').boundingBox())!;
+    return Math.max(Math.abs(links.height - form.height), Math.abs(links.y - form.y));
+  };
+  await expect.poll(gap).toBeLessThanOrEqual(2);
+});
