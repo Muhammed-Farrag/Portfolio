@@ -1,5 +1,104 @@
 [
   {
+    "id": "gci-world-2026",
+    "file": "GCI World 2026.pdf",
+    "width": 1400,
+    "height": 990,
+    "title": "GCI World 2026: Data Science",
+    "issuer": "The University of Tokyo",
+    "platform": "Matsuo-Iwasawa Lab",
+    "date": "2026-08",
+    "kind": "course"
+  },
+  {
+    "id": "build-intelligent-agents-using-deepseek-n8n",
+    "file": "Build Intelligent Agents Using DeepSeek & N8N.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Build Intelligent Agents Using DeepSeek & N8N",
+    "issuer": "Board Infinity",
+    "platform": "Coursera",
+    "date": "2026-05",
+    "kind": "course"
+  },
+  {
+    "id": "programming-generative-ai",
+    "file": "Programming Generative AI.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Programming Generative AI",
+    "issuer": "Pearson",
+    "platform": "Coursera",
+    "date": "2026-05",
+    "kind": "specialization"
+  },
+  {
+    "id": "building-ai-agents-fundamentals-to-advanced",
+    "file": "Building AI Agents Fundamentals to Advanced.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Building AI Agents – Fundamentals to Advanced",
+    "issuer": "Packt",
+    "platform": "Coursera",
+    "date": "2026-04",
+    "kind": "course"
+  },
+  {
+    "id": "langchain-and-langgraph",
+    "file": "Langchain and Langgraph.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "LangChain and LangGraph",
+    "issuer": "Packt",
+    "platform": "Coursera",
+    "date": "2026-04",
+    "kind": "specialization"
+  },
+  {
+    "id": "mastering-recommendation-systems-with-python",
+    "file": "Mastering Recommendation Systems with Python.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Mastering Recommendation Systems with Python",
+    "issuer": "EDUCBA",
+    "platform": "Coursera",
+    "date": "2026-04",
+    "kind": "specialization"
+  },
+  {
+    "id": "retrieval-augmented-generation-rag",
+    "file": "Retrieval Augmented Generation (RAG).pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Retrieval Augmented Generation (RAG)",
+    "issuer": "DeepLearning.AI",
+    "platform": "Coursera",
+    "date": "2026-03",
+    "kind": "course"
+  },
+  {
+    "id": "fundamentals-of-reinforcement-learning",
+    "file": "Fundamentals of Reinforcement Learning.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "Fundamentals of Reinforcement Learning",
+    "issuer": "University of Alberta, Alberta Machine Intelligence Institute",
+    "platform": "Coursera",
+    "date": "2025-12",
+    "kind": "course"
+  },
+  {
+    "id": "iot-security",
+    "file": "IoT Security.pdf",
+    "width": 1400,
+    "height": 1082,
+    "title": "IoT Security: Interface and Data Security",
+    "issuer": "CertNexus",
+    "platform": "Coursera",
+    "date": "2025-12",
+    "kind": "course"
+  },
+  {
     "id": "algorithms-on-graphs",
     "file": "Algorithms on Graphs.pdf",
     "width": 1400,

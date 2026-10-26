@@ -1,13 +1,13 @@
-// Certificates: a drifting gallery of the 28 certificates, each opening in a dialog.
+// Certificates: a drifting gallery of the 37 certificates, each opening in a dialog.
 import { expect, test } from './fixtures';
 
 const cards = (page: import('@playwright/test').Page) => page.locator('.cert:not([aria-hidden])');
 
 test('shows every certificate once to assistive tech; the looping copies are hidden', async ({ page }) => {
   await page.goto('/#certificates');
-  await expect(cards(page)).toHaveCount(28);
+  await expect(cards(page)).toHaveCount(37);
   const copies = page.locator('.cert[aria-hidden="true"]');
-  await expect(copies).toHaveCount(28);
+  await expect(copies).toHaveCount(37);
   await expect(copies.first().locator('button')).toHaveAttribute('tabindex', '-1');
   await expect(page.getByRole('button', { name: /Neural Networks and Deep Learning, DeepLearning\.AI, \w{3} \d{4}/ })).toHaveCount(1);
 });

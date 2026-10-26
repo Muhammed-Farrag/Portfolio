@@ -17,13 +17,20 @@ a glass navbar.
 | **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), over a still nebula. |
 | **Internships & Education** | Two columns: STC and ITI; GCI World 2026 (University of Tokyo), DEPI and the B.Sc. in AI Science. |
 | **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link, over a still starfield and a planet's rim. |
-| **Certificates** | 28 certificates in two drifting rows; each opens in full. |
+| **Certificates** | 37 certificates in two drifting rows; each opens in full. |
 | **Contact** | Email, LinkedIn, GitHub and a message form. |
 
 Palette: a Desert Titanium night sky. Void `#15120F`, Umber `#221D18`, Sandstone `#3A3129`,
 Desert Titanium `#BFA48F` and Ivory `#F4EEE4`, with Titanium Light, Dune and Bronze tones and two
 nebula tints used only in the still space backdrops (`src/styles/tokens.css`). Every text and background pair is checked
 against WCAG contrast by a unit test.
+
+**Palette switcher.** The round swatch button in the header lets a visitor pick one of five
+palettes: Desert Titanium (the default) and four taken from the Hero photograph at the Summer
+Palace in Beijing: Jade Pavilion, Misty Ridge, Imperial Wall and Summer Lake. The choice is
+remembered in the browser and applied before the first paint. Every colour on the site, the
+canvases and the space backdrops included, comes from eleven `--p-*` slots that each palette
+redefines; the contrast test runs for every palette (`src/features/palette/`).
 
 ## Getting started
 

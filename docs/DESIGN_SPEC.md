@@ -36,6 +36,25 @@
 | Copper nebula | `#8C5E4A` | — | Backdrops only |
 | Dust violet | `#4A3A5C` | — | Backdrops only |
 
+### 2.2a Visitor palettes (Revision 6, 25 Oct 2026)
+
+Every colour above is one of eleven palette slots in `tokens.css` (`--p-deep` Void, `--p-mid`
+Umber, `--p-raised` Sandstone, `--p-accent` Desert Titanium, `--p-soft` Titanium Soft, `--p-softer`
+Titanium Light, `--p-paper` Ivory, `--p-panel` Dune, `--p-edge` Bronze, `--p-nebula` and
+`--p-nebula-2`). Desert Titanium is the default. Four more palettes, measured from the Hero
+photograph at the Summer Palace, redefine the same slots under `:root[data-palette]` and are
+offered in the header's palette switcher:
+
+| Palette | Deep | Accent | Light ground | From the photograph |
+|---|---|---|---|---|
+| Jade Pavilion | `#121C17` | `#8FB09B` | `#DDE6D8` | Trees and jade roofs |
+| Misty Ridge | `#161D25` | `#9FB1C3` | `#E1E7EC` | Mountains and sky |
+| Imperial Wall | `#1F1512` | `#D0976A` | `#EFE0CF` | Temple red, roof ochre, sandstone wall |
+| Summer Lake | `#111D1F` | `#8EACA8` | `#DDE7E4` | Kunming Lake |
+
+The theme roles below are the same in every palette, and the contrast test checks each one in
+each palette. The hue-band rule in §1 applies to the default palette.
+
 ### 2.3 Contrast (WCAG 2.2, computed)
 
 | Foreground | on Void | on Umber | on Sandstone | Allowed as |

@@ -36,6 +36,14 @@ OVERRIDES = {
     'Mastering Object-Oriented Programming (OOP) using C++': {'issuer': 'Mahara-Tech · ITI', 'platform': 'Mahara-Tech', 'date': '2024-06', 'kind': 'course'},
     # Arabic certificate of completion, "Data Analysis" (تحليل البيانات), dated 2024-08-09.
     'STC': {'title': 'Data Analysis', 'issuer': 'STC', 'platform': 'STC', 'date': '2024-08', 'kind': 'course'},
+    # Matsuo-Iwasawa Laboratory, Graduate School of Engineering; passed the final assessment, issued 31 August 2026.
+    'GCI World 2026': {'title': 'GCI World 2026: Data Science', 'issuer': 'The University of Tokyo', 'platform': 'Matsuo-Iwasawa Lab', 'date': '2026-08', 'kind': 'course'},
+    # The text layer has a broken en dash in the title.
+    'Building AI Agents Fundamentals to Advanced': {'title': 'Building AI Agents – Fundamentals to Advanced'},
+    # Coursera Specializations: the issuer is the logo on the certificate.
+    'Langchain and Langgraph': {'title': 'LangChain and LangGraph', 'issuer': 'Packt', 'platform': 'Coursera', 'date': '2026-04', 'kind': 'specialization'},
+    'Mastering Recommendation Systems with Python': {'issuer': 'EDUCBA', 'platform': 'Coursera', 'date': '2026-04', 'kind': 'specialization'},
+    'Programming Generative AI': {'issuer': 'Pearson', 'platform': 'Coursera', 'date': '2026-05', 'kind': 'specialization'},
 }
 
 
@@ -43,7 +51,8 @@ def details(pdf: Path) -> dict:
     """Title, issuer, date (YYYY-MM) and kind, from the certificate's own text."""
     flat = ' '.join(text_of(pdf).split())
     info = {'title': pdf.stem, 'issuer': None, 'platform': None, 'date': None, 'kind': 'course'}
-    m = re.search(r'Mohamed Mustafa Mohamed (.+?) an online non-credit (course|project) authorized by (.+?) and offered through (\w+)', flat)
+    # Since 2025 Coursera prints "an online course" without "non-credit".
+    m = re.search(r'Mohamed Mustafa Mohamed (.+?) an online (?:non-credit )?(course|project) authorized by (.+?) and offered through (\w+)', flat)
     if m:
         info.update(title=m.group(1), kind=m.group(2), issuer=m.group(3), platform=m.group(4))
     # Dates are letter-spaced in some text layers: "A pr 12, 2025", "Dec 8 , 2022".

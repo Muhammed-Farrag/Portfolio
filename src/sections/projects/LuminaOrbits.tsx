@@ -93,9 +93,9 @@ export function LuminaOrbits() {
       <svg ref={svgRef} className="lumina__stage" viewBox="0 0 400 300" aria-hidden="true" onPointerMove={onPointer}>
         <defs>
           <radialGradient id={`${id}-sun`}>
-            <stop offset="0" stopColor="var(--ivory)" />
-            <stop offset="0.45" stopColor="var(--ivory)" stopOpacity="0.7" />
-            <stop offset="1" stopColor="var(--ivory)" stopOpacity="0" />
+            <stop offset="0" stopColor="var(--p-paper)" />
+            <stop offset="0.45" stopColor="var(--p-paper)" stopOpacity="0.7" />
+            <stop offset="1" stopColor="var(--p-paper)" stopOpacity="0" />
           </radialGradient>
         </defs>
         {PLANETS.map((p) => (

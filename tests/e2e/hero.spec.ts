@@ -45,10 +45,11 @@ test.describe('hero portrait', () => {
     await expect(page.locator('.hero').getByText('In progress')).toHaveCount(0);
     await expect(stage(page)).toHaveAttribute('role', 'img');
     await expect(stage(page)).toHaveAttribute('aria-label', /Muhammed Farrag/);
-    // Same sampling as the prototype: Ultra on capable desktops, Fine on small screens.
+    // Same sampling as the prototype: Ultra on capable desktops, Fine on small screens. The counts
+    // are those of the Summer Palace source (scripts/portrait-photo.py particles).
     const points = await stage(page).getAttribute('data-points');
-    if (isMobile(info.project.name)) expect(points).toBe('4525');
-    else expect(['10203', '4525']).toContain(points);
+    if (isMobile(info.project.name)) expect(points).toBe('2320');
+    else expect(['5198', '2320']).toContain(points);
 
     // The entrance reforms the portrait, then hands over to the responsive loop. Each frame
     // advances the animation by at most 40 ms (legacy), so on a starved software-GL runner the
@@ -110,9 +111,10 @@ test.describe('hero portrait', () => {
     await waitForPortrait(page);
     await expect(stage(page)).toHaveAttribute('data-state', 'responding', { timeout: 45_000 });
     const box = (await stage(page).boundingBox())!;
-    const face = { x: box.x + box.width * 0.5, y: box.y + box.height * 0.3 };
+    // His face sits about halfway down the frame, under the Summer Palace view (the particles are him only).
+    const face = { x: box.x + box.width * 0.5, y: box.y + box.height * 0.52 };
     const near = { x: face.x - 60, y: face.y - 60, width: 120, height: 120 };
-    const far = { x: box.x + box.width * 0.5 - 60, y: box.y + box.height * 0.62, width: 120, height: 120 };
+    const far = { x: box.x + box.width * 0.5 - 60, y: box.y + box.height * 0.8, width: 120, height: 120 };
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
     const [nearBefore, farBefore] = [await page.screenshot({ clip: near }), await page.screenshot({ clip: far })];
@@ -206,9 +208,9 @@ test.describe('photograph reveal', () => {
     await page.keyboard.press('Tab');
     await expect(stage(page)).toHaveAttribute('data-photo', 'off');
     await expect.poll(() => photoOpacity(page), { timeout: 10_000 }).toBe(0);
-    // The photograph is a prepared, background-free cut-out, not a crop of the page.
+    // The photograph is the prepared 900 px frame of the Summer Palace view, not a crop of the page.
     const natural = await photo(page).evaluate((e: HTMLImageElement) => [e.naturalWidth, e.naturalHeight]);
-    expect(natural).toEqual([738, 738]);
+    expect(natural).toEqual([900, 900]);
   });
 
   test('a tap toggles it on touch screens', async ({ page }, info) => {

@@ -12,7 +12,7 @@ export interface Certificate {
   platform: string;
   /** YYYY-MM */
   date: string;
-  kind: 'course' | 'project';
+  kind: 'course' | 'project' | 'specialization';
   topic: Topic;
   card: string;
   full: string;
@@ -26,7 +26,7 @@ export type Topic = 'AI' | 'Data' | 'Python' | 'Java' | 'R' | 'C++' | 'Software'
 const TOPICS: [Topic, RegExp][] = [
   ['Software', /data structures|algorithm/i],
   ['Vision', /image|video/i],
-  ['AI', /artificial intelligence|machine learning|neural|natural language|\bAI\b/i],
+  ['AI', /artificial intelligence|machine learning|neural|natural language|reinforcement|retrieval augmented|recommendation|agents|langchain|\bAI\b/i],
   ['Python', /python/i],
   ['R', /\bR\b/],
   ['Java', /java|jdbc/i],

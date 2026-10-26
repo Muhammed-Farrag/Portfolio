@@ -1,41 +1,40 @@
-/* Desert Titanium night-sky design tokens, Revision 5 (21 Oct 2026): warm-black space grounds,
-   Desert Titanium as the metal accent and ivory text (docs/DESIGN_SPEC.md §2-4). The two nebula
-   tints are for still backdrops only, never for text or controls.
-   tests/unit/tokens.test.ts checks every allowed text/background pair against WCAG. */
+/* Design tokens, Revision 6 (25 Oct 2026): visitor-selectable palettes (docs/DESIGN_SPEC.md §2-4).
+   Every colour in the site comes from eleven palette slots (--p-*). The default is the owner's
+   Desert Titanium night sky (Revision 5, 21 Oct 2026); the others, taken from the Summer Palace
+   photograph in the Hero, redefine only the slots under :root[data-palette]. The section themes
+   below map the slots to roles. The two nebula slots are for still backdrops only, never for text
+   or controls. tests/unit/tokens.test.ts checks every allowed text/background pair, in every
+   palette, against WCAG. The switcher's list lives in src/features/palette/palette.ts. */
 :root {
-  /* Brand palette (owner-specified) */
-  --ivory: #f4eee4;
-  --titanium: #bfa48f; /* Desert Titanium */
-  --sandstone: #3a3129;
-  --void: #15120f;
-
-  /* Derived supporting tones (blends of brand colours; no new hues) */
-  --titanium-light: #e8dccb; /* Titanium toward Ivory: the Light ground, secondary text on dark */
-  --titanium-soft: #d2bba6; /* Titanium, lightened: tertiary text and links on dark */
-  --umber: #221d18; /* Void with 30% Sandstone: the Mid ground */
-  --dune: #dccdb9; /* Titanium Light with 12% Titanium: panels on light sections */
-  --bronze: #6b5747; /* Titanium darkened: edges and accents on light sections */
-
-  /* Nebula tints: backdrops only */
-  --copper-nebula: #8c5e4a;
-  --dust-violet: #4a3a5c;
+  /* Palette slots: Desert Titanium (the default). */
+  --p-deep: #15120f; /* Void: the Deep ground */
+  --p-mid: #221d18; /* Umber, Void with 30% Sandstone: the Mid ground */
+  --p-raised: #3a3129; /* Sandstone: the Elevated ground, secondary text on light */
+  --p-accent: #bfa48f; /* Desert Titanium: the metal accent */
+  --p-soft: #d2bba6; /* Titanium Soft, lightened: tertiary text and links on dark */
+  --p-softer: #e8dccb; /* Titanium Light, toward Ivory: the Light ground, secondary text on dark */
+  --p-paper: #f4eee4; /* Ivory: text on dark */
+  --p-panel: #dccdb9; /* Dune, Titanium Light with 12% Titanium: panels on light sections */
+  --p-edge: #6b5747; /* Bronze, Titanium darkened: edges and accents on light sections */
+  --p-nebula: #8c5e4a; /* Copper nebula: backdrops only */
+  --p-nebula-2: #4a3a5c; /* Dust violet: backdrops only */
 
   /* Semantic roles. These are the Deep theme; .theme-* below redefine them per section. */
-  --color-bg: var(--void);
-  --color-surface: var(--umber);
-  --color-surface-alt: var(--umber);
-  --color-text: var(--ivory);
-  --color-text-secondary: var(--titanium-light);
-  --color-text-tertiary: var(--titanium-soft);
-  --color-link: var(--titanium-soft);
-  --color-focus: var(--titanium-soft);
-  --color-rule: var(--sandstone);
-  --color-control-edge: var(--titanium);
-  --color-accent-support: var(--titanium);
-  --color-interactive-fill: var(--sandstone);
-  --color-focal: var(--ivory);
-  --color-focal-hover: var(--titanium);
-  --color-on-focal: var(--void);
+  --color-bg: var(--p-deep);
+  --color-surface: var(--p-mid);
+  --color-surface-alt: var(--p-mid);
+  --color-text: var(--p-paper);
+  --color-text-secondary: var(--p-softer);
+  --color-text-tertiary: var(--p-soft);
+  --color-link: var(--p-soft);
+  --color-focus: var(--p-soft);
+  --color-rule: var(--p-raised);
+  --color-control-edge: var(--p-accent);
+  --color-accent-support: var(--p-accent);
+  --color-interactive-fill: var(--p-raised);
+  --color-focal: var(--p-paper);
+  --color-focal-hover: var(--p-accent);
+  --color-on-focal: var(--p-deep);
 
   /* Typography */
   --font-display: 'Archivo Variable', 'Arial Narrow', system-ui, sans-serif;
@@ -74,78 +73,138 @@
   --grid-columns: 4;
 }
 
+/* Palettes from the Summer Palace photograph (25 Oct 2026). Colours measured in the photo: trees
+   #506053, jade roofs #5e655f, temple red, roof-tile ochre #7a664a, sandstone wall #cfbdae,
+   lake #6a7d81, mountains #9ab2c4, sky #aab6c2. Each mirrors the default's light and dark steps. */
+:root[data-palette='jade'] {
+  /* Jade Pavilion: forest ground, jade-roof green, parchment */
+  --p-deep: #121c17;
+  --p-mid: #1c2a23;
+  --p-raised: #2f4438;
+  --p-accent: #8fb09b;
+  --p-soft: #b3cbb9;
+  --p-softer: #dde6d8;
+  --p-paper: #f3efe2;
+  --p-panel: #cfdcce;
+  --p-edge: #4f6b5a;
+  --p-nebula: #6b8a5a;
+  --p-nebula-2: #3c4a5c;
+}
+:root[data-palette='misty'] {
+  /* Misty Ridge: mountain blue-grey, hazy sky, cloud white */
+  --p-deep: #161d25;
+  --p-mid: #212b36;
+  --p-raised: #36475a;
+  --p-accent: #9fb1c3;
+  --p-soft: #bccad6;
+  --p-softer: #e1e7ec;
+  --p-paper: #f2f4f5;
+  --p-panel: #d2dbe3;
+  --p-edge: #566a7e;
+  --p-nebula: #6a7f99;
+  --p-nebula-2: #4a3f5e;
+}
+:root[data-palette='imperial'] {
+  /* Imperial Wall: dark umber, temple red, roof-tile ochre, sandstone wall */
+  --p-deep: #1f1512;
+  --p-mid: #2e1f1a;
+  --p-raised: #5a2a22;
+  --p-accent: #d0976a;
+  --p-soft: #e0c1a5;
+  --p-softer: #efe0cf;
+  --p-paper: #f8f0e6;
+  --p-panel: #e5d0bb;
+  --p-edge: #8a4a35;
+  --p-nebula: #9a4a35;
+  --p-nebula-2: #4a2f3c;
+}
+:root[data-palette='lake'] {
+  /* Summer Lake: deep lake teal, grey-green water, mist */
+  --p-deep: #111d1f;
+  --p-mid: #1b2b2d;
+  --p-raised: #2e4547;
+  --p-accent: #8eaca8;
+  --p-soft: #b5ccc8;
+  --p-softer: #dde7e4;
+  --p-paper: #f1f3ee;
+  --p-panel: #cddcd8;
+  --p-edge: #4e6b69;
+  --p-nebula: #4f7f7a;
+  --p-nebula-2: #3a4a64;
+}
+
 /* Section themes (docs/DESIGN_SPEC.md §2.5). Each redefines every semantic role, so anything
    inside a themed section stays readable. Every pair is checked in tests/unit/tokens.test.ts. */
 .theme-deep {
-  --color-bg: var(--void);
-  --color-surface: var(--umber);
-  --color-surface-alt: var(--umber);
-  --color-text: var(--ivory);
-  --color-text-secondary: var(--titanium-light);
-  --color-text-tertiary: var(--titanium-soft);
-  --color-link: var(--titanium-soft);
-  --color-focus: var(--titanium-soft);
-  --color-rule: var(--sandstone);
-  --color-control-edge: var(--titanium);
-  --color-accent-support: var(--titanium);
-  --color-interactive-fill: var(--sandstone);
-  --color-focal: var(--ivory);
-  --color-focal-hover: var(--titanium);
-  --color-on-focal: var(--void);
+  --color-bg: var(--p-deep);
+  --color-surface: var(--p-mid);
+  --color-surface-alt: var(--p-mid);
+  --color-text: var(--p-paper);
+  --color-text-secondary: var(--p-softer);
+  --color-text-tertiary: var(--p-soft);
+  --color-link: var(--p-soft);
+  --color-focus: var(--p-soft);
+  --color-rule: var(--p-raised);
+  --color-control-edge: var(--p-accent);
+  --color-accent-support: var(--p-accent);
+  --color-interactive-fill: var(--p-raised);
+  --color-focal: var(--p-paper);
+  --color-focal-hover: var(--p-accent);
+  --color-on-focal: var(--p-deep);
 }
 
 .theme-mid {
-  --color-bg: var(--umber);
-  --color-surface: var(--void);
-  --color-surface-alt: var(--void);
-  --color-text: var(--ivory);
-  --color-text-secondary: var(--titanium-light);
-  --color-text-tertiary: var(--titanium-soft);
-  --color-link: var(--titanium-soft);
-  --color-focus: var(--titanium-soft);
-  --color-rule: var(--sandstone);
-  --color-control-edge: var(--titanium);
-  --color-accent-support: var(--titanium);
-  --color-interactive-fill: var(--sandstone);
-  --color-focal: var(--ivory);
-  --color-focal-hover: var(--titanium);
-  --color-on-focal: var(--void);
+  --color-bg: var(--p-mid);
+  --color-surface: var(--p-deep);
+  --color-surface-alt: var(--p-deep);
+  --color-text: var(--p-paper);
+  --color-text-secondary: var(--p-softer);
+  --color-text-tertiary: var(--p-soft);
+  --color-link: var(--p-soft);
+  --color-focus: var(--p-soft);
+  --color-rule: var(--p-raised);
+  --color-control-edge: var(--p-accent);
+  --color-accent-support: var(--p-accent);
+  --color-interactive-fill: var(--p-raised);
+  --color-focal: var(--p-paper);
+  --color-focal-hover: var(--p-accent);
+  --color-on-focal: var(--p-deep);
 }
 
 .theme-elevated {
-  --color-bg: var(--sandstone);
-  --color-surface: var(--void);
-  --color-surface-alt: var(--umber);
-  --color-text: var(--ivory);
-  --color-text-secondary: var(--titanium-light);
-  --color-text-tertiary: var(--titanium-light);
-  --color-link: var(--ivory);
-  --color-focus: var(--ivory);
-  --color-rule: var(--umber);
-  --color-control-edge: var(--titanium-light);
-  --color-accent-support: var(--titanium-soft);
-  --color-interactive-fill: var(--void);
-  --color-focal: var(--ivory);
-  --color-focal-hover: var(--titanium-light);
-  --color-on-focal: var(--void);
+  --color-bg: var(--p-raised);
+  --color-surface: var(--p-deep);
+  --color-surface-alt: var(--p-mid);
+  --color-text: var(--p-paper);
+  --color-text-secondary: var(--p-softer);
+  --color-text-tertiary: var(--p-softer);
+  --color-link: var(--p-paper);
+  --color-focus: var(--p-paper);
+  --color-rule: var(--p-mid);
+  --color-control-edge: var(--p-softer);
+  --color-accent-support: var(--p-soft);
+  --color-interactive-fill: var(--p-deep);
+  --color-focal: var(--p-paper);
+  --color-focal-hover: var(--p-softer);
+  --color-on-focal: var(--p-deep);
 }
 
 .theme-light {
-  --color-bg: var(--titanium-light);
-  --color-surface: var(--dune);
-  --color-surface-alt: var(--dune);
-  --color-text: var(--void);
-  --color-text-secondary: var(--sandstone);
-  --color-text-tertiary: var(--sandstone);
-  --color-link: var(--void);
-  --color-focus: var(--void);
-  --color-rule: var(--titanium);
-  --color-control-edge: var(--bronze);
-  --color-accent-support: var(--bronze);
-  --color-interactive-fill: var(--dune);
-  --color-focal: var(--void);
-  --color-focal-hover: var(--sandstone);
-  --color-on-focal: var(--ivory);
+  --color-bg: var(--p-softer);
+  --color-surface: var(--p-panel);
+  --color-surface-alt: var(--p-panel);
+  --color-text: var(--p-deep);
+  --color-text-secondary: var(--p-raised);
+  --color-text-tertiary: var(--p-raised);
+  --color-link: var(--p-deep);
+  --color-focus: var(--p-deep);
+  --color-rule: var(--p-accent);
+  --color-control-edge: var(--p-edge);
+  --color-accent-support: var(--p-edge);
+  --color-interactive-fill: var(--p-panel);
+  --color-focal: var(--p-deep);
+  --color-focal-hover: var(--p-raised);
+  --color-on-focal: var(--p-paper);
 }
 
 .theme-deep,

@@ -5,7 +5,8 @@ import type { SectionDef } from '../../content/site';
 import { useMotionPaused } from '../../features/motion/motion';
 import { CEREMONY_STAGES, JUDGING_STAGES } from '../../features/recognition/actors';
 import { STAGES } from '../../features/recognition/figure';
-import { ceremonyScene, judgingScene, victoryScene, type Density, type Scene } from '../../features/recognition/scenes';
+import { mixSlots, onPaletteChange, slot, slotAlpha } from '../../features/palette/palette';
+import { ceremonyScene, judgingScene, setSceneColors, victoryScene, type Density, type Scene } from '../../features/recognition/scenes';
 import './Events.css';
 
 const SCENES: Record<EventDef['scene'], { create: () => Scene; stages: readonly string[] }> = {
@@ -13,6 +14,10 @@ const SCENES: Record<EventDef['scene'], { create: () => Scene; stages: readonly 
   ceremony: { create: ceremonyScene, stages: CEREMONY_STAGES },
   judging: { create: judgingScene, stages: JUDGING_STAGES },
 };
+
+/** The scenes' dots in the visitor's palette: back tones a dimmed accent, front paper, props accent. */
+const syncSceneColors = () =>
+  setSceneColors({ tones: [mixSlots('accent', 'deep', 0.82), slot('paper'), slot('accent')], flash: slot('paper'), flashEdge: slotAlpha('paper', 0.6) });
 
 /** How quickly the drawn scene catches up with the scroll position, ms: wheel steps glide instead of jumping. */
 const EASE_MS = 120;
@@ -135,6 +140,11 @@ function EventTrack({ e, index, live, head }: { e: EventDef; index: number; live
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     window.addEventListener('scroll', schedule, { passive: true });
+    syncSceneColors();
+    const stopPalette = onPaletteChange(() => {
+      syncSceneColors();
+      paint(shown);
+    });
     resize();
     loadDensity(e.photo.mask).then(
       (d) => {
@@ -146,6 +156,7 @@ function EventTrack({ e, index, live, head }: { e: EventDef; index: number; live
     );
     return () => {
       disposed = true;
+      stopPalette();
       ro.disconnect();
       window.removeEventListener('scroll', schedule);
       if (frame) cancelAnimationFrame(frame);

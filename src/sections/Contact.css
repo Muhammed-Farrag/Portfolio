@@ -1,5 +1,5 @@
-/* Contact (Elevated, Sandstone). The closing pairs the photograph, in a Void and Sandstone duotone cut
-   to his silhouette, with the largest type on the page, the links and the message form. */
+/* Contact (Elevated, the Raised ground). The closing: the largest type on the page, the links and the
+   message form, in one column. (The photograph lives only in the Hero since 25 Oct 2026.) */
 .contact {
   position: relative;
   overflow: hidden;
@@ -10,34 +10,6 @@
   display: grid;
   gap: var(--space-6);
   align-items: start;
-}
-
-/* Duotone: the grey photograph multiplied onto a Ivory-to-Sandstone gradient, its blacks lifted
-   to Void, all masked by the cut-out's own alpha. */
-.contact__portrait {
-  position: relative;
-  width: min(100%, 420px);
-  aspect-ratio: 1;
-  margin-inline: auto;
-  background: linear-gradient(170deg, var(--ivory), var(--titanium-light) 45%, var(--sandstone) 85%);
-  -webkit-mask: var(--photo) center / contain no-repeat, linear-gradient(#000 60%, transparent 98%);
-  -webkit-mask-composite: source-in;
-  mask: var(--photo) center / contain no-repeat, linear-gradient(#000 60%, transparent 98%);
-  mask-composite: intersect;
-  isolation: isolate;
-}
-.contact__portrait img {
-  width: 100%;
-  height: 100%;
-  filter: grayscale(1) contrast(1.08) brightness(1.06);
-  mix-blend-mode: multiply;
-}
-.contact__portrait::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--void);
-  mix-blend-mode: lighten;
 }
 
 .contact__body {
@@ -84,8 +56,7 @@
 .contact__note { color: var(--color-text-secondary); font-size: var(--text-sm); }
 
 @media (min-width: 900px) {
-  .contact__grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: var(--space-8); }
-  .contact__portrait { width: 100%; max-width: 520px; margin: 0; position: sticky; top: calc(var(--header-h) + var(--space-6)); }
+  .contact__body { max-width: 880px; }
   .contact__links li { grid-template-columns: 16ch minmax(0, 1fr); align-items: baseline; column-gap: var(--space-5); }
   .contact__note { grid-column: 2; }
 }
@@ -97,8 +68,8 @@
   margin-top: var(--space-5);
   padding: clamp(20px, 3vw, 32px);
   border-radius: 18px;
-  background: color-mix(in srgb, var(--void) 55%, transparent);
-  border: 1px solid rgb(244 238 228 / 0.12);
+  background: color-mix(in srgb, var(--p-deep) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--p-paper) 12%, transparent);
 }
 .form__title { font: 700 var(--text-lg) / 1.2 var(--font-body); }
 .form__row { display: grid; gap: var(--space-4); }
@@ -110,26 +81,26 @@
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
-  border: 1px solid var(--titanium-light);
+  border: 1px solid var(--p-softer);
   border-radius: 10px;
-  background: var(--void);
-  color: var(--ivory);
+  background: var(--p-deep);
+  color: var(--p-paper);
   font: 400 var(--text-base) / 1.5 var(--font-body);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 .form__field textarea { resize: vertical; min-height: 140px; }
-.form__field :is(input, textarea):focus-visible { outline: none; border-color: var(--ivory); box-shadow: 0 0 0 3px rgb(244 238 228 / 0.35); }
-.form__field [aria-invalid='true'] { border-color: var(--ivory); border-width: 2px; }
-.form__error { font-size: var(--text-sm); font-weight: 600; color: var(--ivory); }
+.form__field :is(input, textarea):focus-visible { outline: none; border-color: var(--p-paper); box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-paper) 35%, transparent); }
+.form__field [aria-invalid='true'] { border-color: var(--p-paper); border-width: 2px; }
+.form__error { font-size: var(--text-sm); font-weight: 600; color: var(--p-paper); }
 .form__error::before { content: '! '; }
 .form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); }
 .form__actions .button[disabled] { opacity: 0.7; cursor: progress; }
-.form__status { flex: 1 1 240px; color: var(--titanium-light); font-size: var(--text-sm); }
+.form__status { flex: 1 1 240px; color: var(--p-softer); font-size: var(--text-sm); }
 .form__status:empty { display: none; }
 .form__choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* Development only: try both deliveries. */
-.form__dev { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; padding: var(--space-3); border: 1px dashed var(--titanium-light); border-radius: 10px; font-size: var(--text-sm); }
-.form__dev legend { padding-inline: 6px; font-size: var(--text-xs); color: var(--titanium-light); }
+.form__dev { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: 0; padding: var(--space-3); border: 1px dashed var(--p-softer); border-radius: 10px; font-size: var(--text-sm); }
+.form__dev legend { padding-inline: 6px; font-size: var(--text-xs); color: var(--p-softer); }
 .form__dev label { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
-.form__dev span { flex-basis: 100%; color: var(--titanium-light); }
+.form__dev span { flex-basis: 100%; color: var(--p-softer); }

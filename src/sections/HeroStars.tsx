@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useMotionPaused } from '../features/motion/motion';
+import { onPaletteChange, slot } from '../features/palette/palette';
 
 interface Star {
   x: number;
@@ -14,7 +15,7 @@ const REACH = 150;
 const LINK = 90;
 
 /**
- * The Hero's night sky: a field of twinkling stars on Void. Moving the pointer over the hero
+ * The Hero's night sky: a field of twinkling stars on the Deep ground, in the palette's colours. Moving the pointer over the hero
  * wakes the nearby stars, which brighten, grow and join with faint lines. The loop runs only while
  * the hero is on screen, and draws one still frame when motion is paused.
  */
@@ -34,6 +35,9 @@ export function HeroStars() {
     let frame = 0;
     let visible = true;
     const pointer = { x: -1e4, y: -1e4, energy: 0 };
+    // Woken stars and warp streaks take the paper colour; resting stars and lines the soft one.
+    let bright = slot('paper');
+    let soft = slot('soft');
 
     const seed = () => {
       const count = Math.round((w * h) / 4200);
@@ -54,7 +58,7 @@ export function HeroStars() {
       // into the next scene). A pure function of the scroll position.
       const warp = paused ? 0 : Math.min(1, Math.max(0, window.scrollY / (h * 0.7)));
       if (warp > 0.01) {
-        ctx.strokeStyle = '#f4eee4';
+        ctx.strokeStyle = bright;
         ctx.lineCap = 'round';
         for (const s of stars) {
           const k = warp * warp * 0.9 * (0.5 + s.speed / 3);
@@ -74,7 +78,7 @@ export function HeroStars() {
         const wake = d < REACH ? (1 - d / REACH) * pointer.energy : 0;
         if (wake > 0.25) lit.push([s.x, s.y, wake]);
         ctx.globalAlpha = Math.min(1, 0.25 + twinkle * 0.55 + wake * 0.6);
-        ctx.fillStyle = wake > 0.2 ? '#f4eee4' : '#d2bba6';
+        ctx.fillStyle = wake > 0.2 ? bright : soft;
         const r = s.r * (1 + wake * 1.4);
         ctx.beginPath();
         ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
@@ -87,7 +91,7 @@ export function HeroStars() {
         }
       }
       // Constellation lines between the woken stars.
-      ctx.strokeStyle = '#d2bba6';
+      ctx.strokeStyle = soft;
       ctx.lineWidth = 0.7;
       for (let i = 0; i < lit.length; i++) {
         for (let j = i + 1; j < lit.length; j++) {
@@ -148,9 +152,15 @@ export function HeroStars() {
     io.observe(host);
     host.addEventListener('pointermove', onMove);
     host.addEventListener('pointerleave', onLeave);
+    const stopPalette = onPaletteChange(() => {
+      bright = slot('paper');
+      soft = slot('soft');
+      if (paused) draw(0);
+    });
     resize();
     start();
     return () => {
+      stopPalette();
       ro.disconnect();
       io.disconnect();
       host.removeEventListener('pointermove', onMove);

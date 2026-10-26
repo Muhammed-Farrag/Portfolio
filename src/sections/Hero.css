@@ -156,7 +156,7 @@
   opacity: calc(1 - var(--photo-fade, 0));
 }
 
-/* The real photograph (background removed, aligned to the particle portrait). It develops
+/* The real photograph, the Summer Palace view and all, in the same frame as the particles. It develops
    through a soft-edged circle that widens from the pointer; HeroPortrait drives --photo-r,
    --photo-o and --photo-fade. The slot's edge overlay or mask applies to it too. */
 .hero__photo {
@@ -211,5 +211,17 @@
     --fade-end: 98%;
     width: min(100cqi, calc(100svh - var(--header-h) - var(--space-4)));
     margin-inline: auto 0;
+  }
+
+  /* Beside the name, the photograph's left edge melts into the night instead of ending in a line. */
+  .hero__photo {
+    -webkit-mask-image:
+      radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%)),
+      linear-gradient(to right, transparent, #000 24%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(circle at var(--px, 50%) var(--py, 30%), #000 calc(var(--photo-r, 0%) * 0.7), transparent var(--photo-r, 0%)),
+      linear-gradient(to right, transparent, #000 24%);
+    mask-composite: intersect;
   }
 }

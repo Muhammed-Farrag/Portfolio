@@ -35,8 +35,8 @@ export default defineConfig({
     { name: 'lab-desktop', testMatch: /(portrait-behaviour|lab-lifecycle|parity|preview)\.spec\.ts/, use: { ...desktop, baseURL: LAB_URL } },
     { name: 'lab-mobile', testMatch: /(portrait-behaviour|parity)\.spec\.ts/, use: { ...mobile, baseURL: LAB_URL } },
     // The public site (Phase 2+). The production-build check runs against `vite preview` of dist/.
-    { name: 'site-desktop', testMatch: /(site-shell|projects|certificates|contact|events)\.spec\.ts/, use: { ...desktop, baseURL: SITE_URL } },
-    { name: 'site-mobile', testMatch: /(site-shell|projects|certificates|contact|events)\.spec\.ts/, use: { ...mobile, baseURL: SITE_URL } },
+    { name: 'site-desktop', testMatch: /(site-shell|projects|certificates|contact|events|palette)\.spec\.ts/, use: { ...desktop, baseURL: SITE_URL } },
+    { name: 'site-mobile', testMatch: /(site-shell|projects|certificates|contact|events|palette)\.spec\.ts/, use: { ...mobile, baseURL: SITE_URL } },
     // The full-viewport particle story renders continuously in software WebGL. Measured on 14 Oct
     // 2026 (hero + story specs, 108 runs each): 2 parallel workers took 12.4 min with 1 timeout;
     // 1 worker took 7.2 min with none. These projects therefore run one test at a time, while the

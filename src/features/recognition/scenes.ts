@@ -25,9 +25,23 @@ import {
   type Pen,
 } from './halftone';
 
-/** Dot colours by tone: back (audience, back limbs: dimmed titanium), front (ivory), props (Desert Titanium). */
-const COLORS = ['#a08a78', '#f4eee4', '#bfa48f'] as const;
-const FLASH = '#f4eee4';
+/** Dot colours by tone: back (audience, back limbs: dimmed accent), front (paper), props (accent). */
+export interface SceneColors {
+  tones: [back: string, front: string, prop: string];
+  /** The camera flash, at its centre and (60% opacity) at its edge. */
+  flash: string;
+  flashEdge: string;
+}
+
+/** Desert Titanium; the Events section replaces them with the visitor's palette (setSceneColors). */
+let colors: SceneColors = { tones: ['#a08a78', '#f4eee4', '#bfa48f'], flash: '#f4eee4', flashEdge: 'rgba(244, 238, 228, 0.6)' };
+let colorsVersion = 0;
+
+/** Recolours every scene from the next frame on. */
+export function setSceneColors(next: SceneColors): void {
+  colors = next;
+  colorsVersion++;
+}
 
 export interface Box {
   x: number;
@@ -139,7 +153,8 @@ const STAGE_AT: Place = { x: 0, y: 0, facing: 1, scale: 1 };
 function halftoneScene(spec: Spec): Scene {
   const mask = document.createElement('canvas');
   const mctx = mask.getContext('2d', { willReadFrequently: true })!;
-  const sprites = COLORS.map(sprite);
+  let sprites = colors.tones.map(sprite);
+  let spritesVersion = colorsVersion;
   let target: Density | null = null;
   let key = '';
   let cell = 4;
@@ -291,6 +306,10 @@ function halftoneScene(spec: Spec): Scene {
       snap = null;
     },
     draw(ctx, p, v) {
+      if (spritesVersion !== colorsVersion) {
+        sprites = colors.tones.map(sprite);
+        spritesVersion = colorsVersion;
+      }
       layout(v);
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;
@@ -406,8 +425,8 @@ export function judgingScene(): Scene {
       const { flash } = judgingAt(p);
       if (flash <= 0) return;
       const g = ctx.createRadialGradient(v.w * 0.5 * v.dpr, v.h * v.dpr, 0, v.w * 0.5 * v.dpr, v.h * v.dpr, Math.max(v.w, v.h) * v.dpr);
-      g.addColorStop(0, FLASH);
-      g.addColorStop(1, 'rgba(244, 238, 228, 0.6)');
+      g.addColorStop(0, colors.flash);
+      g.addColorStop(1, colors.flashEdge);
       ctx.globalAlpha = 0.85 * flash;
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, v.w * v.dpr, v.h * v.dpr);

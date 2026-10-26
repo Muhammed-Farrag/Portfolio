@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_PALETTE, PALETTES, type PaletteId } from '../../src/features/palette/palette';
 import { PORTFOLIO_BACKGROUND, PORTFOLIO_PALETTE, type Rgb } from '../../src/features/particle-portrait';
 
 // Parses the custom properties in tokens.css (resolving var() references) and checks every
-// text/background pair the design allows against WCAG 2.2 (docs/DESIGN_SPEC.md §2.3).
+// text/background pair the design allows, in every palette, against WCAG 2.2 (docs/DESIGN_SPEC.md §2.3).
 const css = readFileSync(new URL('../../src/styles/tokens.css', import.meta.url), 'utf8');
 const root = css.slice(css.indexOf(':root {'), css.indexOf('}', css.indexOf(':root {')));
 const declarations = (block: string) => new Map([...block.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1]!, m[2]!.trim()]));
@@ -15,12 +16,21 @@ const themeBlock = (theme: Theme) => {
   if (start < 0) throw new Error(`.theme-${theme} missing`);
   return declarations(css.slice(start, css.indexOf('}', start)));
 };
-/** Resolves a token as seen inside a section with `theme` (or at the root). */
-const resolve = (name: string, theme?: Theme): string => {
-  const value = (theme && themeBlock(theme).get(name)) ?? raw.get(name);
+const PALETTE_IDS = PALETTES.map((p) => p.id);
+const SLOTS = [...raw.keys()].filter((name) => name.startsWith('p-'));
+/** The slots a palette redefines under :root[data-palette]; the default palette is :root itself. */
+const paletteBlock = (palette: PaletteId) => {
+  if (palette === DEFAULT_PALETTE) return new Map<string, string>();
+  const start = css.indexOf(`:root[data-palette='${palette}'] {`);
+  if (start < 0) throw new Error(`palette ${palette} missing`);
+  return declarations(css.slice(start, css.indexOf('}', start)));
+};
+/** Resolves a token as seen inside a section with `theme` (or at the root), in `palette`. */
+const resolve = (name: string, theme?: Theme, palette: PaletteId = DEFAULT_PALETTE): string => {
+  const value = (theme && themeBlock(theme).get(name)) ?? paletteBlock(palette).get(name) ?? raw.get(name);
   if (!value) throw new Error(`token --${name} missing`);
   const ref = value.match(/^var\(--([\w-]+)\)$/);
-  return ref ? resolve(ref[1]!) : value;
+  return ref ? resolve(ref[1]!, undefined, palette) : value;
 };
 
 const luminance = (hex: string) => {
@@ -35,11 +45,24 @@ const contrast = (a: string, b: string) => {
 const hex = ([r, g, b]: Rgb) => '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
 
 describe('design tokens', () => {
-  it('match the owner-specified brand palette exactly', () => {
+  it('default to the owner-specified Desert Titanium palette exactly', () => {
     expect({
-      ivory: resolve('ivory'), titanium: resolve('titanium'), sandstone: resolve('sandstone'),
-      void: resolve('void'),
+      ivory: resolve('p-paper'), titanium: resolve('p-accent'), sandstone: resolve('p-raised'),
+      void: resolve('p-deep'),
     }).toEqual({ ivory: '#f4eee4', titanium: '#bfa48f', sandstone: '#3a3129', void: '#15120f' });
+  });
+
+  it('every other palette redefines exactly the eleven slots', () => {
+    expect(SLOTS).toHaveLength(11);
+    for (const palette of PALETTE_IDS.filter((p) => p !== DEFAULT_PALETTE)) {
+      expect([...paletteBlock(palette).keys()].sort(), palette).toEqual([...SLOTS].sort());
+    }
+  });
+
+  it("the switcher's swatches are each palette's ground, accent and light ground", () => {
+    for (const p of PALETTES) {
+      expect(p.swatches, p.id).toEqual([resolve('p-deep', undefined, p.id), resolve('p-accent', undefined, p.id), resolve('p-softer', undefined, p.id)]);
+    }
   });
 
   it('the Moonlight & Storm blues are gone (Revision 5)', () => {
@@ -71,48 +94,53 @@ describe('design tokens', () => {
   it('the nebula tints are never a text, link, focus or control colour', () => {
     for (const theme of THEMES) {
       for (const name of themeBlock(theme).keys()) {
-        expect([resolve('copper-nebula'), resolve('dust-violet')], `${theme} --${name}`).not.toContain(resolve(name, theme));
+        expect(themeBlock(theme).get(name), `${theme} --${name}`).not.toMatch(/nebula/);
       }
     }
   });
 
   const surfaces = ['color-bg', 'color-surface', 'color-surface-alt'];
-  for (const theme of THEMES) {
-    describe(`.theme-${theme}`, () => {
-      for (const text of ['color-text', 'color-text-secondary', 'color-text-tertiary', 'color-link']) {
-        for (const surface of surfaces) {
-          it(`--${text} on --${surface} meets 4.5:1`, () => {
-            expect(contrast(resolve(text, theme), resolve(surface, theme))).toBeGreaterThanOrEqual(4.5);
-          });
-        }
-      }
+  for (const palette of PALETTE_IDS) {
+    for (const theme of THEMES) {
+      describe(`${palette}: .theme-${theme}`, () => {
+        const r = (name: string) => resolve(name, theme, palette);
 
-      it('--color-text on --color-interactive-fill (hovered buttons) meets 4.5:1', () => {
-        expect(contrast(resolve('color-text', theme), resolve('color-interactive-fill', theme))).toBeGreaterThanOrEqual(4.5);
-      });
-
-      it('--color-on-focal on the primary button, at rest and hovered, meets 4.5:1', () => {
-        expect(contrast(resolve('color-on-focal', theme), resolve('color-focal', theme))).toBeGreaterThanOrEqual(4.5);
-        expect(contrast(resolve('color-on-focal', theme), resolve('color-focal-hover', theme))).toBeGreaterThanOrEqual(4.5);
-      });
-
-      it('control outlines and the focus ring meet 3:1 on every surface and on hover fills', () => {
-        for (const surface of [...surfaces, 'color-interactive-fill']) {
-          if (surface !== 'color-interactive-fill') {
-            expect(contrast(resolve('color-control-edge', theme), resolve(surface, theme)), surface).toBeGreaterThanOrEqual(3);
+        for (const text of ['color-text', 'color-text-secondary', 'color-text-tertiary', 'color-link']) {
+          for (const surface of surfaces) {
+            it(`--${text} on --${surface} meets 4.5:1`, () => {
+              expect(contrast(r(text), r(surface))).toBeGreaterThanOrEqual(4.5);
+            });
           }
-          expect(contrast(resolve('color-focus', theme), resolve(surface, theme)), surface).toBeGreaterThanOrEqual(3);
         }
-      });
 
-      it('the primary button stands out from the section ground (3:1)', () => {
-        expect(contrast(resolve('color-focal', theme), resolve('color-bg', theme))).toBeGreaterThanOrEqual(3);
+        it('--color-text on --color-interactive-fill (hovered buttons) meets 4.5:1', () => {
+          expect(contrast(r('color-text'), r('color-interactive-fill'))).toBeGreaterThanOrEqual(4.5);
+        });
+
+        it('--color-on-focal on the primary button, at rest and hovered, meets 4.5:1', () => {
+          expect(contrast(r('color-on-focal'), r('color-focal'))).toBeGreaterThanOrEqual(4.5);
+          expect(contrast(r('color-on-focal'), r('color-focal-hover'))).toBeGreaterThanOrEqual(4.5);
+        });
+
+        it('control outlines and the focus ring meet 3:1 on every surface and on hover fills', () => {
+          for (const surface of [...surfaces, 'color-interactive-fill']) {
+            if (surface !== 'color-interactive-fill') {
+              expect(contrast(r('color-control-edge'), r(surface)), surface).toBeGreaterThanOrEqual(3);
+            }
+            expect(contrast(r('color-focus'), r(surface)), surface).toBeGreaterThanOrEqual(3);
+          }
+        });
+
+        it('the primary button stands out from the section ground (3:1)', () => {
+          expect(contrast(r('color-focal'), r('color-bg'))).toBeGreaterThanOrEqual(3);
+        });
       });
-    });
+    }
   }
 
-  it('contains only warm neutrals, the titanium-copper family and the one dust violet', () => {
-    for (const value of css.match(/#[0-9a-f]{6}\b/gi) ?? []) {
+  // The photograph palettes are other hues on purpose; the default keeps the owner's colour family.
+  it('the default contains only warm neutrals, the titanium-copper family and the one dust violet', () => {
+    for (const value of root.match(/#[0-9a-f]{6}\b/gi) ?? []) {
       const [r, g, b] = [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16)) as [number, number, number];
       const max = Math.max(r, g, b);
       const d = max - Math.min(r, g, b);
@@ -131,8 +159,15 @@ describe('index.html', () => {
     const tokens = new Set([resolve('color-bg'), resolve('color-text'), resolve('color-link')]);
     for (const value of html.match(/#[0-9a-f]{6}\b/gi) ?? []) expect(tokens.has(value.toLowerCase()), value).toBe(true);
   });
+
+  it('applies exactly the non-default palettes before the first paint', () => {
+    const ids = html.match(/\/\^\(([\w|]+)\)\$\//)?.[1]?.split('|');
+    expect(ids).toEqual(PALETTE_IDS.filter((p) => p !== DEFAULT_PALETTE));
+  });
 });
 
+// The Hero reads the live palette's slots (portraitColors in HeroPortrait.tsx); these engine
+// defaults are the same mapping in the default palette.
 describe('Particle Portrait colours', () => {
   it('clear to Void', () => {
     expect(hex(PORTFOLIO_BACKGROUND)).toBe(resolve('color-bg'));
@@ -142,6 +177,6 @@ describe('Particle Portrait colours', () => {
     expect({
       low: hex(PORTFOLIO_PALETTE.low), high: hex(PORTFOLIO_PALETTE.high),
       accentLow: hex(PORTFOLIO_PALETTE.accentLow), accentHigh: hex(PORTFOLIO_PALETTE.accentHigh),
-    }).toEqual({ low: resolve('bronze'), high: resolve('ivory'), accentLow: resolve('bronze'), accentHigh: resolve('titanium') });
+    }).toEqual({ low: resolve('p-edge'), high: resolve('p-paper'), accentLow: resolve('p-edge'), accentHigh: resolve('p-accent') });
   });
 });

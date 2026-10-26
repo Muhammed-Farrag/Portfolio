@@ -1,5 +1,4 @@
-import { useId, useState, type CSSProperties, type FormEvent } from 'react';
-import photoUrl from '../assets/portrait/photo.webp';
+import { useId, useState, type FormEvent } from 'react';
 import { SHOW_PENDING } from '../components/Pending';
 import { profile } from '../content/site';
 import { CONTACT_ENV, mailtoHref, plainText, postToService, resolveMode, validate, webmailLinks, type ContactMode, type Errors, type Message } from '../features/contact/send';
@@ -144,10 +143,6 @@ export function Contact() {
   return (
     <section id="contact" className="contact theme-elevated" aria-labelledby="contact-title" data-beat="Contact" data-beat-min="5000" data-beat-effect="rays">
       <div className="container contact__grid">
-        {/* The Hero's photograph again, in a Void and Sandstone duotone, cut to his silhouette. */}
-        <div className="contact__portrait" style={{ '--photo': `url(${photoUrl})` } as CSSProperties} aria-hidden="true">
-          <img src={photoUrl} alt="" width={738} height={738} loading="lazy" decoding="async" />
-        </div>
         <div className="contact__body">
           <p className="eyebrow" data-reveal="">
             Contact

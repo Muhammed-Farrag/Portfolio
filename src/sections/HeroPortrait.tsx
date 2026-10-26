@@ -3,15 +3,22 @@ import fallbackUrl from '../assets/portrait/fallback.webp';
 import photoUrl from '../assets/portrait/photo.webp';
 import sourceUrl from '../assets/portrait/source-600.webp';
 import { isMotionPaused, onMotionChange } from '../features/motion/motion';
+import { onPaletteChange, slotRgb } from '../features/palette/palette';
 import {
-  PORTFOLIO_BACKGROUND,
   TRANSPARENT_CONTEXT_ATTRIBUTES,
   createParticleRenderer,
   type ParticleRenderer,
+  type PortraitSettings,
   type SampleStep,
 } from '../features/particle-portrait';
 
 type Mode = 'loading' | 'live' | 'static';
+
+/** The portrait's colours from the visitor's palette: Edge to Paper, with an Edge to Accent highlight. */
+const portraitColors = (): Pick<PortraitSettings, 'background' | 'palette'> => ({
+  background: slotRgb('deep'),
+  palette: { low: slotRgb('edge'), high: slotRgb('paper'), accentLow: slotRgb('edge'), accentHigh: slotRgb('accent') },
+});
 
 /** uBurst once the hero has scrolled away: the portrait bursts into the next scene. */
 const EXIT_BURST = 0.75;
@@ -168,7 +175,7 @@ export function HeroPortrait({ canvasRef }: { canvasRef: RefObject<HTMLCanvasEle
         sizeTarget: layer,
         transparent: true,
         paused: isMotionPaused(),
-        settings: { tone: 'moonlight', background: PORTFOLIO_BACKGROUND, step: pickStep() },
+        settings: { tone: 'moonlight', step: pickStep(), ...portraitColors() },
       });
       if ('fallback' in result) return fail();
       renderer = result;
@@ -194,11 +201,13 @@ export function HeroPortrait({ canvasRef }: { canvasRef: RefObject<HTMLCanvasEle
       else renderer.resume();
       update();
     });
+    const stopPalette = onPaletteChange(() => renderer?.set(portraitColors()));
     update();
 
     return () => {
       controller.abort();
       stopListening();
+      stopPalette();
       stopReveal();
       if (frame) cancelAnimationFrame(frame);
       renderer?.dispose();
@@ -248,7 +257,7 @@ export function HeroPortrait({ canvasRef }: { canvasRef: RefObject<HTMLCanvasEle
         onPointerUp={onTap}
       >
         {mode === 'static' && <img className="hero__fallback" src={fallbackUrl} alt="" width={1000} height={1000} decoding="async" />}
-        {mode !== 'loading' && <img className="hero__photo" src={photoUrl} alt="" width={738} height={738} decoding="async" />}
+        {mode !== 'loading' && <img className="hero__photo" src={photoUrl} alt="" width={900} height={900} decoding="async" />}
       </div>
     </div>
   );

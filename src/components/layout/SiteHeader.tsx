@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type FocusEvent, type SyntheticEvent } from 'react';
 import { nav, profile } from '../../content/site';
+import { PaletteSwitcher } from './PaletteSwitcher';
 import './SiteHeader.css';
 
 const DESKTOP = '(min-width: 900px)';
@@ -28,8 +29,8 @@ export function SiteHeader() {
     };
   }, [open, close]);
 
-  // The glass takes the tone of the section underneath: light glass with Void text over a light
-  // section, so the links stay readable (a dark tint over Ivory would turn grey).
+  // The glass takes the tone of the section underneath: light glass with Deep text over a light
+  // section, so the links stay readable (a dark tint over a light ground would turn grey).
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const header = headerRef.current!;
@@ -96,6 +97,7 @@ export function SiteHeader() {
             </li>
           </ul>
         </nav>
+        <PaletteSwitcher />
       </div>
     </header>
   );
