@@ -46,4 +46,5 @@
 .role__stats { display: flex; gap: var(--space-6); margin: var(--space-3) 0 0; }
 .role__stats div { display: flex; flex-direction: column-reverse; }
 .role__stats dt { font-size: var(--text-xs); letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--p-softer); }
+.role__link { justify-self: start; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
 .role__stats dd { margin: 0; font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem); line-height: 1; color: var(--p-paper); }

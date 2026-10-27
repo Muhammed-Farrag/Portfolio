@@ -17,6 +17,7 @@ export interface Role {
   text: string;
   /** Big figures shown on the card, e.g. 12+ clients. */
   stats?: { value: string; label: string }[];
+  link?: Link;
 }
 
 export interface Entry {
@@ -51,15 +52,16 @@ export const work: Role[] = [
   },
   {
     id: 'freelance',
-    org: 'Own clients',
+    org: 'Fabelian',
     title: 'AI & Software Engineer',
     when: '2025–2026',
     kind: 'Freelance',
-    text: 'Automation, AI integrations and web builds for clients, from first call to hand-over.',
+    text: 'My own studio for AI, software and cybersecurity: automation, AI integrations and web builds for clients, from first call to hand-over.',
     stats: [
       { value: '12+', label: 'clients' },
       { value: '~1', label: 'year' },
     ],
+    link: { href: 'https://www.instagram.com/fabelian.solutions/', label: 'Fabelian on Instagram' },
   },
 ];
 

@@ -17,3 +17,5 @@ scripts/__pycache__/
 
 # The owner's raw certificate drop folder: unique PDFs are copied into content-source/
 My Own Certificates/
+.vercel
+.env*

@@ -28,6 +28,11 @@ export function Roles({ roles }: { roles: Role[] }) {
               ))}
             </dl>
           )}
+          {r.link && (
+            <a className="role__link" href={r.link.href} target="_blank" rel="noopener noreferrer">
+              {r.link.label} <span aria-hidden="true">↗</span>
+            </a>
+          )}
         </li>
       ))}
     </ol>

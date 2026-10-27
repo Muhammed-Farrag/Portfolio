@@ -10,7 +10,7 @@ after the hero sits over a field of twinkling stars that wake and link up near t
 |---|---|
 | **Hero** | A still photograph of him centred on a tree-lined avenue, from the very top of the page. MUHAMMED (outlined), the role and GitHub and LinkedIn buttons on the left, FARRAG and the headline on the right. On phones a crop centred on him, the name, headline and buttons below it. |
 | **Important Events** | A slideshow of three moments on one stage, with tabs and ‹ › buttons (or a swipe). Each moment's halftone scene plays by itself for 5 s, its dots gather into the photograph, framed and rounded, over a blurred enlargement of it that fills the stage; after 4 s the next moment follows, until the visitor takes over. The Best Creativity Trophy (RoboRAVE, Beijing 2025), Top Digital Pioneer (DEPI, 2026), and Official Judge (RoboRAVE Egypt, 2026). |
-| **Work experience** | Cluster, TJM Labs and freelance work (12+ clients), as three glass cards side by side; hovering one brings it forward at 140%. |
+| **Work experience** | Cluster, TJM Labs and Fabelian, his own studio (12+ clients, linked to its Instagram), as three glass cards side by side; hovering one brings it forward at 140%. |
 | **Education & Internships** | One timeline, oldest first: the B.Sc. in AI Science, the STC and ITI internships, DEPI and GCI World 2026 (University of Tokyo). On desktop a line runs across with a node per entry and its card above or below in turn; on phones the line runs down the left. Cards with a certificate show it as a thumbnail that opens in full. |
 | **Projects** | HELIOS, NovaCare and Lumina, each with an interactive visual and its GitHub link. |
 | **Certificates** | 37 certificates in two drifting rows; each opens in full. |

@@ -56,7 +56,7 @@ export const sections: SectionDef[] = [
     id: 'experience',
     eyebrow: 'Work experience',
     title: 'Where I have worked',
-    summary: 'Company roles and a year of freelance work for my own clients.',
+    summary: 'Company roles and a year of client work through my own studio, Fabelian.',
     theme: 'elevated',
   },
   {
