@@ -78,9 +78,9 @@ WebGL on SwiftShader). No retries: a flaky test is treated as a bug.
 The scripts run from the project-local venv `tools/.venv` (git-ignored) with PyMuPDF and Pillow:
 `tools/.venv/Scripts/python.exe scripts/<name>.py`. Review images go to `.review/` (git-ignored).
 
-**Hero photograph.** `content-source/portrait/originals/muhammed-farrag-avenue.jpg` → three WebP in
-`src/assets/hero/` (2400 and 1200 wide, and a 900×1000 crop centred on him for phones), made with
-Pillow; see `content-source/portrait/README.md`. (`scripts/portrait-photo.py` and
+**Hero photograph.** `content-source/portrait/originals/muhammed-farrag-avenue-regenerated.png`
+(1847×852) → three WebP in `src/assets/hero/avenue-regen-*` (1847 and 1200 wide, and a 767×852 crop
+centred on him for phones), made with Pillow; see `content-source/portrait/README.md`. (`scripts/portrait-photo.py` and
 `portrait-assets.mjs` belong to the earlier particle hero.)
 
 **Certificates.** `My Own Certificates/` is the owner's untracked drop folder. Unique PDFs are copied

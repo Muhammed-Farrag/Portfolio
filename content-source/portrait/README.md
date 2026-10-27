@@ -1,14 +1,20 @@
 # Hero photograph
 
-Since v3 (26 Oct 2026) the Hero is a still photograph: **`originals/muhammed-farrag-avenue.jpg`**,
-supplied by Muhammed, 3834×1768, untouched; him centred on a tree-lined avenue. The site uses three
-WebP files made from it with Pillow (LANCZOS):
+Since 27 Oct 2026 the Hero uses **`originals/muhammed-farrag-avenue-regenerated.png`**, 1847×852,
+a clean regeneration of the avenue photograph supplied by Muhammed, used as it is (no compositing,
+no upscaling). Pillow (LANCZOS), WebP quality 92, `method=6`:
 
 | File | Size | Use |
 |---|---|---|
-| `src/assets/hero/avenue-2400.webp` | 2400×1107, quality 82 | Wide screens (srcset) |
-| `src/assets/hero/avenue-1200.webp` | 1200×553, quality 82 | Narrower desktops (srcset) |
-| `src/assets/hero/avenue-portrait-900.webp` | 900×1000, quality 82 | Phones: a 1591 px wide crop centred on him, the full height |
+| `src/assets/hero/avenue-regen-1847.webp` | 1847×852 | Desktop, the source at full size (srcset) |
+| `src/assets/hero/avenue-regen-1200.webp` | 1200×554 | Narrower desktops (srcset) |
+| `src/assets/hero/avenue-regen-portrait.webp` | 767×852 | Phones: a crop at x=500, centred on him, the full height |
+
+## Earlier: the first avenue photograph (v3, 26 Oct 2026)
+
+**`originals/muhammed-farrag-avenue.jpg`**, 3834×1768, was the first v3 Hero. It is an upscaled, edited
+image: soft at full size, with a smeared patch beside his head, so its WebP exports (`avenue-2400`,
+`avenue-1200`, `avenue-portrait-900`) were removed on 27 Oct 2026; they remain in git history.
 
 The sections below describe the earlier photographs and the particle hero (the `roualwaysright`
 branch); their scripts and assets are kept for reference.

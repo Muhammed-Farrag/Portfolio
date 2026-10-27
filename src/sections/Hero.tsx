@@ -1,6 +1,6 @@
-import heroPortrait from '../assets/hero/avenue-portrait-900.webp';
-import hero1200 from '../assets/hero/avenue-1200.webp';
-import hero2400 from '../assets/hero/avenue-2400.webp';
+import heroPortrait from '../assets/hero/avenue-regen-portrait.webp';
+import hero1200 from '../assets/hero/avenue-regen-1200.webp';
+import hero1847 from '../assets/hero/avenue-regen-1847.webp';
 import { GitHubIcon, LinkedInIcon } from '../components/SocialIcons';
 import { profile } from '../content/site';
 import './Hero.css';
@@ -14,13 +14,13 @@ export function Hero() {
   return (
     <section id="top" className="hero theme-deep" aria-labelledby="hero-name">
       <picture className="hero__photo">
-        <source media="(max-width: 899.98px)" srcSet={heroPortrait} width={900} height={1000} />
+        <source media="(max-width: 899.98px)" srcSet={heroPortrait} width={767} height={852} />
         <img
-          src={hero2400}
-          srcSet={`${hero1200} 1200w, ${hero2400} 2400w`}
+          src={hero1847}
+          srcSet={`${hero1200} 1200w, ${hero1847} 1847w`}
           sizes="100vw"
-          width={2400}
-          height={1107}
+          width={1847}
+          height={852}
           alt="Muhammed Farrag smiling on a tree-lined avenue, in a black T-shirt."
           decoding="async"
         />
