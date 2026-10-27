@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { PageFrame } from '../components/layout/PageFrame';
 import { Section } from '../components/layout/Section';
-import { SiteFooter } from '../components/layout/SiteFooter';
 import { SiteHeader } from '../components/layout/SiteHeader';
 import { learning, work } from '../content/experience';
 import { sections } from '../content/site';
@@ -50,7 +49,6 @@ export function App() {
         <Certificates s={certificates} />
         <Contact />
       </main>
-      <SiteFooter />
       <PageFrame />
     </>
   );

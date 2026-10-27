@@ -44,7 +44,7 @@ export function SiteHeader() {
       // A thin band where the header floats.
       { rootMargin: '-40px 0px -94% 0px' },
     );
-    document.querySelectorAll('main > section, footer').forEach((el) => io.observe(el));
+    document.querySelectorAll('main > section').forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
 

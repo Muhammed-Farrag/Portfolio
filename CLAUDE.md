@@ -46,7 +46,7 @@ WebGL on SwiftShader). No retries: a flaky test is treated as a bug.
   transparent)`. Canvases can't read CSS variables, so they call `slot()`/`slotAlpha()`/`mixSlots()`
   from `src/features/palette/palette.ts` (Starfield, Events).
 - **Star fields** (`src/components/Starfield.tsx`): one canvas per section, first child of a
-  `.has-stars` section (`Section.tsx` adds it; Events, Projects, Certificates, Contact and the footer
+  `.has-stars` section (`Section.tsx` adds it; Events, Projects, Certificates and Contact
   render their own). `tone='light'` on light sections draws deep green stars.
 - **Page frame** (`src/components/layout/PageFrame.tsx`): a fixed 14 px forest mat (`--frame` in
   `tokens.css`). The header floats `--frame + 4px` from the top, the hero is pulled up under it

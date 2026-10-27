@@ -84,7 +84,7 @@ scenes gather into (`src/assets/recognition/*.mask.webp`) come from
 
 ```
 src/app/                       Page composition
-src/components/                Header (glass navbar), section frame, Starfield, page frame, social icons, footer
+src/components/                Header (glass navbar), section frame, Starfield, page frame, social icons
 src/sections/                  Hero, events/, experience/, projects/, certificates/, Contact
 src/features/
   recognition/                 The event scenes: figures, actors, halftone drawing and the gather

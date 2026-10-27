@@ -15,7 +15,6 @@ test.describe('site shell', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Muhammed\s*Farrag/i);
     await expect(page.getByRole('banner')).toBeVisible();
     await expect(page.getByRole('main')).toBeVisible();
-    await expect(page.getByRole('contentinfo')).toBeVisible();
     for (const id of SECTIONS) await expect(page.locator(`#${id}`)).toHaveCount(1);
     expect(await page.locator('h2').count()).toBe(6);
     const fonts = await page.evaluate(async () => {
@@ -134,7 +133,6 @@ test.describe('section themes', () => {
     for (const [id, ground] of THEME_GROUNDS) {
       expect(await page.locator(`#${id}`).evaluate((e) => getComputedStyle(e).backgroundColor), id).toBe(ground);
     }
-    expect(await page.locator('footer').evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgb(18, 28, 23)');
   });
 
   test('dark sections that meet blend with a gradient; light sections keep a clean edge', async ({ page }) => {
