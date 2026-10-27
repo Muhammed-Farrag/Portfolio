@@ -7,6 +7,9 @@ html {
   scroll-padding-top: calc(var(--header-h) + var(--frame) + var(--space-3));
 }
 
+/* A nav jump lands on the section's title, just under the header, not on its padding above it. */
+main > section[id]:not(#top) { scroll-margin-top: calc(var(--space-1) - var(--space-section)); }
+
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }

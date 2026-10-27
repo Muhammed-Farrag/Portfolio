@@ -154,4 +154,15 @@
   .timeline__item:first-child .timeline__card { justify-self: start; }
   .timeline__item:last-child .timeline__card { justify-self: end; }
   .timeline__text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* Compact cards so the whole timeline fits one screen under the title: tighter padding and
+     smaller certificate thumbnails (the full certificate opens in the lightbox). */
+  .timeline { grid-template-rows: auto 48px auto; }
+  .timeline__card { gap: 6px; padding: var(--space-4) var(--space-5); }
+  .timeline__text { -webkit-line-clamp: 2; }
+  .timeline__certs { gap: var(--space-2); }
+  .timeline__cert { width: 76px; }
+  /* The thumbnail is the label here; the button's aria-label still names the certificate. */
+  .timeline__cert-label { display: none; }
+  .timeline__link { min-height: 32px; }
 }

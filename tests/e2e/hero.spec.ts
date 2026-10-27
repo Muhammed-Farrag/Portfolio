@@ -40,6 +40,6 @@ test.describe('hero', () => {
     const photo = (await page.locator('.hero__photo').boundingBox())!;
     const headline = (await page.locator('.hero__headline').boundingBox())!;
     expect(headline.y).toBeGreaterThan(photo.y + photo.height * 0.8);
-    expect(await page.locator('.hero__photo img').evaluate((e: HTMLImageElement) => e.currentSrc)).toMatch(/avenue-portrait/);
+    expect(await page.locator('.hero__photo img').evaluate((e: HTMLImageElement) => e.currentSrc)).toMatch(/avenue-regen-portrait/);
   });
 });

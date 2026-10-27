@@ -15,10 +15,11 @@
 .contact__header {
   display: grid;
   gap: var(--space-5);
-  margin-bottom: clamp(32px, 5vw, 64px);
+  margin-bottom: clamp(32px, min(5vw, 5svh), 64px);
 }
 .contact__title {
-  font-size: clamp(2.4rem, 1rem + 4.6vw, 5.25rem);
+  /* Capped by the screen's height as well, so the title, links and form fit one screen. */
+  font-size: clamp(2.4rem, min(1rem + 4.6vw, 7.5svh), 5.25rem);
   max-width: 22ch;
 }
 .contact__title em { font-style: normal; color: var(--color-link); }
@@ -105,7 +106,7 @@
   font: 400 var(--text-base) / 1.5 var(--font-body);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
-.form__field textarea { resize: vertical; min-height: 140px; }
+.form__field textarea { resize: vertical; min-height: 88px; height: clamp(88px, 13svh, 154px); }
 .form__field :is(input, textarea):focus-visible { outline: none; border-color: var(--p-paper); box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-paper) 35%, transparent); }
 .form__field [aria-invalid='true'] { border-color: var(--p-paper); border-width: 2px; }
 .form__error { font-size: var(--text-sm); font-weight: 600; color: var(--p-paper); }

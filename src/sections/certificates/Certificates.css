@@ -3,6 +3,11 @@
 .certs { overflow: hidden; }
 .certs__header { display: grid; gap: var(--space-3); margin-bottom: var(--space-7); }
 .certs__header .section__lead { max-width: 52ch; }
+@media (min-width: 1024px) {
+  .certs__header { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); column-gap: var(--space-7); align-items: end; margin-bottom: var(--space-5); }
+  .certs__header .eyebrow { grid-column: 1 / -1; }
+  .certs__header .section__lead { margin: 0 0 0.4em; }
+}
 
 .certs__rows { display: grid; gap: var(--space-5); }
 .certs__row { overflow: hidden; padding-block: var(--space-4); }
@@ -24,7 +29,8 @@
 .certs[data-motion-state='paused'] .certs__row { overflow-x: auto; scrollbar-width: thin; padding-inline: var(--gutter); }
 .certs[data-motion-state='paused'] .certs__track { animation: none; }
 
-.cert { flex: none; width: clamp(220px, 24vw, 300px); }
+/* The card follows the screen's height too, so both rows fit one screen under the title. */
+.cert { flex: none; width: clamp(200px, min(24vw, 26svh), 300px); }
 .cert__button {
   position: relative;
   display: grid;

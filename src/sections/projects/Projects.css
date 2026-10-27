@@ -4,7 +4,7 @@
 .work__header {
   display: grid;
   gap: var(--space-3);
-  margin-bottom: clamp(32px, 5vw, 64px);
+  margin-bottom: clamp(32px, min(5vw, 4svh), 64px);
 }
 .work__title { max-width: 16ch; }
 .work__lead { max-width: 52ch; }
@@ -38,6 +38,7 @@
   }
   .case[data-flip] { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
   .case[data-flip] .case__text { order: 2; }
+  .case__text { gap: var(--space-3); }
   .case__visual { position: sticky; top: calc(var(--header-h) + var(--space-6)); }
 }
 
@@ -47,7 +48,7 @@
   align-content: start;
 }
 .case__index {
-  font: 800 clamp(4rem, 3rem + 5vw, 8rem) / 0.8 var(--font-display);
+  font: 800 clamp(4rem, min(3rem + 5vw, 11svh), 8rem) / 0.8 var(--font-display);
   font-stretch: var(--display-stretch);
   color: transparent;
   -webkit-text-stroke: 1.5px var(--color-text-tertiary);

@@ -53,15 +53,15 @@
 /* The stage */
 .recog__stage {
   --ph: min(calc(var(--stage-h) - 120px), calc(var(--native-h, 800) * 1.3px));
-  /* The tabs and the stage fit one screen together. */
-  --stage-h: clamp(520px, calc(100svh - 240px), 720px);
+  /* The title, the tabs and the stage fit one screen together under the header. */
+  --stage-h: clamp(480px, calc(100svh - 300px), 720px);
   position: relative;
   isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   height: var(--stage-h);
-  min-height: 520px;
+  min-height: 480px;
   padding: var(--space-7) clamp(56px, 7vw, 104px);
   border-radius: 18px;
   overflow: hidden;

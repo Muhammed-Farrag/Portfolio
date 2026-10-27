@@ -30,10 +30,22 @@
 .section__lead { max-width: var(--measure); color: var(--color-text-secondary); }
 .section__lead { margin-top: var(--space-3); }
 
+/* Wide sections: the lead stands beside the title (as in Projects), so the body starts higher and
+   the section fits one screen under the header. */
+@media (min-width: 1024px) {
+  .section--wide .section__header {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: var(--space-7);
+    align-items: end;
+  }
+  .section--wide .section__header .eyebrow { grid-column: 1 / -1; }
+  .section--wide .section__lead { margin: 0 0 0.4em; }
+}
+
 @media (min-width: 1280px) {
   .section__header { grid-column: 1 / span 5; }
   .section__body { grid-column: 7 / -1; padding-top: calc(var(--text-xs) * 1.4 + var(--space-3)); }
   .section--wide .section__header,
   .section--wide .section__body { grid-column: 1 / -1; padding-top: 0; }
-  .section--wide .section__body { margin-top: var(--space-6); }
+  .section--wide .section__body { margin-top: var(--space-4); }
 }
